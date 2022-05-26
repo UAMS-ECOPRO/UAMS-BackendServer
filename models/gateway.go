@@ -3,25 +3,28 @@ package models
 import (
 	"context"
 	"fmt"
-
 	"github.com/ecoprohcm/DMS_BackendServer/utils"
 	"gorm.io/gorm"
 )
 
 type Gateway struct {
 	GormModel
-	AreaID          string      `json:"areaId"`
-	GatewayID       string      `gorm:"type:varchar(256);unique;not null;" json:"gatewayId"`
+	AreaID          string      `json:"area_id"`
+	GatewayID       string      `gorm:"type:varchar(256);unique;not null;" json:"gateway_id"`
 	Name            string      `json:"name"`
-	ConnectState    bool        `gorm:"type:bool;not null;"`
-	SoftwareVersion string      `json:"softwareVersion"`
-	Doorlocks       []Doorlock  `gorm:"foreignKey:GatewayID;references:GatewayID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"doorlocks"`
+	ConnectState    bool        `gorm:"type:bool;not null;" json:"connect_state"`
+	SoftwareVersion string      `json:"software_version"`
+	UHFs            []UHF       `gorm:"foreignKey:GatewayID;references:GatewayID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"uhfs"`
 	GwNetworks      []GwNetwork `gorm:"foreignKey:GatewayID;references:GatewayID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"gw_networks"`
 }
 
 // Struct defines HTTP request payload for deleting gateway
 type DeleteGateway struct {
-	GatewayID string `json:"gatewayId" binding:"required"`
+	GatewayID string `json:"gateway_id" binding:"required"`
+}
+
+type UpdateGateway struct {
+	GatewayID string `json:"gateway_id" binding:"required"`
 }
 
 type GatewayBlockCmd struct {
@@ -39,7 +42,7 @@ func NewGatewaySvc(db *gorm.DB) *GatewaySvc {
 }
 
 func (gs *GatewaySvc) FindAllGateway(ctx context.Context) (gwList []Gateway, err error) {
-	result := gs.db.Preload("Doorlocks").Preload("GwNetworks").Find(&gwList)
+	result := gs.db.Preload("UHFs").Preload("GwNetworks").Find(&gwList)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)
 		return nil, err
@@ -48,7 +51,7 @@ func (gs *GatewaySvc) FindAllGateway(ctx context.Context) (gwList []Gateway, err
 }
 
 func (gs *GatewaySvc) FindGatewayByID(ctx context.Context, id string) (gw *Gateway, err error) {
-	result := gs.db.Preload("Doorlocks").Preload("GwNetworks").First(&gw, id)
+	result := gs.db.Preload("UHFs").Preload("GwNetworks").First(&gw, id)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)
 		return nil, err
@@ -80,9 +83,14 @@ func (gs *GatewaySvc) CreateGateway(ctx context.Context, g *Gateway) (*Gateway, 
 }
 
 func (gs *GatewaySvc) UpdateGateway(ctx context.Context, g *Gateway) (bool, error) {
-	result := gs.db.Model(&g).Where("gateway_id = ?", g.GatewayID).Updates(g)
+	var cnt int64
+	gateway := gs.db.Model(&g).Where("gateway_id = ?", g.GatewayID)
+	gateway.Count(&cnt)
+	if cnt <= 0 {
+		return false, fmt.Errorf("No gateway found")
+	}
+	result := gateway.Updates(g)
 	return utils.ReturnBoolStateFromResult(result)
-
 }
 
 func (gs *GatewaySvc) DeleteGateway(ctx context.Context, gwID string) (bool, error) {

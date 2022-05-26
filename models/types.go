@@ -6,9 +6,9 @@ import (
 )
 
 type GormModel struct {
-	ID        uint      `gorm:"primaryKey"`
-	CreatedAt time.Time `swaggerignore:"true"`
-	UpdatedAt time.Time `swaggerignore:"true"`
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	CreatedAt time.Time `swaggerignore:"true" json:"created_at"`
+	UpdatedAt time.Time `swaggerignore:"true" json:"updated_at"`
 }
 
 type DeleteID struct {

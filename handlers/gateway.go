@@ -120,7 +120,8 @@ func (h *GatewayHandler) CreateGateway(c *gin.Context) {
 // @Router /v1/gateway [patch]
 func (h *GatewayHandler) UpdateGateway(c *gin.Context) {
 	gw := &models.Gateway{}
-	err := c.ShouldBind(gw)
+	update_gw := &models.UpdateGateway{}
+	err := c.ShouldBind(update_gw)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,

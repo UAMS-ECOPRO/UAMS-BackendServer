@@ -9,11 +9,11 @@ import (
 
 type GwNetwork struct {
 	GormModel
-	GatewayID          string `gorm:"type:varchar(256);"`
-	InterfaceName      string `gorm:"type:varchar(50);not null"`
-	PrimaryIpAddress   string `gorm:"type:varchar(20);"`
-	SecondaryIpAddress string `gorm:"type:varchar(20);"`
-	MacAddress         string `gorm:"type:varchar(20);not null;"`
+	GatewayID          string `gorm:"type:varchar(256);" json:"gateway_id"`
+	InterfaceName      string `gorm:"type:varchar(50);not null" json:"interface_name"`
+	PrimaryIpAddress   string `gorm:"type:varchar(20);" json:"primary_ip_address"`
+	SecondaryIpAddress string `gorm:"type:varchar(20);" json:"secondary_ip_address"`
+	MacAddress         string `gorm:"type:varchar(20);not null;" json:"mac_address"`
 }
 
 type GwNetworkSvc struct {
