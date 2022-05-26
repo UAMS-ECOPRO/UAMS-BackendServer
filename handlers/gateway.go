@@ -235,8 +235,8 @@ func (h *GatewayHandler) DeleteGateway(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, isSuccess)
 }
 
-func (h *GatewayHandler) DeleteGatewayDoorlock(c *gin.Context) {
-	d := &models.Doorlock{}
+func (h *GatewayHandler) DeleteGatewayUHF(c *gin.Context) {
+	d := &models.UHF{}
 	gwId := c.Param("id")
 	err := c.ShouldBind(d)
 	if err != nil {

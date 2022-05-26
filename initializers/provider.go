@@ -61,6 +61,7 @@ func ProvideSvcOptions(db *gorm.DB) *models.ServiceOptions {
 		CustomerSvc:          models.NewCustomerSvc(db),
 		SecretKeySvc:         models.NewSecretKeySvc(db),
 		DoorlockStatusLogSvc: models.NewDoorlockStatusLogSvc(db),
+		UHFSvc:               models.NewUHFSvc(db),
 	}
 }
 
@@ -90,6 +91,7 @@ func ProvideHandlerOptions(svcOptions *models.ServiceOptions, mqttClient mqtt.Cl
 		SchedulerHandler:         handlers.NewSchedulerHandler(deps),
 		SecretKeyHandler:         handlers.NewSecretKeyHandler(deps),
 		DoorlockStatusLogHandler: handlers.NewDoorlockStatusLogHandler(deps),
+		UHFHandler:               handlers.NewUHFHandler(deps),
 	}
 }
 

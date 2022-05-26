@@ -114,8 +114,8 @@ func (gs *GatewaySvc) UpdateGatewayDoorlock(ctx context.Context, gw *Gateway, d 
 	return gw, nil
 }
 
-func (gs *GatewaySvc) DeleteGatewayDoorlock(ctx context.Context, gw *Gateway, d *Doorlock) (*Gateway, error) {
-	if err := gs.db.Model(&gw).Association("Doorlocks").Delete(d); err != nil {
+func (gs *GatewaySvc) DeleteGatewayDoorlock(ctx context.Context, gw *Gateway, d *UHF) (*Gateway, error) {
+	if err := gs.db.Model(&gw).Association("UHFs").Delete(d); err != nil {
 		err = utils.HandleQueryError(err)
 		return nil, err
 	}

@@ -16,6 +16,7 @@ type HandlerOptions struct {
 	SchedulerHandler         *SchedulerHandler
 	SecretKeyHandler         *SecretKeyHandler
 	DoorlockStatusLogHandler *DoorlockStatusLogHandler
+	UHFHandler               *UHFHandler
 }
 
 type HandlerDependencies struct {

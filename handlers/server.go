@@ -22,8 +22,8 @@ func SetupRouter(
 		v1R.POST("/gateway", hOpts.GatewayHandler.CreateGateway)
 		v1R.PATCH("/gateway", hOpts.GatewayHandler.UpdateGateway)
 		v1R.DELETE("/gateway", hOpts.GatewayHandler.DeleteGateway)
-		v1R.DELETE("/gateway/:id/doorlock", hOpts.GatewayHandler.DeleteGatewayDoorlock)
-		v1R.POST("/block/cmd", hOpts.GatewayHandler.UpdateGatewayCmdByBlockID)
+		v1R.DELETE("/gateway/:id/uhf", hOpts.GatewayHandler.DeleteGatewayUHF)
+		//v1R.POST("/block/cmd", hOpts.GatewayHandler.UpdateGatewayCmdByBlockID)
 
 		// Area routes
 		v1R.GET("/areas", hOpts.AreaHandler.FindAllArea)
@@ -33,15 +33,15 @@ func SetupRouter(
 		v1R.DELETE("/area", hOpts.AreaHandler.DeleteArea)
 
 		// Doorlock routes
-		v1R.GET("/doorlocks", hOpts.DoorlockHandler.FindAllDoorlock)
-		v1R.GET("/doorlock/:id", hOpts.DoorlockHandler.FindDoorlockByID)
-		v1R.GET("/doorlock/status/:id", hOpts.DoorlockHandler.GetDoorlockStatusByID)
+		v1R.GET("/uhfs", hOpts.UHFHandler.FindAllUHFs)
+		v1R.GET("/uhf/:id", hOpts.UHFHandler.FindUHFByID)
+		//v1R.GET("/doorlock/status/:id", hOpts.DoorlockHandler.GetDoorlockStatusByID)
 		// v1R.GET("/doorlock/status/serial/:id", hOpts.DoorlockHandler.GetDoorlockStatusBySerialID)
-		v1R.POST("/doorlock", hOpts.DoorlockHandler.CreateDoorlock)
-		v1R.PATCH("/doorlock", hOpts.DoorlockHandler.UpdateDoorlock)
-		v1R.PATCH("/doorlock/cmd", hOpts.DoorlockHandler.UpdateDoorlockCmd)
-		v1R.PATCH("/doorlock/state/cmd", hOpts.DoorlockHandler.UpdateDoorlockStateCmd)
-		v1R.DELETE("/doorlock", hOpts.DoorlockHandler.DeleteDoorlock)
+		v1R.POST("/uhf", hOpts.UHFHandler.CreateUHF)
+		v1R.PATCH("/uhf", hOpts.UHFHandler.UpdateUHF)
+		//v1R.PATCH("/doorlock/cmd", hOpts.DoorlockHandler.UpdateDoorlockCmd)
+		//v1R.PATCH("/doorlock/state/cmd", hOpts.DoorlockHandler.UpdateDoorlockStateCmd)
+		v1R.DELETE("/uhf", hOpts.UHFHandler.DeleteUHF)
 
 		// Doorlock log route
 		v1R.GET("/doorlockStatusLogs", hOpts.DoorlockStatusLogHandler.GetAllDoorlockStatusLogs)

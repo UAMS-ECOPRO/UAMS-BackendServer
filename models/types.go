@@ -41,4 +41,5 @@ type ServiceOptions struct {
 	SchedulerSvc         *SchedulerSvc
 	SecretKeySvc         *SecretKeySvc
 	DoorlockStatusLogSvc *DoorlockStatusLogSvc
+	UHFSvc               *UHFSvc
 }
