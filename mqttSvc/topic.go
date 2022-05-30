@@ -7,15 +7,15 @@ const (
 	TOPIC_GW_DOORLOCK_U      string = "gateway/doorlock/update"
 	TOPIC_GW_DOORLOCK_D      string = "gateway/doorlock/delete"
 
-	TOPIC_GW_BOOTUP   string = "gateway/bootup"
+	TOPIC_GW_BOOTUP   string = "uhf/gateway/bootup"
 	TOPIC_GW_SHUTDOWN string = "gateway/shutdown"
 	TOPIC_GW_LASTWILL string = "gateway/lastwill"
 
-	TOPIC_SV_DOORLOCK_C      string = "server/doorlock/create"
-	TOPIC_SV_DOORLOCK_U      string = "server/doorlock/update"
-	TOPIC_SV_DOORLOCK_D      string = "server/doorlock/delete"
-	TOPIC_SV_DOORLOCK_CMD    string = "server/doorlock/command"
-	TOPIC_SV_DOORLOCK_BOOTUP string = "server/doorlock/bootup"
+	TOPIC_SV_DOORLOCK_C   string = "server/doorlock/create"
+	TOPIC_SV_DOORLOCK_U   string = "server/doorlock/update"
+	TOPIC_SV_DOORLOCK_D   string = "server/doorlock/delete"
+	TOPIC_SV_DOORLOCK_CMD string = "server/doorlock/command"
+	TOPIC_SV_UHF_BOOTUP   string = "uhf/server/uhf/bootup"
 
 	TOPIC_SV_GATEWAY_U string = "server/gateway/update"
 	TOPIC_SV_GATEWAY_D string = "server/gateway/delete"
@@ -35,5 +35,5 @@ const (
 
 	TOPIC_SV_SYSTEM_U      string = "server/system/update"
 	TOPIC_SV_LASTWILL      string = "server/lastwill"
-	TOPIC_SV_SYSTEM_BOOTUP string = "server/system/bootup"
+	TOPIC_SV_SYSTEM_BOOTUP string = "uhf/server/system/bootup"
 )

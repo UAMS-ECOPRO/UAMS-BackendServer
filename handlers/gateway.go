@@ -120,8 +120,7 @@ func (h *GatewayHandler) CreateGateway(c *gin.Context) {
 // @Router /v1/gateway [patch]
 func (h *GatewayHandler) UpdateGateway(c *gin.Context) {
 	gw := &models.Gateway{}
-	update_gw := &models.UpdateGateway{}
-	err := c.ShouldBind(update_gw)
+	err := c.ShouldBind(gw)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
@@ -176,11 +175,11 @@ func (h *GatewayHandler) DeleteGateway(c *gin.Context) {
 		return
 	}
 
-	dls, err := h.deps.SvcOpts.DoorlockSvc.FindAllDoorlockByGatewayID(c.Request.Context(), dgw.GatewayID)
+	dls, err := h.deps.SvcOpts.UHFSvc.FindAllUHFByGatewayID(c.Request.Context(), dgw.GatewayID)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
-			Msg:        "Find doorlock failed",
+			Msg:        "Find UHF failed",
 			ErrorMsg:   err.Error(),
 		})
 		return
@@ -197,19 +196,19 @@ func (h *GatewayHandler) DeleteGateway(c *gin.Context) {
 		return
 	}
 
-	t := h.deps.MqttClient.Publish(mqttSvc.TOPIC_SV_GATEWAY_D, 1, false, mqttSvc.ServerDeleteGatewayPayload(dgw.GatewayID))
-	if err := mqttSvc.HandleMqttErr(t); err != nil {
-		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Msg:        "Delete gateway mqtt failed",
-			ErrorMsg:   err.Error(),
-		})
-		return
-	}
+	//t := h.deps.MqttClient.Publish(mqttSvc.TOPIC_SV_GATEWAY_D, 1, false, mqttSvc.ServerDeleteGatewayPayload(dgw.GatewayID))
+	//if err := mqttSvc.HandleMqttErr(t); err != nil {
+	//	utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
+	//		StatusCode: http.StatusBadRequest,
+	//		Msg:        "Delete gateway mqtt failed",
+	//		ErrorMsg:   err.Error(),
+	//	})
+	//	return
+	//}
 
 	// delete doorlock belong to this gateway
 	for i := 0; i < len(dls); i++ {
-		isSuccess, err := h.deps.SvcOpts.DoorlockSvc.DeleteDoorlock(c.Request.Context(), strconv.FormatUint(uint64(dls[i].ID), 10))
+		isSuccess, err := h.deps.SvcOpts.UHFSvc.DeleteUHF(c.Request.Context(), strconv.FormatUint(uint64(dls[i].ID), 10))
 		if err != nil || !isSuccess {
 			utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 				StatusCode: http.StatusBadRequest,
@@ -219,16 +218,16 @@ func (h *GatewayHandler) DeleteGateway(c *gin.Context) {
 			return
 		}
 
-		t := h.deps.MqttClient.Publish(mqttSvc.TOPIC_SV_DOORLOCK_D, 1, false,
-			mqttSvc.ServerDeleteDoorlockPayload(&dls[i]))
-		if err := mqttSvc.HandleMqttErr(t); err != nil {
-			utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Msg:        "Delete doorlock mqtt failed",
-				ErrorMsg:   err.Error(),
-			})
-			return
-		}
+		//t := h.deps.MqttClient.Publish(mqttSvc.TOPIC_SV_DOORLOCK_D, 1, false,
+		//	mqttSvc.ServerDeleteDoorlockPayload(&dls[i]))
+		//if err := mqttSvc.HandleMqttErr(t); err != nil {
+		//	utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
+		//		StatusCode: http.StatusBadRequest,
+		//		Msg:        "Delete doorlock mqtt failed",
+		//		ErrorMsg:   err.Error(),
+		//	})
+		//	return
+		//}
 
 	}
 

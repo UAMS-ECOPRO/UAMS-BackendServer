@@ -15,9 +15,9 @@ type UserIDPassword struct {
 	RfidPass   string `json:"rfid_pw"`
 	KeypadPass string `json:"keypad_pw"`
 }
-type DoorlockBootUp struct {
-	DoorlockAddress string `json:"doorlock_address"`
-	ActiveState     string `json:"doorlock_active_state"`
+type UHFBootUp struct {
+	UHFAddress  string `json:"uhf_address"`
+	ActiveState string `json:"uhf_active_state"`
 }
 
 type SchedulerBootUp struct {
@@ -175,12 +175,12 @@ func ServerUpdateGatewayCmd(gwId string, action string) string {
 	return PayloadWithGatewayId(gwId, msg)
 }
 
-func ServerBootupDoorlocksPayload(gwId string, dls []models.Doorlock) string {
-	bootupDls := []DoorlockBootUp{}
+func ServerBootupUHFsPayload(gwId string, dls []models.UHF) string {
+	bootupDls := []UHFBootUp{}
 	for _, dl := range dls {
-		buDl := DoorlockBootUp{
-			DoorlockAddress: dl.DoorlockAddress,
-			ActiveState:     dl.ActiveState,
+		buDl := UHFBootUp{
+			UHFAddress:  dl.UHFAddress,
+			ActiveState: dl.ActiveState,
 		}
 		bootupDls = append(bootupDls, buDl)
 	}

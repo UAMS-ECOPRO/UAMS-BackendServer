@@ -72,7 +72,7 @@ func (uhfs *UHFSvc) FindUHFByID(ctx context.Context, id string) (dl *UHF, err er
 
 func (uhfs *UHFSvc) FindUHFByAddress(ctx context.Context, address string, gwID string) (dl *UHF, err error) {
 	var cnt int64
-	result := uhfs.db.Preload("Schedulers").Where("doorlock_address = ? AND gateway_id = ?", address, gwID).Find(&dl).Count(&cnt)
+	result := uhfs.db.Where("uhf_address = ? AND gateway_id = ?", address, gwID).Find(&dl).Count(&cnt)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)
 		return nil, err
@@ -159,7 +159,7 @@ func (uhfs *UHFSvc) FindAllUHFByRoomID(ctx context.Context, roomId string) (dl [
 }
 
 func (uhfs *UHFSvc) FindAllUHFByGatewayID(ctx context.Context, gwId string) (dlList []UHF, err error) {
-	result := uhfs.db.Preload("Schedulers").Where("gateway_id = ?", gwId).Find(&dlList)
+	result := uhfs.db.Where("gateway_id = ?", gwId).Find(&dlList)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)
 		return nil, err
