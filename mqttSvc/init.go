@@ -67,7 +67,6 @@ func MqttClient(
 
 	opts := mqtt.NewClientOptions()
 	// Setup server LWT message
-	opts.SetWill(TOPIC_SV_LASTWILL, string(`{"status":"shutdown"}`), 0, false)
 
 	opts.AddBroker(fmt.Sprintf("ssl://%s:%s", host, port))
 	opts.SetClientID(clientID) // Need to be unique per client
@@ -125,108 +124,31 @@ func gwShutDownSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqt
 func gwBootupSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
 	return func(c mqtt.Client, msg mqtt.Message) {
 		var payloadStr = string(msg.Payload())
-		gwId := gjson.Get(payloadStr, "system.gateway_id")
+		gwId := gjson.Get(payloadStr, "gateway_id")
 		gw_string := gwId.String()
 		logger.LogfWithFields(logger.MQTT, logger.DebugLevel, logger.LoggerFields{
 			"payload": payloadStr,
 		}, "Gateway bootup with ID %s", gw_string)
 
-		secretKey, _ := optSvc.SecretKeySvc.FindSecretKey(context.Background())
-		currentSecretKey := gjson.Get(payloadStr, "message.system.secret_key").String()
 		checkGw, _ := optSvc.GatewaySvc.FindGatewayByMacID(context.Background(), gwId.String())
 
-		// Add gateway connect state, secret key, software version
 		if checkGw == nil {
 			newGw := &models.Gateway{}
 			newGw.GatewayID = gwId.String()
 			newGw.ConnectState = true
-			newGw.SoftwareVersion = gjson.Get(payloadStr, "system.software_version").String()
-			if currentSecretKey != secretKey.Secret {
-				client.Publish(TOPIC_SV_SYSTEM_U, 1, false,
-					ServerUpdateSecretKeyPayload(newGw.GatewayID, secretKey.Secret))
-			}
+			newGw.SoftwareVersion = gjson.Get(payloadStr, "message.software_version").String()
 			optSvc.GatewaySvc.CreateGateway(context.Background(), newGw)
+			uhfs := []models.UHF{}
+			gw := []models.GwNetwork{}
+			t := client.Publish(TOPIC_SV_SYNC, 1, false, ServerBootupSystemPayload(gwId.String(), uhfs, gw))
+			HandleMqttErr(t)
+			return
 		}
-
-		// Add doorlocks
-		uhfs := gjson.Get(payloadStr, "uhfs")
-		if uhfs.Exists() {
-			for _, v := range uhfs.Array() {
-				uhfAdress := v.Get("uhf_address")
-				description := v.Get("description")
-
-				dl := &models.UHF{
-					UHFAddress:  uhfAdress.String(),
-					GatewayID:   gwId.String(),
-					Description: description.String(),
-				}
-
-				checkDl, _ := optSvc.UHFSvc.FindUHFByAddress(context.Background(), uhfAdress.String(), gwId.String())
-				if checkDl == nil {
-					if !v.Get("uhf_serial_id").Exists() {
-						dl.UHFSerialNumber = uuid.New().String()
-					} else {
-						dl.UHFSerialNumber = v.Get("uhf_serial_id").String()
-					}
-					optSvc.UHFSvc.CreateUHF(context.Background(), dl)
-				}
-			}
-		}
-
-		// Add gateway network info
-		gwNetworks := gjson.Get(payloadStr, "system.interfaces")
-		if gwNetworks.Exists() {
-			for _, gw := range gwNetworks.Array() {
-				ifName := gw.Get("interface_name")
-				priIpAddr := gw.Get("primary_ip_address")
-				secIpAddr := gw.Get("secondary_ip_address")
-				macAddr := gw.Get("mac_address")
-
-				gwNet := &models.GwNetwork{
-					GatewayID:          gwId.String(),
-					InterfaceName:      ifName.String(),
-					PrimaryIpAddress:   priIpAddr.String(),
-					SecondaryIpAddress: secIpAddr.String(),
-					MacAddress:         macAddr.String(),
-				}
-				if checkGw == nil || len(checkGw.GwNetworks) == 0 {
-					optSvc.GwNetworkSvc.CreateGwNetwork(context.Background(), gwNet)
-				} else {
-					optSvc.GwNetworkSvc.UpdateGwNetwork(context.Background(), gwNet)
-				}
-			}
-		}
-
-		//HPUserIDPassword
-		//hpEmployees, err := optSvc.EmployeeSvc.FindAllHPEmployee(context.Background())
-		//if err != nil {
-		//	fmt.Println(err.Error())
-		//}
-
-		//t := client.Publish(TOPIC_SV_HP_BOOTUP, 1, false, ServerBootuptHPEmployeePayload(gwId.String(), hpEmployees))
-		//HandleMqttErr(t)
-
-		// Get doorlock first
-		dls, err := optSvc.UHFSvc.FindAllUHFByGatewayID(context.Background(), gwId.String())
-		if err != nil {
-			fmt.Println(err.Error())
-		}
-
-		t := client.Publish(TOPIC_SV_UHF_BOOTUP, 1, false, ServerBootupUHFsPayload(gwId.String(), dls))
-		HandleMqttErr(t)
-
-		//SCheduler - Register
-		//scheBoUps := mergeInfoToScheBootUp(optSvc, dls)
-
-		//t = client.Publish(TOPIC_SV_SCHEDULER_BOOTUP, 1, false, ServerBootupRegisterPayload(gwId.String(), scheBoUps))
-		//HandleMqttErr(t)
-
-		//System
-		srKey, err := optSvc.SecretKeySvc.FindSecretKey(context.Background())
-		if err != nil {
-			fmt.Println(err.Error())
-		}
-		t = client.Publish(TOPIC_SV_SYSTEM_BOOTUP, 1, false, ServerBootupSystemPayload(gwId.String(), srKey.Secret))
+		checkGw.SoftwareVersion = gjson.Get(payloadStr, "message.software_version").String()
+		optSvc.GatewaySvc.UpdateGateway(context.Background(), checkGw)
+		uhfs := checkGw.UHFs
+		gw_networks := checkGw.GwNetworks
+		t := client.Publish(TOPIC_SV_SYNC, 1, false, ServerBootupSystemPayload(gwId.String(), uhfs, gw_networks))
 		HandleMqttErr(t)
 	}
 }

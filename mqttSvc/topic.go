@@ -7,7 +7,7 @@ const (
 	TOPIC_GW_DOORLOCK_U      string = "gateway/doorlock/update"
 	TOPIC_GW_DOORLOCK_D      string = "gateway/doorlock/delete"
 
-	TOPIC_GW_BOOTUP   string = "uhf/gateway/bootup"
+	TOPIC_GW_BOOTUP   string = "uams/gateway/bootup"
 	TOPIC_GW_SHUTDOWN string = "gateway/shutdown"
 	TOPIC_GW_LASTWILL string = "gateway/lastwill"
 
@@ -15,7 +15,6 @@ const (
 	TOPIC_SV_UHF_U        string = "uams/server/uhf/update"
 	TOPIC_SV_UHF_D        string = "uams/server/uhf/delete"
 	TOPIC_SV_DOORLOCK_CMD string = "server/doorlock/command"
-	TOPIC_SV_UHF_BOOTUP   string = "uhf/server/uhf/bootup"
 
 	TOPIC_SV_GATEWAY_U string = "uams/server/gateway/update"
 	TOPIC_SV_GATEWAY_D string = "uams/server/gateway/delete"
@@ -33,7 +32,6 @@ const (
 	TOPIC_SV_USER_U string = "server/user/update"
 	TOPIC_SV_USER_D string = "server/user/delete"
 
-	TOPIC_SV_SYSTEM_U      string = "server/system/update"
-	TOPIC_SV_LASTWILL      string = "server/lastwill"
-	TOPIC_SV_SYSTEM_BOOTUP string = "uhf/server/system/bootup"
+	TOPIC_SV_SYSTEM_U string = "server/system/update"
+	TOPIC_SV_SYNC     string = "uams/server/sync"
 )

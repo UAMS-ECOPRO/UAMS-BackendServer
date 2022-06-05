@@ -32,6 +32,10 @@ type SchedulerBootUp struct {
 	StartClass      string `json:"start_class"`
 	EndClass        string `json:"end_class"`
 }
+type SyncPayload struct {
+	UHFs        []models.UHF
+	GW_networks []models.GwNetwork
+}
 
 func ServerCreateDoorlockPayload(doorlock *models.Doorlock) string {
 	msg := fmt.Sprintf(`{"doorlock_address":"%s"}`, doorlock.DoorlockAddress)
@@ -231,7 +235,8 @@ func isPastTime(t_compared int64) bool {
 	return true
 }
 
-func ServerBootupSystemPayload(gwId string, srKey string) string {
-	msg := fmt.Sprintf(`{"secret_key":"%s"}`, srKey)
-	return PayloadWithGatewayId(gwId, msg)
+func ServerBootupSystemPayload(gwId string, uhfs []models.UHF, gw_networks []models.GwNetwork) string {
+	sync_payload := SyncPayload{UHFs: uhfs, GW_networks: gw_networks}
+	sync_payload_converted, _ := json.Marshal(sync_payload)
+	return PayloadWithGatewayId(gwId, string(sync_payload_converted))
 }
