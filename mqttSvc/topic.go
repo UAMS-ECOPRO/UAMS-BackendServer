@@ -7,9 +7,10 @@ const (
 	TOPIC_GW_DOORLOCK_U      string = "gateway/doorlock/update"
 	TOPIC_GW_DOORLOCK_D      string = "gateway/doorlock/delete"
 
-	TOPIC_GW_BOOTUP   string = "uams/gateway/bootup"
-	TOPIC_GW_SHUTDOWN string = "gateway/shutdown"
-	TOPIC_GW_LASTWILL string = "gateway/lastwill"
+	TOPIC_GW_BOOTUP            string = "uams/gateway/bootup"
+	TOPIC_GW_UHF_CONNECT_STATE        = "uams/gateway/uhf/connect_state"
+	TOPIC_GW_SHUTDOWN          string = "gateway/shutdown"
+	TOPIC_GW_LASTWILL          string = "gateway/lastwill"
 
 	TOPIC_SV_DOORLOCK_C   string = "uams/server/uhf/create"
 	TOPIC_SV_UHF_U        string = "uams/server/uhf/update"

@@ -99,6 +99,7 @@ func subGateway(client mqtt.Client, optSvc *models.ServiceOptions) {
 	topicSubscriberMap[TOPIC_GW_DOORLOCK_C] = gwDoorlockCreateSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_DOORLOCK_D] = gwDoorlockDeleteSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_LASTWILL] = gwLastWillSubscriber(client, optSvc)
+	topicSubscriberMap[TOPIC_GW_UHF_CONNECT_STATE] = gwUHFConnectStateSubscriber(client, optSvc)
 
 	for topic, subscriber := range topicSubscriberMap {
 		t := client.Subscribe(topic, 1, subscriber)
@@ -109,6 +110,25 @@ func subGateway(client mqtt.Client, optSvc *models.ServiceOptions) {
 }
 
 // MQTT subscriber for gateway
+func gwUHFConnectStateSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
+	return func(c mqtt.Client, msg mqtt.Message) {
+		var payloadStr = string(msg.Payload())
+		gwId := gjson.Get(payloadStr, "gateway_id")
+		uhf_address := gjson.Get(payloadStr, "message.uhf_address")
+		uhf_connect_state := gjson.Get(payloadStr, "message.uhf_connect_state")
+		//logger.LogfWithFields(logger.MQTT, logger.InfoLevel, logger.LoggerFields{
+		//	"GwMsg": gwMsg.String(),
+		//}, "Receive gateway shutdown message with ID %s", gwId.Strin
+		uhf, error := optSvc.UHFSvc.FindUHFByAddress(context.Background(), uhf_address.String(), gwId.String())
+		if error != nil {
+			return
+		}
+		uhf.ConnectState = uhf_connect_state.String()
+		optSvc.UHFSvc.UpdateUHF(context.Background(), uhf)
+		return
+	}
+}
+
 func gwShutDownSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
 	return func(c mqtt.Client, msg mqtt.Message) {
 		var payloadStr = string(msg.Payload())
