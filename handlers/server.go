@@ -19,7 +19,6 @@ func SetupRouter(
 		// Gateway routes
 		v1R.GET("/gateways", hOpts.GatewayHandler.FindAllGateway)
 		v1R.GET("/gateway/:id", hOpts.GatewayHandler.FindGatewayByID)
-		v1R.POST("/gateway", hOpts.GatewayHandler.CreateGateway)
 		v1R.PATCH("/gateway", hOpts.GatewayHandler.UpdateGateway)
 		v1R.DELETE("/gateway", hOpts.GatewayHandler.DeleteGateway)
 		v1R.DELETE("/gateway/:id/uhf", hOpts.GatewayHandler.DeleteGatewayUHF)

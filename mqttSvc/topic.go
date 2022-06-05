@@ -13,12 +13,12 @@ const (
 
 	TOPIC_SV_DOORLOCK_C   string = "server/doorlock/create"
 	TOPIC_SV_DOORLOCK_U   string = "server/doorlock/update"
-	TOPIC_SV_DOORLOCK_D   string = "server/doorlock/delete"
+	TOPIC_SV_DOORLOCK_D   string = "uams/server/doorlock/delete"
 	TOPIC_SV_DOORLOCK_CMD string = "server/doorlock/command"
 	TOPIC_SV_UHF_BOOTUP   string = "uhf/server/uhf/bootup"
 
-	TOPIC_SV_GATEWAY_U string = "server/gateway/update"
-	TOPIC_SV_GATEWAY_D string = "server/gateway/delete"
+	TOPIC_SV_GATEWAY_U string = "uams/server/gateway/update"
+	TOPIC_SV_GATEWAY_D string = "uams/server/gateway/delete"
 
 	TOPIC_SV_SCHEDULER_C      string = "server/register/create"
 	TOPIC_SV_SCHEDULER_U      string = "server/register/update"

@@ -49,6 +49,11 @@ func ServerDeleteDoorlockPayload(doorlock *models.Doorlock) string {
 	return PayloadWithGatewayId(doorlock.GatewayID, msg)
 }
 
+func ServerDeleteUHFPayload(uhf *models.UHF) string {
+	msg := fmt.Sprintf(`{"uhf_address":"%s"}`, uhf.UHFAddress)
+	return PayloadWithGatewayId(uhf.GatewayID, msg)
+}
+
 func ServerCmdDoorlockPayload(gwId string, doorlockAddress string, cmd *models.DoorlockCmd) string {
 	var duration string = ""
 	if cmd.Duration != "" {

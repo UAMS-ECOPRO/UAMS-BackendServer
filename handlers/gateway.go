@@ -66,48 +66,6 @@ func (h *GatewayHandler) FindGatewayByID(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, gw)
 }
 
-// Create gateway
-// @Summary Create Gateway
-// @Schemes
-// @Description Create gateway. Send created info to MQTT broker
-// @Accept  json
-// @Produce json
-// @Param	data	body	models.SwagCreateGateway	true	"Fields need to create a gateway"
-// @Success 200 {object} models.Gateway
-// @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/gateway [post]
-func (h *GatewayHandler) CreateGateway(c *gin.Context) {
-	gw := &models.Gateway{}
-	err := c.ShouldBind(gw)
-	if err != nil {
-		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Msg:        "Invalid req body",
-			ErrorMsg:   err.Error(),
-		})
-		return
-	}
-	if len(gw.GatewayID) <= 0 || len(gw.Name) <= 0 {
-		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Msg:        "Please fulfill these fields: name, gateway id",
-			ErrorMsg:   "Missing on required fields",
-		})
-		return
-	}
-
-	gw, err = h.deps.SvcOpts.GatewaySvc.CreateGateway(c.Request.Context(), gw)
-	if err != nil {
-		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Msg:        "Create gateway failed",
-			ErrorMsg:   err.Error(),
-		})
-		return
-	}
-	utils.ResponseJson(c, http.StatusOK, gw)
-}
-
 // Update gateway
 // @Summary Update Gateway By Gateway ID
 // @Schemes
@@ -175,6 +133,16 @@ func (h *GatewayHandler) DeleteGateway(c *gin.Context) {
 		return
 	}
 
+	_, err1 := h.deps.SvcOpts.GatewaySvc.FindGatewayByMacID(c.Request.Context(), dgw.GatewayID)
+	if err1 != nil {
+		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Msg:        "Find Gateway failed",
+			ErrorMsg:   err1.Error(),
+		})
+		return
+	}
+
 	dls, err := h.deps.SvcOpts.UHFSvc.FindAllUHFByGatewayID(c.Request.Context(), dgw.GatewayID)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
@@ -196,17 +164,17 @@ func (h *GatewayHandler) DeleteGateway(c *gin.Context) {
 		return
 	}
 
-	//t := h.deps.MqttClient.Publish(mqttSvc.TOPIC_SV_GATEWAY_D, 1, false, mqttSvc.ServerDeleteGatewayPayload(dgw.GatewayID))
-	//if err := mqttSvc.HandleMqttErr(t); err != nil {
-	//	utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-	//		StatusCode: http.StatusBadRequest,
-	//		Msg:        "Delete gateway mqtt failed",
-	//		ErrorMsg:   err.Error(),
-	//	})
-	//	return
-	//}
+	t := h.deps.MqttClient.Publish(mqttSvc.TOPIC_SV_GATEWAY_D, 1, false, mqttSvc.ServerDeleteGatewayPayload(dgw.GatewayID))
+	if err := mqttSvc.HandleMqttErr(t); err != nil {
+		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Msg:        "Delete gateway mqtt failed",
+			ErrorMsg:   err.Error(),
+		})
+		return
+	}
 
-	// delete doorlock belong to this gateway
+	// delete UHFs belong to this gateway
 	for i := 0; i < len(dls); i++ {
 		isSuccess, err := h.deps.SvcOpts.UHFSvc.DeleteUHF(c.Request.Context(), strconv.FormatUint(uint64(dls[i].ID), 10))
 		if err != nil || !isSuccess {
@@ -219,7 +187,7 @@ func (h *GatewayHandler) DeleteGateway(c *gin.Context) {
 		}
 
 		//t := h.deps.MqttClient.Publish(mqttSvc.TOPIC_SV_DOORLOCK_D, 1, false,
-		//	mqttSvc.ServerDeleteDoorlockPayload(&dls[i]))
+		//	mqttSvc.ServerDeleteUHFPayload(&dls[i]))
 		//if err := mqttSvc.HandleMqttErr(t); err != nil {
 		//	utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 		//		StatusCode: http.StatusBadRequest,
