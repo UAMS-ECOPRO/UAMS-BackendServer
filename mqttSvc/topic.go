@@ -11,9 +11,9 @@ const (
 	TOPIC_GW_SHUTDOWN string = "gateway/shutdown"
 	TOPIC_GW_LASTWILL string = "gateway/lastwill"
 
-	TOPIC_SV_DOORLOCK_C   string = "server/doorlock/create"
-	TOPIC_SV_DOORLOCK_U   string = "server/doorlock/update"
-	TOPIC_SV_DOORLOCK_D   string = "uams/server/doorlock/delete"
+	TOPIC_SV_DOORLOCK_C   string = "uams/server/uhf/create"
+	TOPIC_SV_UHF_U        string = "uams/server/uhf/update"
+	TOPIC_SV_UHF_D        string = "uams/server/uhf/delete"
 	TOPIC_SV_DOORLOCK_CMD string = "server/doorlock/command"
 	TOPIC_SV_UHF_BOOTUP   string = "uhf/server/uhf/bootup"
 

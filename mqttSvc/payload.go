@@ -44,6 +44,12 @@ func ServerUpdateDoorlockPayload(doorlock *models.Doorlock) string {
 	return PayloadWithGatewayId(doorlock.GatewayID, msg)
 }
 
+func ServerUpdateUHFPayload(uhf *models.UHF) string {
+	msg := fmt.Sprintf(`{"uhf_address":"%s","uhf_active_state":"%s"}`,
+		uhf.UHFAddress, uhf.ActiveState)
+	return PayloadWithGatewayId(uhf.GatewayID, msg)
+}
+
 func ServerDeleteDoorlockPayload(doorlock *models.Doorlock) string {
 	msg := fmt.Sprintf(`{"doorlock_address":"%s"}`, doorlock.DoorlockAddress)
 	return PayloadWithGatewayId(doorlock.GatewayID, msg)
@@ -64,8 +70,8 @@ func ServerCmdDoorlockPayload(gwId string, doorlockAddress string, cmd *models.D
 }
 
 func ServerUpdateGatewayPayload(gw *models.Gateway) string {
-	return fmt.Sprintf(`{"gateway_id":"%s","area_id":"%s","name":"%s"}`,
-		gw.GatewayID, gw.AreaID, gw.Name)
+	msg := fmt.Sprintf(`{"area_id":"%s","name":"%s"}`, gw.AreaID, gw.Name)
+	return PayloadWithGatewayId(gw.GatewayID, msg)
 }
 
 func ServerDeleteGatewayPayload(gwID string) string {

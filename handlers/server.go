@@ -21,7 +21,7 @@ func SetupRouter(
 		v1R.GET("/gateway/:id", hOpts.GatewayHandler.FindGatewayByID)
 		v1R.PATCH("/gateway", hOpts.GatewayHandler.UpdateGateway)
 		v1R.DELETE("/gateway", hOpts.GatewayHandler.DeleteGateway)
-		v1R.DELETE("/gateway/:id/uhf", hOpts.GatewayHandler.DeleteGatewayUHF)
+		//v1R.DELETE("/gateway/:id/uhf", hOpts.GatewayHandler.DeleteGatewayUHF)
 		//v1R.POST("/block/cmd", hOpts.GatewayHandler.UpdateGatewayCmdByBlockID)
 
 		// Area routes
@@ -31,12 +31,11 @@ func SetupRouter(
 		v1R.PATCH("/area", hOpts.AreaHandler.UpdateArea)
 		v1R.DELETE("/area", hOpts.AreaHandler.DeleteArea)
 
-		// Doorlock routes
+		// UHF routes
 		v1R.GET("/uhfs", hOpts.UHFHandler.FindAllUHFs)
 		v1R.GET("/uhf/:id", hOpts.UHFHandler.FindUHFByID)
 		//v1R.GET("/doorlock/status/:id", hOpts.DoorlockHandler.GetDoorlockStatusByID)
 		// v1R.GET("/doorlock/status/serial/:id", hOpts.DoorlockHandler.GetDoorlockStatusBySerialID)
-		v1R.POST("/uhf", hOpts.UHFHandler.CreateUHF)
 		v1R.PATCH("/uhf", hOpts.UHFHandler.UpdateUHF)
 		//v1R.PATCH("/doorlock/cmd", hOpts.DoorlockHandler.UpdateDoorlockCmd)
 		//v1R.PATCH("/doorlock/state/cmd", hOpts.DoorlockHandler.UpdateDoorlockStateCmd)

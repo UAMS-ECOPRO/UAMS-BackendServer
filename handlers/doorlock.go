@@ -141,16 +141,16 @@ func (h *DoorlockHandler) UpdateDoorlock(c *gin.Context) {
 		return
 	}
 
-	t := h.deps.MqttClient.Publish(mqttSvc.TOPIC_SV_DOORLOCK_U, 1, false,
-		mqttSvc.ServerUpdateDoorlockPayload(dl))
-	if err := mqttSvc.HandleMqttErr(t); err != nil {
-		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Msg:        "Update doorlock mqtt failed",
-			ErrorMsg:   err.Error(),
-		})
-		return
-	}
+	//t := h.deps.MqttClient.Publish(mqttSvc.TOPIC_SV_DOORLOCK_U, 1, false,
+	//	mqttSvc.ServerUpdateDoorlockPayload(dl))
+	//if err := mqttSvc.HandleMqttErr(t); err != nil {
+	//	utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
+	//		StatusCode: http.StatusBadRequest,
+	//		Msg:        "Update doorlock mqtt failed",
+	//		ErrorMsg:   err.Error(),
+	//	})
+	//	return
+	//}
 
 	isSuccess, err := h.deps.SvcOpts.DoorlockSvc.UpdateDoorlock(c.Request.Context(), dl)
 	if err != nil || !isSuccess {
@@ -253,26 +253,26 @@ func (h *DoorlockHandler) DeleteDoorlock(c *gin.Context) {
 		return
 	}
 
-	checkDL, err := h.deps.SvcOpts.DoorlockSvc.FindDoorlockByID(c.Request.Context(), dl.ID)
-	if err != nil {
-		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Msg:        "Find doorlock fail",
-			ErrorMsg:   err.Error(),
-		})
-		return
-	}
+	//checkDL, err := h.deps.SvcOpts.DoorlockSvc.FindDoorlockByID(c.Request.Context(), dl.ID)
+	//if err != nil {
+	//	utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
+	//		StatusCode: http.StatusBadRequest,
+	//		Msg:        "Find doorlock fail",
+	//		ErrorMsg:   err.Error(),
+	//	})
+	//	return
+	//}
 
-	t := h.deps.MqttClient.Publish(mqttSvc.TOPIC_SV_DOORLOCK_D, 1, false,
-		mqttSvc.ServerDeleteDoorlockPayload(checkDL))
-	if err := mqttSvc.HandleMqttErr(t); err != nil {
-		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Msg:        "Delete doorlock mqtt failed",
-			ErrorMsg:   err.Error(),
-		})
-		return
-	}
+	//t := h.deps.MqttClient.Publish(mqttSvc.TOPIC_SV_DOORLOCK_D, 1, false,
+	//	mqttSvc.ServerDeleteDoorlockPayload(checkDL))
+	//if err := mqttSvc.HandleMqttErr(t); err != nil {
+	//	utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
+	//		StatusCode: http.StatusBadRequest,
+	//		Msg:        "Delete doorlock mqtt failed",
+	//		ErrorMsg:   err.Error(),
+	//	})
+	//	return
+	//}
 
 	// TODO: Guarantee mqtt req/res
 	// isMqttReps := waitForMqttDoorlockResponse(c, 60)

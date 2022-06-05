@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/ecoprohcm/DMS_BackendServer/models"
+	"github.com/ecoprohcm/DMS_BackendServer/mqttSvc"
 	"net/http"
 
 	//"github.com/ecoprohcm/DMS_BackendServer/models"
@@ -66,60 +67,6 @@ func (h *UHFHandler) FindUHFByID(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, dl)
 }
 
-// Create doorlock
-// @Summary Create Doorlock
-// @Schemes
-// @Description Create doorlock. Send created info to MQTT broker
-// @Accept  json
-// @Produce json
-// @Param	data	body	models.SwagCreateDoorlock	true	"Fields need to create a doorlock"
-// @Success 200 {object} models.Doorlock
-// @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/doorlock [post]
-func (h *UHFHandler) CreateUHF(c *gin.Context) {
-	dl := &models.UHF{}
-	err := c.ShouldBind(dl)
-	if err != nil {
-		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Msg:        "Invalid req body",
-			ErrorMsg:   err.Error(),
-		})
-		return
-	}
-	//if len(dl.Location) <= 0 {
-	//	utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-	//		StatusCode: http.StatusBadRequest,
-	//		Msg:        "Please fulfill these fields: location",
-	//		ErrorMsg:   "Missing on required fields",
-	//	})
-	//	return
-	//}
-
-	//t := h.deps.MqttClient.Publish(string(mqttSvc.TOPIC_SV_DOORLOCK_C), 1, false,
-	//	mqttSvc.ServerCreateDoorlockPayload(dl),
-	//)
-	//if err := mqttSvc.HandleMqttErr(t); err != nil {
-	//	utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-	//		StatusCode: http.StatusBadRequest,
-	//		Msg:        "Create doorlock mqtt failed",
-	//		ErrorMsg:   err.Error(),
-	//	})
-	//	return
-	//}
-
-	dl, err = h.deps.SvcOpts.UHFSvc.CreateUHF(c.Request.Context(), dl)
-	if err != nil {
-		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Msg:        "Create doorlock failed",
-			ErrorMsg:   err.Error(),
-		})
-		return
-	}
-	utils.ResponseJson(c, http.StatusOK, dl)
-}
-
 // Update doorlock
 // @Summary Update Doorlock By Doorlock Address and GatewayID
 // @Schemes
@@ -142,27 +89,28 @@ func (h *UHFHandler) UpdateUHF(c *gin.Context) {
 		return
 	}
 
-	//t := h.deps.MqttClient.Publish(mqttSvc.TOPIC_SV_DOORLOCK_U, 1, false,
-	//	mqttSvc.ServerUpdateDoorlockPayload(dl))
-	//if err := mqttSvc.HandleMqttErr(t); err != nil {
-	//	utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-	//		StatusCode: http.StatusBadRequest,
-	//		Msg:        "Update doorlock mqtt failed",
-	//		ErrorMsg:   err.Error(),
-	//	})
-	//	return
-	//}
-
 	isSuccess, err := h.deps.SvcOpts.UHFSvc.UpdateUHF(c.Request.Context(), dl)
 	if err != nil || !isSuccess {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
-			Msg:        "Update doorlock failed",
+			Msg:        "Update uhf failed",
 			ErrorMsg:   err.Error(),
 		})
 		return
 	}
-	utils.ResponseJson(c, http.StatusOK, dl)
+
+	t := h.deps.MqttClient.Publish(mqttSvc.TOPIC_SV_UHF_U, 1, false,
+		mqttSvc.ServerUpdateUHFPayload(dl))
+	if err := mqttSvc.HandleMqttErr(t); err != nil {
+		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Msg:        "Update uhf mqtt failed",
+			ErrorMsg:   err.Error(),
+		})
+		return
+	}
+
+	utils.ResponseJson(c, http.StatusOK, isSuccess)
 }
 
 // Delete doorlock
@@ -187,7 +135,7 @@ func (h *UHFHandler) DeleteUHF(c *gin.Context) {
 		return
 	}
 
-	_, err = h.deps.SvcOpts.UHFSvc.FindUHFByID(c.Request.Context(), dl.ID)
+	uhf, err := h.deps.SvcOpts.UHFSvc.FindUHFByID(c.Request.Context(), dl.ID)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
@@ -197,27 +145,16 @@ func (h *UHFHandler) DeleteUHF(c *gin.Context) {
 		return
 	}
 
-	//t := h.deps.MqttClient.Publish(mqttSvc.TOPIC_SV_DOORLOCK_D, 1, false,
-	//	mqttSvc.ServerDeleteDoorlockPayload(checkDL))
-	//if err := mqttSvc.HandleMqttErr(t); err != nil {
-	//	utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-	//		StatusCode: http.StatusBadRequest,
-	//		Msg:        "Delete doorlock mqtt failed",
-	//		ErrorMsg:   err.Error(),
-	//	})
-	//	return
-	//}
-
-	// TODO: Guarantee mqtt req/res
-	// isMqttReps := waitForMqttDoorlockResponse(c, 60)
-	// if !isMqttReps {
-	// 	utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-	// 		StatusCode: http.StatusBadRequest,
-	// 		Msg:        "Mqtt response is too long",
-	// 		ErrorMsg:   err.Error(),
-	// 	})
-	// 	return
-	// }
+	t := h.deps.MqttClient.Publish(mqttSvc.TOPIC_SV_UHF_D, 1, false,
+		mqttSvc.ServerDeleteUHFPayload(uhf))
+	if err := mqttSvc.HandleMqttErr(t); err != nil {
+		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Msg:        "Delete doorlock mqtt failed",
+			ErrorMsg:   err.Error(),
+		})
+		return
+	}
 
 	isSuccess, err := h.deps.SvcOpts.UHFSvc.DeleteUHF(c.Request.Context(), dl.ID)
 	if err != nil || !isSuccess {
