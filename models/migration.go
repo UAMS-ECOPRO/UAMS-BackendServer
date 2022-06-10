@@ -8,15 +8,10 @@ func Migrate(db *gorm.DB) {
 	err := db.AutoMigrate(
 		&Area{},
 		&Gateway{},
-		&Doorlock{},
+		&UHF{},
 		&GatewayLog{},
-		&Employee{},
-		&Student{},
-		&Customer{},
-		&Scheduler{},
-		&SecretKey{},
 		&GwNetwork{},
-		&DoorlockStatusLog{},
+		&Action{},
 	)
 	if err != nil {
 		panic(err)

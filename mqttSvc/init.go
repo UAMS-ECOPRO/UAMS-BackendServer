@@ -7,7 +7,9 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
 	"fmt"
+	_ "fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -100,6 +102,8 @@ func subGateway(client mqtt.Client, optSvc *models.ServiceOptions) {
 	topicSubscriberMap[TOPIC_GW_DOORLOCK_D] = gwDoorlockDeleteSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_LASTWILL] = gwLastWillSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_UHF_CONNECT_STATE] = gwUHFConnectStateSubscriber(client, optSvc)
+	topicSubscriberMap[TOPIC_GW_UHF_SCAN] = gwUHFScanSubscriber(client, optSvc)
+	topicSubscriberMap[TOPIC_GW_TAG] = gwActionSubscriber(client, optSvc)
 
 	for topic, subscriber := range topicSubscriberMap {
 		t := client.Subscribe(topic, 1, subscriber)
@@ -109,7 +113,6 @@ func subGateway(client mqtt.Client, optSvc *models.ServiceOptions) {
 	}
 }
 
-// MQTT subscriber for gateway
 func gwUHFConnectStateSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
 	return func(c mqtt.Client, msg mqtt.Message) {
 		var payloadStr = string(msg.Payload())
@@ -125,6 +128,63 @@ func gwUHFConnectStateSubscriber(client mqtt.Client, optSvc *models.ServiceOptio
 		}
 		uhf.ConnectState = uhf_connect_state.String()
 		optSvc.UHFSvc.UpdateUHF(context.Background(), uhf)
+		return
+	}
+}
+
+func gwActionSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
+	return func(c mqtt.Client, msg mqtt.Message) {
+		var payloadStr = string(msg.Payload())
+		var ecps_string []string
+
+		gwId := gjson.Get(payloadStr, "gateway_id")
+		uhf_address := gjson.Get(payloadStr, "message.uhf_address")
+		epcs := gjson.Get(payloadStr, "message.epcs")
+
+		err := json.Unmarshal([]byte(epcs.String()), &ecps_string)
+		if err != nil {
+			return
+		}
+		_, error := optSvc.UHFSvc.FindUHFByAddress(context.Background(), uhf_address.String(), gwId.String())
+		if error != nil {
+			return
+		}
+		for _, ecp := range ecps_string {
+			var new_action = &models.Action{}
+			new_action.GatewayID = gwId.String()
+			new_action.UHFAddress = uhf_address.String()
+			new_action.EPC = ecp
+			optSvc.ActionSvc.CreateAction(context.Background(), new_action)
+		}
+	}
+}
+
+func gwUHFScanSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
+	return func(c mqtt.Client, msg mqtt.Message) {
+		var payloadStr = string(msg.Payload())
+		uhf_address_list := []map[string]string{}
+		gwId := gjson.Get(payloadStr, "gateway_id")
+		uhfs := gjson.Get(payloadStr, "message.uhfs")
+		err := json.Unmarshal([]byte(uhfs.String()), &uhf_address_list)
+		if err != nil {
+			return
+		}
+		_, err = optSvc.GatewaySvc.FindGatewayByMacID(context.Background(), gwId.String())
+		if err != nil {
+			return
+		}
+		for _, uhf_address := range uhf_address_list {
+			_, err := optSvc.UHFSvc.FindUHFByAddress(context.Background(), uhf_address["uhf_address"], gwId.String())
+			if err != nil {
+				newUHF := &models.UHF{}
+				newUHF.GatewayID = gwId.String()
+				newUHF.ConnectState = "connect"
+				newUHF.ActiveState = "0"
+				newUHF.UHFAddress = uhf_address["uhf_address"]
+				newUHF.UHFSerialNumber = uuid.New().String()
+				optSvc.UHFSvc.CreateUHF(context.Background(), newUHF)
+			}
+		}
 		return
 	}
 }

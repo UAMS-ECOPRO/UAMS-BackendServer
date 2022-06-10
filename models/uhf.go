@@ -45,6 +45,12 @@ type UHFStatus struct {
 type UHFSvc struct {
 	db *gorm.DB
 }
+type UHF_important_info struct {
+	UHFAddress string `json:"uhf_address"`
+}
+type UHF_list struct {
+	uhfs []UHF_important_info
+}
 
 func NewUHFSvc(db *gorm.DB) *UHFSvc {
 	return &UHFSvc{

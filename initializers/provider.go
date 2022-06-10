@@ -62,6 +62,7 @@ func ProvideSvcOptions(db *gorm.DB) *models.ServiceOptions {
 		SecretKeySvc:         models.NewSecretKeySvc(db),
 		DoorlockStatusLogSvc: models.NewDoorlockStatusLogSvc(db),
 		UHFSvc:               models.NewUHFSvc(db),
+		ActionSvc:            models.NewActionSvc(db),
 	}
 }
 
