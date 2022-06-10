@@ -91,6 +91,8 @@ func SetupRouter(
 		v1R.GET("/secretkeys", hOpts.SecretKeyHandler.FindSecretKey)
 		v1R.POST("/secretkey", hOpts.SecretKeyHandler.CreateSecretKey)
 		v1R.PATCH("/secretkey", hOpts.SecretKeyHandler.UpdateSecretKey)
+
+		v1R.GET("/accesses", hOpts.ActionHandler.FindAllAccesses)
 	}
 	return r
 }

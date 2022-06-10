@@ -93,6 +93,7 @@ func ProvideHandlerOptions(svcOptions *models.ServiceOptions, mqttClient mqtt.Cl
 		SecretKeyHandler:         handlers.NewSecretKeyHandler(deps),
 		DoorlockStatusLogHandler: handlers.NewDoorlockStatusLogHandler(deps),
 		UHFHandler:               handlers.NewUHFHandler(deps),
+		ActionHandler:            handlers.NewActionHandler(deps),
 	}
 }
 

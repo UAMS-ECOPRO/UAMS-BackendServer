@@ -31,8 +31,8 @@ func (gwns *ActionSvc) CreateAction(ctx context.Context, act *Action) (*Action, 
 	return act, nil
 }
 
-func (gwns *ActionSvc) FindAction(ctx context.Context, gwId string, ifName string) (gwNet *GwNetwork, err error) {
-	result := gwns.db.Where("gateway_id = ? AND interface_name = ?", gwId, ifName).Find(&gwNet)
+func (gwns *ActionSvc) FindAllActions(ctx context.Context) (gwNet []Action, err error) {
+	result := gwns.db.Find(&gwNet)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)
 		return nil, err
