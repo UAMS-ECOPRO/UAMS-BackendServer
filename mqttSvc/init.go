@@ -104,6 +104,7 @@ func subGateway(client mqtt.Client, optSvc *models.ServiceOptions) {
 	topicSubscriberMap[TOPIC_GW_UHF_CONNECT_STATE] = gwUHFConnectStateSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_UHF_SCAN] = gwUHFScanSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_TAG] = gwActionSubscriber(client, optSvc)
+	topicSubscriberMap[TOPIC_GW_SYSTEM] = gwSystemSubscriber(client, optSvc)
 
 	for topic, subscriber := range topicSubscriberMap {
 		t := client.Subscribe(topic, 1, subscriber)
@@ -128,6 +129,25 @@ func gwUHFConnectStateSubscriber(client mqtt.Client, optSvc *models.ServiceOptio
 		}
 		uhf.ConnectState = uhf_connect_state.String()
 		optSvc.UHFSvc.UpdateUHF(context.Background(), uhf)
+		return
+	}
+}
+
+func gwSystemSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
+	return func(c mqtt.Client, msg mqtt.Message) {
+		var payloadStr = string(msg.Payload())
+		gwId := gjson.Get(payloadStr, "gateway_id")
+		debug_mode := gjson.Get(payloadStr, "message.debug_mode")
+
+		_, error := optSvc.GatewaySvc.FindGatewayByMacID(context.Background(), gwId.String())
+		if error != nil {
+			return
+		}
+		new_system_log := &models.SystemLog{}
+		new_system_log.GatewayID = gwId.String()
+		new_system_log.LogType = "DEBUG_MODE"
+		new_system_log.Content = debug_mode.String()
+		optSvc.SystemLogSvc.CreateSystemLog(context.Background(), new_system_log)
 		return
 	}
 }

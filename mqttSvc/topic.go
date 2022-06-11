@@ -13,6 +13,7 @@ const (
 	TOPIC_GW_SHUTDOWN          string = "gateway/shutdown"
 	TOPIC_GW_LASTWILL          string = "gateway/lastwill"
 	TOPIC_GW_TAG               string = "uams/gateway/uhf/tag"
+	TOPIC_GW_SYSTEM            string = "uams/gateway/system/update"
 
 	TOPIC_SV_DOORLOCK_C   string = "uams/server/uhf/create"
 	TOPIC_SV_UHF_U        string = "uams/server/uhf/update"
