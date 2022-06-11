@@ -33,8 +33,9 @@ type SchedulerBootUp struct {
 	EndClass        string `json:"end_class"`
 }
 type SyncPayload struct {
-	UHFs        []models.UHF
-	GW_networks []models.GwNetwork
+	UHFs        []models.UHF       `json:"uhfs"`
+	GW_networks []models.GwNetwork `json:"gw_network"`
+	State       string             `json:"state"`
 }
 
 func ServerCreateDoorlockPayload(doorlock *models.Doorlock) string {
@@ -49,8 +50,8 @@ func ServerUpdateDoorlockPayload(doorlock *models.Doorlock) string {
 }
 
 func ServerUpdateUHFPayload(uhf *models.UHF) string {
-	msg := fmt.Sprintf(`{"uhf_address":"%s","uhf_active_state":"%s"}`,
-		uhf.UHFAddress, uhf.ActiveState)
+	msg := fmt.Sprintf(`{"uhf_address":"%s","state":"%s"}`,
+		uhf.UHFAddress, uhf.State)
 	return PayloadWithGatewayId(uhf.GatewayID, msg)
 }
 
@@ -74,7 +75,7 @@ func ServerCmdDoorlockPayload(gwId string, doorlockAddress string, cmd *models.D
 }
 
 func ServerUpdateGatewayPayload(gw *models.Gateway) string {
-	msg := fmt.Sprintf(`{"area_id":"%s","name":"%s"}`, gw.AreaID, gw.Name)
+	msg := fmt.Sprintf(`{"state":"%s"}`, gw.State)
 	return PayloadWithGatewayId(gw.GatewayID, msg)
 }
 
@@ -195,7 +196,7 @@ func ServerBootupUHFsPayload(gwId string, dls []models.UHF) string {
 	for _, dl := range dls {
 		buDl := UHFBootUp{
 			UHFAddress:  dl.UHFAddress,
-			ActiveState: dl.ActiveState,
+			ActiveState: dl.State,
 		}
 		bootupDls = append(bootupDls, buDl)
 	}
@@ -236,7 +237,7 @@ func isPastTime(t_compared int64) bool {
 }
 
 func ServerBootupSystemPayload(gwId string, uhfs []models.UHF, gw_networks []models.GwNetwork) string {
-	sync_payload := SyncPayload{UHFs: uhfs, GW_networks: gw_networks}
+	sync_payload := SyncPayload{UHFs: uhfs, GW_networks: gw_networks, State: "active"}
 	sync_payload_converted, _ := json.Marshal(sync_payload)
 	return PayloadWithGatewayId(gwId, string(sync_payload_converted))
 }

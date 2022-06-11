@@ -119,7 +119,7 @@ func gwUHFConnectStateSubscriber(client mqtt.Client, optSvc *models.ServiceOptio
 		var payloadStr = string(msg.Payload())
 		gwId := gjson.Get(payloadStr, "gateway_id")
 		uhf_address := gjson.Get(payloadStr, "message.uhf_address")
-		uhf_connect_state := gjson.Get(payloadStr, "message.uhf_connect_state")
+		uhf_connect_state := gjson.Get(payloadStr, "message.connection_state")
 		//logger.LogfWithFields(logger.MQTT, logger.InfoLevel, logger.LoggerFields{
 		//	"GwMsg": gwMsg.String(),
 		//}, "Receive gateway shutdown message with ID %s", gwId.Strin
@@ -160,8 +160,9 @@ func gwActionSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 		gwId := gjson.Get(payloadStr, "gateway_id")
 		uhf_address := gjson.Get(payloadStr, "message.uhf_address")
 		epcs := gjson.Get(payloadStr, "message.epcs")
+		epcs_string := epcs.String()
 
-		err := json.Unmarshal([]byte(epcs.String()), &ecps_string)
+		err := json.Unmarshal([]byte(epcs_string), &ecps_string)
 		if err != nil {
 			return
 		}
@@ -182,7 +183,7 @@ func gwActionSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 func gwUHFScanSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
 	return func(c mqtt.Client, msg mqtt.Message) {
 		var payloadStr = string(msg.Payload())
-		uhf_address_list := []map[string]string{}
+		uhf_address_list := []map[string]int{}
 		gwId := gjson.Get(payloadStr, "gateway_id")
 		uhfs := gjson.Get(payloadStr, "message.uhfs")
 		err := json.Unmarshal([]byte(uhfs.String()), &uhf_address_list)
@@ -194,13 +195,14 @@ func gwUHFScanSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt
 			return
 		}
 		for _, uhf_address := range uhf_address_list {
-			_, err := optSvc.UHFSvc.FindUHFByAddress(context.Background(), uhf_address["uhf_address"], gwId.String())
+			uhf_address_string := fmt.Sprintf("%s", uhf_address["uhf_address"])
+			_, err := optSvc.UHFSvc.FindUHFByAddress(context.Background(), uhf_address_string, gwId.String())
 			if err != nil {
 				newUHF := &models.UHF{}
 				newUHF.GatewayID = gwId.String()
 				newUHF.ConnectState = "connect"
-				newUHF.ActiveState = "0"
-				newUHF.UHFAddress = uhf_address["uhf_address"]
+				newUHF.State = "inactive"
+				newUHF.UHFAddress = uhf_address_string
 				newUHF.UHFSerialNumber = uuid.New().String()
 				optSvc.UHFSvc.CreateUHF(context.Background(), newUHF)
 			}
