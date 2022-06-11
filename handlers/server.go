@@ -93,6 +93,7 @@ func SetupRouter(
 		v1R.PATCH("/secretkey", hOpts.SecretKeyHandler.UpdateSecretKey)
 
 		v1R.GET("/accesses", hOpts.ActionHandler.FindAllAccesses)
+		v1R.GET("/access", hOpts.ActionHandler.FindAccess)
 	}
 	return r
 }

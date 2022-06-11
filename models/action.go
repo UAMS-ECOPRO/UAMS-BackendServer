@@ -39,3 +39,12 @@ func (gwns *ActionSvc) FindAllActions(ctx context.Context) (gwNet []Action, err 
 	}
 	return gwNet, err
 }
+
+func (gwns *ActionSvc) FindAllActionsByEPC(ctx context.Context, epc string) (gwNet []Action, err error) {
+	result := gwns.db.Where("epc = ?", epc).Find(&gwNet)
+	if err := result.Error; err != nil {
+		err = utils.HandleQueryError(err)
+		return nil, err
+	}
+	return gwNet, err
+}
