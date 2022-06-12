@@ -97,10 +97,8 @@ func subGateway(client mqtt.Client, optSvc *models.ServiceOptions) {
 	topicSubscriberMap[TOPIC_GW_SHUTDOWN] = gwShutDownSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_BOOTUP] = gwBootupSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_LOG_C] = gwLogCreateSubscriber(client, optSvc)
-	topicSubscriberMap[TOPIC_GW_DOORLOCK_U] = gwDoorlockUpdateSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_DOORLOCK_C] = gwDoorlockCreateSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_DOORLOCK_D] = gwDoorlockDeleteSubscriber(client, optSvc)
-	topicSubscriberMap[TOPIC_GW_LASTWILL] = gwLastWillSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_UHF_CONNECT_STATE] = gwUHFConnectStateSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_UHF_SCAN] = gwUHFScanSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_TAG] = gwActionSubscriber(client, optSvc)
@@ -183,10 +181,10 @@ func gwActionSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 func gwUHFScanSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
 	return func(c mqtt.Client, msg mqtt.Message) {
 		var payloadStr = string(msg.Payload())
-		uhf_address_list := []map[string]int{}
+		uhf_list := []map[string]string{}
 		gwId := gjson.Get(payloadStr, "gateway_id")
 		uhfs := gjson.Get(payloadStr, "message.uhfs")
-		err := json.Unmarshal([]byte(uhfs.String()), &uhf_address_list)
+		err := json.Unmarshal([]byte(uhfs.String()), &uhf_list)
 		if err != nil {
 			return
 		}
@@ -194,17 +192,24 @@ func gwUHFScanSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt
 		if err != nil {
 			return
 		}
-		for _, uhf_address := range uhf_address_list {
-			uhf_address_string := fmt.Sprintf("%s", uhf_address["uhf_address"])
-			_, err := optSvc.UHFSvc.FindUHFByAddress(context.Background(), uhf_address_string, gwId.String())
+		logger.LogfWithFields(logger.MQTT, logger.DebugLevel, logger.LoggerFields{
+			"payload": payloadStr,
+		}, "Gateway bootup with ID %s and uhfs %s", gwId.String(), uhfs.String())
+		for _, uhf := range uhf_list {
+			existing_uhf, err := optSvc.UHFSvc.FindUHFByAddress(context.Background(), uhf["uhf_address"], gwId.String())
 			if err != nil {
 				newUHF := &models.UHF{}
 				newUHF.GatewayID = gwId.String()
-				newUHF.ConnectState = "connect"
-				newUHF.State = "inactive"
-				newUHF.UHFAddress = uhf_address_string
+				newUHF.ConnectState = uhf["connect_state"]
+				newUHF.State = uhf["state"]
+				newUHF.UHFAddress = uhf["uhf_address"]
 				newUHF.UHFSerialNumber = uuid.New().String()
 				optSvc.UHFSvc.CreateUHF(context.Background(), newUHF)
+			} else {
+				existing_uhf.ConnectState = uhf["connect_state"]
+				existing_uhf.State = uhf["state"]
+				existing_uhf.UHFAddress = uhf["uhf_address"]
+				optSvc.UHFSvc.UpdateUHF(context.Background(), existing_uhf)
 			}
 		}
 		return
@@ -237,7 +242,7 @@ func gwBootupSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 		if checkGw == nil {
 			newGw := &models.Gateway{}
 			newGw.GatewayID = gwId.String()
-			newGw.ConnectState = true
+			newGw.ConnectState = "connected"
 			newGw.SoftwareVersion = gjson.Get(payloadStr, "message.software_version").String()
 			optSvc.GatewaySvc.CreateGateway(context.Background(), newGw)
 			uhfs := []models.UHF{}
@@ -282,68 +287,68 @@ func gwLogCreateSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mq
 	}
 }
 
-func gwDoorlockUpdateSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
-	return func(c mqtt.Client, msg mqtt.Message) {
-		var payloadStr = string(msg.Payload())
-		gatewayId := gjson.Get(payloadStr, "gateway_id").String()
-		doorStateMsg := gjson.Get(payloadStr, "message").String()
-		doorlockAddress := gjson.Get(doorStateMsg, "doorlock_address").String()
-		state := gjson.Get(doorStateMsg, "doorlock_connect_state").String()
-		lastOpenTime := gjson.Get(doorStateMsg, "last_open_time")
-		activeState := gjson.Get(doorStateMsg, "doorlock_active_state").String()
-
-		dl, _ := optSvc.DoorlockSvc.FindDoorlockByAddress(context.Background(), doorlockAddress, gatewayId)
-
-		doorID := strconv.Itoa(int(dl.ID))
-
-		if activeState != "" {
-			dl.ActiveState = activeState
-			optSvc.DoorlockSvc.UpdateDoorlock(context.Background(), dl)
-		}
-
-		if state != "" {
-			optSvc.DoorlockSvc.UpdateDoorlockByAddress(context.Background(), &models.Doorlock{
-				DoorlockAddress: doorlockAddress,
-				ConnectState:    state,
-				LastOpenTime:    uint(lastOpenTime.Uint()),
-				GatewayID:       gatewayId,
-			})
-			optSvc.DoorlockStatusLogSvc.CreateDoorlockStatusLog(context.Background(), &models.DoorlockStatusLog{
-				DoorID:     doorID,
-				StateType:  "connectState",
-				StateValue: state,
-			})
-		}
-
-		doorState := gjson.Get(doorStateMsg, "doorlock_open_state").String()
-		if doorState != "" {
-			optSvc.DoorlockSvc.UpdateDoorState(context.Background(), &models.DoorlockStatus{
-				GatewayID:       gatewayId,
-				DoorlockAddress: doorlockAddress,
-				DoorState:       doorState,
-			})
-			optSvc.DoorlockStatusLogSvc.CreateDoorlockStatusLog(context.Background(), &models.DoorlockStatusLog{
-				DoorID:     doorID,
-				StateType:  "doorState",
-				StateValue: doorState,
-			})
-		}
-
-		lockState := gjson.Get(doorStateMsg, "doorlock_lock_state").String()
-		if lockState != "" {
-			optSvc.DoorlockSvc.UpdateLockState(context.Background(), &models.DoorlockStatus{
-				GatewayID:       gatewayId,
-				DoorlockAddress: doorlockAddress,
-				LockState:       lockState,
-			})
-			optSvc.DoorlockStatusLogSvc.CreateDoorlockStatusLog(context.Background(), &models.DoorlockStatusLog{
-				DoorID:     doorID,
-				StateType:  "lockState",
-				StateValue: lockState,
-			})
-		}
-	}
-}
+//func gwDoorlockUpdateSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
+//	return func(c mqtt.Client, msg mqtt.Message) {
+//		var payloadStr = string(msg.Payload())
+//		gatewayId := gjson.Get(payloadStr, "gateway_id").String()
+//		doorStateMsg := gjson.Get(payloadStr, "message").String()
+//		doorlockAddress := gjson.Get(doorStateMsg, "doorlock_address").String()
+//		state := gjson.Get(doorStateMsg, "doorlock_connect_state").String()
+//		lastOpenTime := gjson.Get(doorStateMsg, "last_open_time")
+//		activeState := gjson.Get(doorStateMsg, "doorlock_active_state").String()
+//
+//		dl, _ := optSvc.DoorlockSvc.FindDoorlockByAddress(context.Background(), doorlockAddress, gatewayId)
+//
+//		doorID := strconv.Itoa(int(dl.ID))
+//
+//		if activeState != "" {
+//			dl.ActiveState = activeState
+//			optSvc.DoorlockSvc.UpdateDoorlock(context.Background(), dl)
+//		}
+//
+//		if state != "" {
+//			optSvc.DoorlockSvc.UpdateDoorlockByAddress(context.Background(), &models.Doorlock{
+//				DoorlockAddress: doorlockAddress,
+//				ConnectState:    state,
+//				LastOpenTime:    uint(lastOpenTime.Uint()),
+//				GatewayID:       gatewayId,
+//			})
+//			optSvc.DoorlockStatusLogSvc.CreateDoorlockStatusLog(context.Background(), &models.DoorlockStatusLog{
+//				DoorID:     doorID,
+//				StateType:  "connectState",
+//				StateValue: state,
+//			})
+//		}
+//
+//		doorState := gjson.Get(doorStateMsg, "doorlock_open_state").String()
+//		if doorState != "" {
+//			optSvc.DoorlockSvc.UpdateDoorState(context.Background(), &models.DoorlockStatus{
+//				GatewayID:       gatewayId,
+//				DoorlockAddress: doorlockAddress,
+//				DoorState:       doorState,
+//			})
+//			optSvc.DoorlockStatusLogSvc.CreateDoorlockStatusLog(context.Background(), &models.DoorlockStatusLog{
+//				DoorID:     doorID,
+//				StateType:  "doorState",
+//				StateValue: doorState,
+//			})
+//		}
+//
+//		lockState := gjson.Get(doorStateMsg, "doorlock_lock_state").String()
+//		if lockState != "" {
+//			optSvc.DoorlockSvc.UpdateLockState(context.Background(), &models.DoorlockStatus{
+//				GatewayID:       gatewayId,
+//				DoorlockAddress: doorlockAddress,
+//				LockState:       lockState,
+//			})
+//			optSvc.DoorlockStatusLogSvc.CreateDoorlockStatusLog(context.Background(), &models.DoorlockStatusLog{
+//				DoorID:     doorID,
+//				StateType:  "lockState",
+//				StateValue: lockState,
+//			})
+//		}
+//	}
+//}
 
 func gwDoorlockCreateSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
 	return func(c mqtt.Client, msg mqtt.Message) {
@@ -365,22 +370,22 @@ func gwDoorlockDeleteSubscriber(client mqtt.Client, optSvc *models.ServiceOption
 	}
 }
 
-func gwLastWillSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
-	return func(c mqtt.Client, msg mqtt.Message) {
-		var payloadStr = string(msg.Payload())
-		gwId := gjson.Get(payloadStr, "gateway_id")
-		logger.LogfWithoutFields(logger.MQTT, logger.DebugLevel, "Gateway ID %s has disconnected", gwId.String())
-		gw, _ := optSvc.GatewaySvc.FindGatewayByMacID(context.Background(), gwId.String())
-		if gw != nil {
-			gw.ConnectState = false
-			_, err := optSvc.GatewaySvc.UpdateGatewayConnectState(context.Background(), gw.GatewayID, gw.ConnectState)
-			if err != nil {
-				logger.LogfWithoutFields(logger.MQTT, logger.ErrorLevel,
-					"Update connect_state for gateway ID %s failed, err %s", gwId.String(), err.Error())
-			}
-		}
-	}
-}
+//func gwLastWillSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
+//	return func(c mqtt.Client, msg mqtt.Message) {
+//		var payloadStr = string(msg.Payload())
+//		gwId := gjson.Get(payloadStr, "gateway_id")
+//		logger.LogfWithoutFields(logger.MQTT, logger.DebugLevel, "Gateway ID %s has disconnected", gwId.String())
+//		gw, _ := optSvc.GatewaySvc.FindGatewayByMacID(context.Background(), gwId.String())
+//		if gw != nil {
+//			gw.ConnectState = "disconnected"
+//			_, err := optSvc.GatewaySvc.UpdateGatewayConnectState(context.Background(), gw.GatewayID, gw.ConnectState)
+//			if err != nil {
+//				logger.LogfWithoutFields(logger.MQTT, logger.ErrorLevel,
+//					"Update connect_state for gateway ID %s failed, err %s", gwId.String(), err.Error())
+//			}
+//		}
+//	}
+//}
 
 // Util funcs
 func parseDoorlockPayload(payloadStr string) *models.Doorlock {

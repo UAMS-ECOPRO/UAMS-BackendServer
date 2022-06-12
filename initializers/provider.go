@@ -50,20 +50,20 @@ func ProvideGormDb(config Config) (*gorm.DB, error) {
 
 func ProvideSvcOptions(db *gorm.DB) *models.ServiceOptions {
 	return &models.ServiceOptions{
-		GatewaySvc:           models.NewGatewaySvc(db),
-		GwNetworkSvc:         models.NewGwNetworkSvc(db),
-		AreaSvc:              models.NewAreaSvc(db),
-		DoorlockSvc:          models.NewDoorlockSvc(db),
-		LogSvc:               models.NewLogSvc(db),
-		StudentSvc:           models.NewStudentSvc(db),
-		EmployeeSvc:          models.NewEmployeeSvc(db),
-		SchedulerSvc:         models.NewSchedulerSvc(db),
-		CustomerSvc:          models.NewCustomerSvc(db),
-		SecretKeySvc:         models.NewSecretKeySvc(db),
-		DoorlockStatusLogSvc: models.NewDoorlockStatusLogSvc(db),
-		UHFSvc:               models.NewUHFSvc(db),
-		ActionSvc:            models.NewActionSvc(db),
-		SystemLogSvc:         models.NewSystemLogSvc(db),
+		GatewaySvc:      models.NewGatewaySvc(db),
+		GwNetworkSvc:    models.NewGwNetworkSvc(db),
+		AreaSvc:         models.NewAreaSvc(db),
+		DoorlockSvc:     models.NewDoorlockSvc(db),
+		LogSvc:          models.NewLogSvc(db),
+		StudentSvc:      models.NewStudentSvc(db),
+		EmployeeSvc:     models.NewEmployeeSvc(db),
+		SchedulerSvc:    models.NewSchedulerSvc(db),
+		CustomerSvc:     models.NewCustomerSvc(db),
+		SecretKeySvc:    models.NewSecretKeySvc(db),
+		UHFStatusLogSvc: models.NewUHFStatusLogSvc(db),
+		UHFSvc:          models.NewUHFSvc(db),
+		ActionSvc:       models.NewActionSvc(db),
+		SystemLogSvc:    models.NewSystemLogSvc(db),
 	}
 }
 
@@ -83,18 +83,18 @@ func ProvideHandlerOptions(svcOptions *models.ServiceOptions, mqttClient mqtt.Cl
 	}
 
 	return &handlers.HandlerOptions{
-		AreaHandler:              handlers.NewAreaHandler(deps),
-		CustomerHandler:          handlers.NewCustomerHandler(deps),
-		DoorlockHandler:          handlers.NewDoorlockHandler(deps),
-		EmployeeHandler:          handlers.NewEmployeeHandler(deps),
-		GatewayHandler:           handlers.NewGatewayHandler(deps),
-		LogHandler:               handlers.NewGatewayLogHandler(deps),
-		StudentHandler:           handlers.NewStudentHandler(deps),
-		SchedulerHandler:         handlers.NewSchedulerHandler(deps),
-		SecretKeyHandler:         handlers.NewSecretKeyHandler(deps),
-		DoorlockStatusLogHandler: handlers.NewDoorlockStatusLogHandler(deps),
-		UHFHandler:               handlers.NewUHFHandler(deps),
-		ActionHandler:            handlers.NewActionHandler(deps),
+		AreaHandler:         handlers.NewAreaHandler(deps),
+		CustomerHandler:     handlers.NewCustomerHandler(deps),
+		DoorlockHandler:     handlers.NewDoorlockHandler(deps),
+		EmployeeHandler:     handlers.NewEmployeeHandler(deps),
+		GatewayHandler:      handlers.NewGatewayHandler(deps),
+		LogHandler:          handlers.NewGatewayLogHandler(deps),
+		StudentHandler:      handlers.NewStudentHandler(deps),
+		SchedulerHandler:    handlers.NewSchedulerHandler(deps),
+		SecretKeyHandler:    handlers.NewSecretKeyHandler(deps),
+		UHFStatusLogHandler: handlers.NewUHFStatusLogHandler(deps),
+		UHFHandler:          handlers.NewUHFHandler(deps),
+		ActionHandler:       handlers.NewActionHandler(deps),
 	}
 }
 

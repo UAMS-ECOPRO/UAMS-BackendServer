@@ -32,8 +32,15 @@ type SchedulerBootUp struct {
 	StartClass      string `json:"start_class"`
 	EndClass        string `json:"end_class"`
 }
+
+type UHFSyncPayload struct {
+	UHFAddress   string `json:"uhf_address"`
+	ConnectState string `json:"connect_state"`
+	State        string `json:"state"`
+}
+
 type SyncPayload struct {
-	UHFs        []models.UHF       `json:"uhfs"`
+	UHFs        []UHFSyncPayload   `json:"uhfs"`
 	GW_networks []models.GwNetwork `json:"gw_network"`
 	State       string             `json:"state"`
 }
@@ -237,7 +244,15 @@ func isPastTime(t_compared int64) bool {
 }
 
 func ServerBootupSystemPayload(gwId string, uhfs []models.UHF, gw_networks []models.GwNetwork) string {
-	sync_payload := SyncPayload{UHFs: uhfs, GW_networks: gw_networks, State: "active"}
+	uhf_important_info := []UHFSyncPayload{}
+	for _, item := range uhfs {
+		new_uhf_important_info := UHFSyncPayload{}
+		new_uhf_important_info.UHFAddress = item.UHFAddress
+		new_uhf_important_info.ConnectState = item.ConnectState
+		new_uhf_important_info.State = item.State
+		uhf_important_info = append(uhf_important_info, new_uhf_important_info)
+	}
+	sync_payload := SyncPayload{UHFs: uhf_important_info, GW_networks: gw_networks, State: "active"}
 	sync_payload_converted, _ := json.Marshal(sync_payload)
 	return PayloadWithGatewayId(gwId, string(sync_payload_converted))
 }

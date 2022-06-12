@@ -42,11 +42,11 @@ func SetupRouter(
 		v1R.DELETE("/uhf", hOpts.UHFHandler.DeleteUHF)
 
 		// Doorlock log route
-		v1R.GET("/doorlockStatusLogs", hOpts.DoorlockStatusLogHandler.GetAllDoorlockStatusLogs)
-		v1R.GET("/doorlockStatusLog/:doorId", hOpts.DoorlockStatusLogHandler.GetDoorlockStatusLogByDoorID)
-		v1R.GET("/doorlockStatusLog/date/:fromTime/:toTime", hOpts.DoorlockStatusLogHandler.GetDoorlockStatusLogInTimeRange)
-		v1R.DELETE("/doorlockStatusLog/:doorId", hOpts.DoorlockStatusLogHandler.DeleteDoorlockStatusLogByDoorID)
-		v1R.DELETE("/doorlockStatusLog/date/:fromTime/:toTime", hOpts.DoorlockStatusLogHandler.DeleteDoorlockStatusLogInTimeRange)
+		//v1R.GET("/doorlockStatusLogs", hOpts.DoorlockStatusLogHandler.GetAllDoorlockStatusLogs)
+		//v1R.GET("/doorlockStatusLog/:doorId", hOpts.DoorlockStatusLogHandler.GetDoorlockStatusLogByDoorID)
+		//v1R.GET("/doorlockStatusLog/date/:fromTime/:toTime", hOpts.DoorlockStatusLogHandler.GetDoorlockStatusLogInTimeRange)
+		//v1R.DELETE("/doorlockStatusLog/:doorId", hOpts.DoorlockStatusLogHandler.DeleteDoorlockStatusLogByDoorID)
+		//v1R.DELETE("/doorlockStatusLog/date/:fromTime/:toTime", hOpts.DoorlockStatusLogHandler.DeleteDoorlockStatusLogInTimeRange)
 
 		// Student routes
 		v1R.GET("/students", hOpts.StudentHandler.FindAllStudent)

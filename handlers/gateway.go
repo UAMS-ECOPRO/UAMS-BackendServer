@@ -97,6 +97,12 @@ func (h *GatewayHandler) UpdateGateway(c *gin.Context) {
 		})
 		return
 	}
+	created_gw, _ := h.deps.SvcOpts.GatewaySvc.FindGatewayByMacID(c.Request.Context(), gw.GatewayID)
+	new_gw_log := &models.GatewayLog{}
+	new_gw_log.LogType = "INFO"
+	new_gw_log.GatewayID = gw.GatewayID
+	new_gw_log.Content = fmt.Sprintf("[Connection_State= %s][State= %s]", created_gw.ConnectState, created_gw.State)
+	h.deps.SvcOpts.LogSvc.CreateGatewayLog(c.Request.Context(), new_gw_log)
 
 	t := h.deps.MqttClient.Publish(mqttSvc.TOPIC_SV_GATEWAY_U, 1, false, mqttSvc.ServerUpdateGatewayPayload(gw))
 	if err := mqttSvc.HandleMqttErr(t); err != nil {

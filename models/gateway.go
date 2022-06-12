@@ -12,7 +12,7 @@ type Gateway struct {
 	AreaID          string      `json:"area_id"`
 	GatewayID       string      `gorm:"type:varchar(256);unique;not null;" json:"gateway_id"`
 	Name            string      `json:"name"`
-	ConnectState    bool        `gorm:"type:bool;" json:"connect_state"`
+	ConnectState    string      `json:"connect_state"`
 	SoftwareVersion string      `json:"software_version"`
 	UHFs            []UHF       `gorm:"foreignKey:GatewayID;references:GatewayID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"uhfs"`
 	GwNetworks      []GwNetwork `gorm:"foreignKey:GatewayID;references:GatewayID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"gw_networks"`

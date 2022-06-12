@@ -10,12 +10,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type DoorlockStatusLogHandler struct {
+type UHFStatusLogHandler struct {
 	deps *HandlerDependencies
 }
 
-func NewDoorlockStatusLogHandler(deps *HandlerDependencies) *DoorlockStatusLogHandler {
-	return &DoorlockStatusLogHandler{
+func NewUHFStatusLogHandler(deps *HandlerDependencies) *UHFStatusLogHandler {
+	return &UHFStatusLogHandler{
 		deps,
 	}
 }
@@ -28,8 +28,8 @@ func NewDoorlockStatusLogHandler(deps *HandlerDependencies) *DoorlockStatusLogHa
 // @Success 200 {array} []models.DoorlockStatusLog
 // @Failure 400 {object} utils.ErrorResponse
 // @Router /v1/doorlockStatusLogs [get]
-func (h *DoorlockStatusLogHandler) GetAllDoorlockStatusLogs(c *gin.Context) {
-	dlslList, err := h.deps.SvcOpts.DoorlockStatusLogSvc.GetAllDoorlockStatusLogs(c)
+func (h *UHFStatusLogHandler) GetAllDoorlockStatusLogs(c *gin.Context) {
+	dlslList, err := h.deps.SvcOpts.UHFStatusLogSvc.GetAllDoorlockStatusLogs(c)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
@@ -50,9 +50,9 @@ func (h *DoorlockStatusLogHandler) GetAllDoorlockStatusLogs(c *gin.Context) {
 // @Success 200 {object} models.DoorlockStatusLog
 // @Failure 400 {object} utils.ErrorResponse
 // @Router /v1/doorlockStatusLog/{doorId} [get]
-func (h *DoorlockStatusLogHandler) GetDoorlockStatusLogByDoorID(c *gin.Context) {
+func (h *UHFStatusLogHandler) GetDoorlockStatusLogByDoorID(c *gin.Context) {
 	doorId := c.Param("doorId")
-	gl, err := h.deps.SvcOpts.DoorlockStatusLogSvc.GetDoorlockStatusLogByDoorID(c, doorId)
+	gl, err := h.deps.SvcOpts.UHFStatusLogSvc.GetDoorlockStatusLogByDoorID(c, doorId)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
@@ -74,14 +74,14 @@ func (h *DoorlockStatusLogHandler) GetDoorlockStatusLogByDoorID(c *gin.Context) 
 // @Success 200 {object} []models.DoorlockStatusLog
 // @Failure 400 {object} utils.ErrorResponse
 // @Router /v1/doorlockStatusLog/:fromTime/:toTime [get]
-func (h *DoorlockStatusLogHandler) GetDoorlockStatusLogInTimeRange(c *gin.Context) {
+func (h *UHFStatusLogHandler) GetDoorlockStatusLogInTimeRange(c *gin.Context) {
 	from := c.Param("fromTime")
 	to := c.Param("toTime")
 	fromInt, _ := strconv.ParseInt(from, 10, 64)
 	toInt, _ := strconv.ParseInt(to, 10, 64)
 	fromFormatted := time.Unix(fromInt, 0).Format(models.DEFAULT_TIME_FORMAT)
 	toFormatted := time.Unix(toInt, 0).Format(models.DEFAULT_TIME_FORMAT)
-	dlslList, err := h.deps.SvcOpts.DoorlockStatusLogSvc.GetDoorlockStatusLogInTimeRange(fromFormatted, toFormatted)
+	dlslList, err := h.deps.SvcOpts.UHFStatusLogSvc.GetDoorlockStatusLogInTimeRange(fromFormatted, toFormatted)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
@@ -102,14 +102,14 @@ func (h *DoorlockStatusLogHandler) GetDoorlockStatusLogInTimeRange(c *gin.Contex
 // @Success 200 {boolean} true
 // @Failure 400 {object} utils.ErrorResponse
 // @Router /v1/doorlockStatusLog/:fromTime/:toTime [delete]
-func (h *DoorlockStatusLogHandler) DeleteDoorlockStatusLogInTimeRange(c *gin.Context) {
+func (h *UHFStatusLogHandler) DeleteDoorlockStatusLogInTimeRange(c *gin.Context) {
 	from := c.Param("fromTime")
 	to := c.Param("toTime")
 	fromInt, _ := strconv.ParseInt(from, 10, 64)
 	toInt, _ := strconv.ParseInt(to, 10, 64)
 	fromFormatted := time.Unix(fromInt, 0).Format(models.DEFAULT_TIME_FORMAT)
 	toFormatted := time.Unix(toInt, 0).Format(models.DEFAULT_TIME_FORMAT)
-	isSuccess, err := h.deps.SvcOpts.DoorlockStatusLogSvc.DeleteDoorlockStatusLogInTimeRange(fromFormatted, toFormatted)
+	isSuccess, err := h.deps.SvcOpts.UHFStatusLogSvc.DeleteDoorlockStatusLogInTimeRange(fromFormatted, toFormatted)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
@@ -129,9 +129,9 @@ func (h *DoorlockStatusLogHandler) DeleteDoorlockStatusLogInTimeRange(c *gin.Con
 // @Success 200 {boolean} true
 // @Failure 400 {object} utils.ErrorResponse
 // @Router /v1/doorlockStatusLog/door/:id [delete]
-func (h *DoorlockStatusLogHandler) DeleteDoorlockStatusLogByDoorID(c *gin.Context) {
+func (h *UHFStatusLogHandler) DeleteDoorlockStatusLogByDoorID(c *gin.Context) {
 	doorId := c.Param("id")
-	isSuccess, err := h.deps.SvcOpts.DoorlockStatusLogSvc.DeleteDoorlockStatusLogByDoorID(doorId)
+	isSuccess, err := h.deps.SvcOpts.UHFStatusLogSvc.DeleteDoorlockStatusLogByDoorID(doorId)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,

@@ -30,18 +30,18 @@ type UserSchedulerReq struct {
 
 // Struct defines all services for our IoC
 type ServiceOptions struct {
-	StudentSvc           *StudentSvc
-	CustomerSvc          *CustomerSvc
-	EmployeeSvc          *EmployeeSvc
-	GatewaySvc           *GatewaySvc
-	DoorlockSvc          *DoorlockSvc
-	AreaSvc              *AreaSvc
-	LogSvc               *LogSvc
-	GwNetworkSvc         *GwNetworkSvc
-	SchedulerSvc         *SchedulerSvc
-	SecretKeySvc         *SecretKeySvc
-	DoorlockStatusLogSvc *DoorlockStatusLogSvc
-	UHFSvc               *UHFSvc
-	ActionSvc            *ActionSvc
-	SystemLogSvc         *SystemLogSvc
+	StudentSvc      *StudentSvc
+	CustomerSvc     *CustomerSvc
+	EmployeeSvc     *EmployeeSvc
+	GatewaySvc      *GatewaySvc
+	DoorlockSvc     *DoorlockSvc
+	AreaSvc         *AreaSvc
+	LogSvc          *LogSvc
+	GwNetworkSvc    *GwNetworkSvc
+	SchedulerSvc    *SchedulerSvc
+	SecretKeySvc    *SecretKeySvc
+	UHFStatusLogSvc *UHFStatusLogSvc
+	UHFSvc          *UHFSvc
+	ActionSvc       *ActionSvc
+	SystemLogSvc    *SystemLogSvc
 }
