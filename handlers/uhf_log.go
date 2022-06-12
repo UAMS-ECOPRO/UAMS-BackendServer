@@ -51,7 +51,7 @@ func (h *UHFStatusLogHandler) GetAllUHFStatusLogs(c *gin.Context) {
 // @Failure 400 {object} utils.ErrorResponse
 // @Router /v1/doorlockStatusLog/{doorId} [get]
 func (h *UHFStatusLogHandler) GetUHFStatusLogByUHFAddress(c *gin.Context) {
-	doorId := c.Param("id")
+	doorId := c.Param("uhf_address")
 	gl, err := h.deps.SvcOpts.UHFStatusLogSvc.GetUHFStatusLogByDoorID(c, doorId)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
@@ -64,24 +64,16 @@ func (h *UHFStatusLogHandler) GetUHFStatusLogByUHFAddress(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, gl)
 }
 
-// Find Doorlock status logs in time range
-// @Summary Find DoorlockStatusLog In Time Range
-// @Schemes
-// @Description find doorlock status logs in time range
-// @Produce json
-// @Param 		 fromTime path  string  true    "From Unix time"
-// @Param 		 toTime path    string  true    "To Unix time"
-// @Success 200 {object} []models.DoorlockStatusLog
-// @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/doorlockStatusLog/:fromTime/:toTime [get]
 func (h *UHFStatusLogHandler) GetUHFStatusLogInTimeRange(c *gin.Context) {
+	gateway_id := c.Param("gateway_id")
+	uhf_address := c.Param("gateway_id")
 	from := c.Param("fromTime")
 	to := c.Param("toTime")
 	fromInt, _ := strconv.ParseInt(from, 10, 64)
 	toInt, _ := strconv.ParseInt(to, 10, 64)
 	fromFormatted := time.Unix(fromInt, 0).Format(models.DEFAULT_TIME_FORMAT)
 	toFormatted := time.Unix(toInt, 0).Format(models.DEFAULT_TIME_FORMAT)
-	dlslList, err := h.deps.SvcOpts.UHFStatusLogSvc.GetUHFStatusLogInTimeRange(fromFormatted, toFormatted)
+	dlslList, err := h.deps.SvcOpts.UHFStatusLogSvc.GetUHFStatusLogInTimeRange(fromFormatted, toFormatted, gateway_id, uhf_address)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,

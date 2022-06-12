@@ -57,8 +57,8 @@ func (dlsls *UHFStatusLogSvc) CreateUHFStatusLog(ctx context.Context, dlsl *UHFS
 	return dlsl, nil
 }
 
-func (dlsls *UHFStatusLogSvc) GetUHFStatusLogInTimeRange(from string, to string) (dlslList *[]UHFStatusLog, err error) {
-	result := dlsls.db.Where("created_at >= ? AND created_at <= ?", from, to).Find(&dlslList)
+func (dlsls *UHFStatusLogSvc) GetUHFStatusLogInTimeRange(from string, to string, gateway_id string, uhf_address string) (dlslList *[]UHFStatusLog, err error) {
+	result := dlsls.db.Where("created_at >= ? AND created_at <= ? AND gateway_id = ? AND uhf_address = ?", from, to, gateway_id, uhf_address).Find(&dlslList)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)
 		return nil, err
