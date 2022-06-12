@@ -33,7 +33,7 @@ func ProvideConfig(envFilePath string) (Config, error) {
 		return cfg, err
 	}
 
-	logger.InitLogger(cfg.SvLogPath)
+	logger.InitLogger("log/hoang.log")
 	return cfg, nil
 }
 
@@ -62,7 +62,7 @@ func ProvideSvcOptions(db *gorm.DB) *models.ServiceOptions {
 		SecretKeySvc:    models.NewSecretKeySvc(db),
 		UHFStatusLogSvc: models.NewUHFStatusLogSvc(db),
 		UHFSvc:          models.NewUHFSvc(db),
-		ActionSvc:       models.NewActionSvc(db),
+		AccessSvc:       models.NewAccessSvc(db),
 		SystemLogSvc:    models.NewSystemLogSvc(db),
 		OperationLogSvc: models.NewOperationLogSvc(db),
 	}
@@ -95,7 +95,7 @@ func ProvideHandlerOptions(svcOptions *models.ServiceOptions, mqttClient mqtt.Cl
 		SecretKeyHandler:    handlers.NewSecretKeyHandler(deps),
 		UHFStatusLogHandler: handlers.NewUHFStatusLogHandler(deps),
 		UHFHandler:          handlers.NewUHFHandler(deps),
-		ActionHandler:       handlers.NewActionHandler(deps),
+		AccessHandler:       handlers.NewAccessHandler(deps),
 		OperationLogHandler: handlers.NewOperationLogHandler(deps),
 	}
 }

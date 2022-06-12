@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/ecoprohcm/DMS_BackendServer/models"
 	"github.com/ecoprohcm/DMS_BackendServer/mqttSvc"
@@ -102,13 +103,8 @@ func (h *GatewayHandler) UpdateGateway(c *gin.Context) {
 	new_gw_log.StateType = "ConnectState"
 	new_gw_log.GatewayID = gw.GatewayID
 	new_gw_log.StateValue = updated_gw.ConnectState
+	new_gw_log.LogTime = time.Now()
 	h.deps.SvcOpts.LogSvc.CreateGatewayLog(c.Request.Context(), new_gw_log)
-
-	new_gw_log_state := &models.GatewayLog{}
-	new_gw_log_state.StateType = "State"
-	new_gw_log_state.GatewayID = gw.GatewayID
-	new_gw_log_state.StateValue = updated_gw.State
-	h.deps.SvcOpts.LogSvc.CreateGatewayLog(c.Request.Context(), new_gw_log_state)
 
 	t := h.deps.MqttClient.Publish(mqttSvc.TOPIC_SV_GATEWAY_U, 1, false, mqttSvc.ServerUpdateGatewayPayload(gw))
 	if err := mqttSvc.HandleMqttErr(t); err != nil {

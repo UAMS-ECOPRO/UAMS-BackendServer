@@ -65,6 +65,20 @@ func (h *GatewayLogHandler) FindGatewayLogByID(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, gl)
 }
 
+func (h *GatewayLogHandler) FindGatewayByGatewayID(c *gin.Context) {
+	id := c.Param("id")
+	gl, err := h.deps.SvcOpts.LogSvc.FindGatewayByGatewayID(c, id)
+	if err != nil {
+		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Msg:        "Get gateway log failed",
+			ErrorMsg:   err.Error(),
+		})
+		return
+	}
+	utils.ResponseJson(c, http.StatusOK, gl)
+}
+
 // Update GatewayLogs Cleaner time period (Default: 1 week)
 // @Summary Update GatewayLogs Cleaner time period (Default: 1 week)
 // @Schemes

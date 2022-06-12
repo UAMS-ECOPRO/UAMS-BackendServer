@@ -11,7 +11,7 @@ func Migrate(db *gorm.DB) {
 		&UHF{},
 		&GatewayLog{},
 		&GwNetwork{},
-		&Action{},
+		&Access{},
 		&SystemLog{},
 		&UHFStatusLog{},
 		&OperationLog{},

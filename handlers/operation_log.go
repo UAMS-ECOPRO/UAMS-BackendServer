@@ -29,8 +29,8 @@ func NewOperationLogHandler(deps *HandlerDependencies) *OperationLogHandler {
 // @Success 200 {array} []models.GatewayLog
 // @Failure 400 {object} utils.ErrorResponse
 // @Router /v1/gatewayLogs [get]
-func (h *OperationLogHandler) FindAllGatewayLog(c *gin.Context) {
-	glList, err := h.deps.SvcOpts.LogSvc.FindAllGatewayLog(c)
+func (h *OperationLogHandler) FindAllOperationLog(c *gin.Context) {
+	glList, err := h.deps.SvcOpts.OperationLogSvc.GetAllOperationLogs(c)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
@@ -51,9 +51,9 @@ func (h *OperationLogHandler) FindAllGatewayLog(c *gin.Context) {
 // @Success 200 {object} models.GatewayLog
 // @Failure 400 {object} utils.ErrorResponse
 // @Router /v1/gatewayLog/{id} [get]
-func (h *OperationLogHandler) FindGatewayLogByID(c *gin.Context) {
-	id := c.Param("id")
-	gl, err := h.deps.SvcOpts.LogSvc.FindGatewayLogByID(c, id)
+func (h *OperationLogHandler) FindOperationLogByGatewayID(c *gin.Context) {
+	id := c.Param("gateway_id")
+	gl, err := h.deps.SvcOpts.OperationLogSvc.GetOperationLogByGatewayID(c, id)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
@@ -74,7 +74,7 @@ func (h *OperationLogHandler) FindGatewayLogByID(c *gin.Context) {
 // @Success 200 {object} boolean
 // @Failure 400 {object} utils.ErrorResponse
 // @Router /v1/gatewayLogs/period [post]
-func (h *OperationLogHandler) UpdateGatewayLogCleanPeriod(c *gin.Context) {
+func (h *OperationLogHandler) UpdatOperationLogCleanPeriod(c *gin.Context) {
 	period := models.GatewayLogTime{}
 	err := c.ShouldBind(&period)
 	if err != nil {
@@ -107,15 +107,15 @@ func (h *OperationLogHandler) UpdateGatewayLogCleanPeriod(c *gin.Context) {
 // @Success 200 {object} []models.GatewayLog
 // @Failure 400 {object} utils.ErrorResponse
 // @Router /v1/gatewayLogs/period/{id}/date/:from/:to [get]
-func (h *OperationLogHandler) FindGatewayLogsByTime(c *gin.Context) {
-	gatewayId := c.Param("id")
+func (h *OperationLogHandler) FindOperationLogsByTime(c *gin.Context) {
+	gatewayId := c.Param("gateway_id")
 	from := c.Param("from")
 	to := c.Param("to")
 	fromInt, _ := strconv.ParseInt(from, 10, 64)
 	toInt, _ := strconv.ParseInt(to, 10, 64)
 	fromFormatted := time.Unix(fromInt, 0).Format(models.DEFAULT_TIME_FORMAT)
 	toFormatted := time.Unix(toInt, 0).Format(models.DEFAULT_TIME_FORMAT)
-	glList, err := h.deps.SvcOpts.LogSvc.FindGatewayLogsByTime(gatewayId, fromFormatted, toFormatted)
+	glList, err := h.deps.SvcOpts.OperationLogSvc.GetOperationLogInTimeRange(gatewayId, fromFormatted, toFormatted)
 
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
@@ -139,7 +139,7 @@ func (h *OperationLogHandler) FindGatewayLogsByTime(c *gin.Context) {
 // @Success 200 {object} []models.GatewayLog
 // @Failure 400 {object} utils.ErrorResponse
 // @Router /v1/gatewayLogs/:id/period [get]
-func (h *OperationLogHandler) FindGatewayLogsTypeByTime(c *gin.Context) {
+func (h *OperationLogHandler) FindOperationLogsTypeByTime(c *gin.Context) {
 	var fromFormatted, toFormatted string
 	gatewayId := c.Param("id")
 	logType := c.DefaultQuery("type", "DEBUG")

@@ -7,18 +7,18 @@ import (
 	"net/http"
 )
 
-type ActionHandler struct {
+type AccessHandler struct {
 	deps *HandlerDependencies
 }
 
-func NewActionHandler(deps *HandlerDependencies) *ActionHandler {
-	return &ActionHandler{
+func NewAccessHandler(deps *HandlerDependencies) *AccessHandler {
+	return &AccessHandler{
 		deps,
 	}
 }
 
-func (h *ActionHandler) FindAllAccesses(c *gin.Context) {
-	gwList, err := h.deps.SvcOpts.ActionSvc.FindAllActions(c)
+func (h *AccessHandler) FindAllAccesses(c *gin.Context) {
+	gwList, err := h.deps.SvcOpts.AccessSvc.FindAllActions(c)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
@@ -30,12 +30,12 @@ func (h *ActionHandler) FindAllAccesses(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, gwList)
 }
 
-func (h *ActionHandler) FindAccess(c *gin.Context) {
+func (h *AccessHandler) FindAccess(c *gin.Context) {
 	//uhf_address := c.Param('uhf_address')
 	//gateway_id := c.Param('gateway_id')
 	epc := c.Param("epc")
 	//time := c.Param('time')
-	accesslist, err := h.deps.SvcOpts.ActionSvc.FindAllActionsByEPC(context.Background(), epc)
+	accesslist, err := h.deps.SvcOpts.AccessSvc.FindAllActionsByEPC(context.Background(), epc)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,

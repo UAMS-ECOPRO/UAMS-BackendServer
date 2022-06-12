@@ -66,9 +66,9 @@ func (h *UHFStatusLogHandler) GetUHFStatusLogByUHFAddress(c *gin.Context) {
 
 func (h *UHFStatusLogHandler) GetUHFStatusLogInTimeRange(c *gin.Context) {
 	gateway_id := c.Param("gateway_id")
-	uhf_address := c.Param("gateway_id")
-	from := c.Param("fromTime")
-	to := c.Param("toTime")
+	uhf_address := c.Param("uhf_address")
+	from := c.Param("from")
+	to := c.Param("to")
 	fromInt, _ := strconv.ParseInt(from, 10, 64)
 	toInt, _ := strconv.ParseInt(to, 10, 64)
 	fromFormatted := time.Unix(fromInt, 0).Format(models.DEFAULT_TIME_FORMAT)

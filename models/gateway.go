@@ -16,7 +16,6 @@ type Gateway struct {
 	SoftwareVersion string      `json:"software_version"`
 	UHFs            []UHF       `gorm:"foreignKey:GatewayID;references:GatewayID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"uhfs"`
 	GwNetworks      []GwNetwork `gorm:"foreignKey:GatewayID;references:GatewayID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"gw_networks"`
-	State           string      `json:"state"`
 }
 
 // Struct defines HTTP request payload for deleting gateway
@@ -136,7 +135,7 @@ func (gs *GatewaySvc) UpdateAllDoorlocksStateByBlockID(ctx context.Context, bloc
 	return utils.ReturnBoolStateFromResult(result)
 }
 
-func (gs *GatewaySvc) UpdateGatewayConnectState(ctx context.Context, gwId string, state bool) (bool, error) {
+func (gs *GatewaySvc) UpdateGatewayConnectState(ctx context.Context, gwId string, state string) (bool, error) {
 	if err := gs.db.Model(&Gateway{}).Where("gateway_id = ?", gwId).Update("connect_state", state).Error; err != nil {
 		err = utils.HandleQueryError(err)
 		return false, err

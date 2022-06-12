@@ -1,6 +1,6 @@
 .PHONY: swagger deploy
 # Remember to adjust env file and main.go before make
-APP_NAME=dms-be
+APP_NAME=uams-be
 VERSION=latest
 IMAGE_NAME=$(APP_NAME):$(VERSION)
 LOCAL_DIR=${HOME}/Desktop/$(APP_NAME).tar

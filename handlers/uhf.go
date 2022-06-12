@@ -99,18 +99,12 @@ func (h *UHFHandler) UpdateUHF(c *gin.Context) {
 		return
 	}
 	updated_UHF, err := h.deps.SvcOpts.UHFSvc.FindUHFByAddress(c.Request.Context(), dl.UHFAddress, dl.GatewayID)
-	var new_UHF_status_log = &models.UHFStatusLog{}
-	new_UHF_status_log.GatewayID = updated_UHF.GatewayID
-	new_UHF_status_log.UHFAddress = updated_UHF.UHFAddress
-	new_UHF_status_log.StateType = "ConnectState"
-	new_UHF_status_log.StateValue = dl.ConnectState
-	h.deps.SvcOpts.UHFStatusLogSvc.CreateUHFStatusLog(c.Request.Context(), new_UHF_status_log)
 
 	var new_UHF_status_log_state = &models.UHFStatusLog{}
 	new_UHF_status_log_state.GatewayID = updated_UHF.GatewayID
 	new_UHF_status_log_state.UHFAddress = updated_UHF.UHFAddress
-	new_UHF_status_log_state.StateType = "State"
-	new_UHF_status_log_state.StateValue = dl.State
+	new_UHF_status_log_state.StateType = "Active State"
+	new_UHF_status_log_state.StateValue = dl.ActiveState
 	h.deps.SvcOpts.UHFStatusLogSvc.CreateUHFStatusLog(c.Request.Context(), new_UHF_status_log_state)
 
 	t := h.deps.MqttClient.Publish(mqttSvc.TOPIC_SV_UHF_U, 1, false,

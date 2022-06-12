@@ -13,6 +13,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"time"
 
 	logger "github.com/ecoprohcm/DMS_BackendServer/logs"
 	"strconv"
@@ -67,7 +68,7 @@ func MqttClient(
 
 	opts := mqtt.NewClientOptions()
 	// Setup server LWT message
-
+	//opts.SetWill(TOPIC_SV_LASTWILL, string(`{"status":"shutdown"}`), 0, false)
 	opts.AddBroker(fmt.Sprintf("ssl://%s:%s", host, port))
 	opts.SetClientID(clientID) // Need to be unique per client
 	tlsConfig := NewTlsConfig()
@@ -101,6 +102,7 @@ func subGateway(client mqtt.Client, optSvc *models.ServiceOptions) {
 	topicSubscriberMap[TOPIC_GW_UHF_SCAN] = gwUHFScanSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_TAG] = gwActionSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_LOG] = gwSystemSubscriber(client, optSvc)
+	topicSubscriberMap[TOPIC_GW_LASTWILL] = gwLastWillSubscriber(client, optSvc)
 
 	for topic, subscriber := range topicSubscriberMap {
 		t := client.Subscribe(topic, 1, subscriber)
@@ -116,16 +118,46 @@ func gwUHFConnectStateSubscriber(client mqtt.Client, optSvc *models.ServiceOptio
 		gwId := gjson.Get(payloadStr, "gateway_id")
 		uhf_address := gjson.Get(payloadStr, "message.uhf_address")
 		uhf_connect_state := gjson.Get(payloadStr, "message.connection_state")
-		//logger.LogfWithFields(logger.MQTT, logger.InfoLevel, logger.LoggerFields{
-		//	"GwMsg": gwMsg.String(),
-		//}, "Receive gateway shutdown message with ID %s", gwId.Strin
+		logger.LogfWithFields(logger.MQTT, logger.InfoLevel, logger.LoggerFields{
+			"GwMsg": payloadStr,
+		}, "Connect state of  ID %s", gwId.String())
 		uhf, error := optSvc.UHFSvc.FindUHFByAddress(context.Background(), uhf_address.String(), gwId.String())
 		if error != nil {
 			return
 		}
 		uhf.ConnectState = uhf_connect_state.String()
 		optSvc.UHFSvc.UpdateUHF(context.Background(), uhf)
+
+		new_uhf_log := &models.UHFStatusLog{}
+		new_uhf_log.GatewayID = gwId.String()
+		new_uhf_log.UHFAddress = uhf_address.String()
+		new_uhf_log.StateType = "Connect State"
+		new_uhf_log.StateValue = uhf_connect_state.String()
+		optSvc.UHFStatusLogSvc.CreateUHFStatusLog(context.Background(), new_uhf_log)
 		return
+	}
+}
+
+func gwLastWillSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
+	return func(c mqtt.Client, msg mqtt.Message) {
+		var payloadStr = string(msg.Payload())
+		gwId := gjson.Get(payloadStr, "gateway_id")
+		logger.LogfWithoutFields(logger.MQTT, logger.DebugLevel, "Gateway ID %s has disconnected", gwId.String())
+		gw, _ := optSvc.GatewaySvc.FindGatewayByMacID(context.Background(), gwId.String())
+		if gw != nil {
+			gw.ConnectState = "disconnected"
+			_, err := optSvc.GatewaySvc.UpdateGatewayConnectState(context.Background(), gw.GatewayID, gw.ConnectState)
+			if err != nil {
+				logger.LogfWithoutFields(logger.MQTT, logger.ErrorLevel,
+					"Update connect_state for gateway ID %s failed, err %s", gwId.String(), err.Error())
+			}
+			new_gateway_log := &models.GatewayLog{}
+			new_gateway_log.GatewayID = gwId.String()
+			new_gateway_log.StateType = "Connect State"
+			new_gateway_log.StateValue = "Disconnected"
+			new_gateway_log.LogTime = time.Now()
+			optSvc.LogSvc.CreateGatewayLog(context.Background(), new_gateway_log)
+		}
 	}
 }
 
@@ -186,11 +218,11 @@ func gwActionSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 			return
 		}
 		for _, ecp := range ecps_string {
-			var new_action = &models.Action{}
+			var new_action = &models.Access{}
 			new_action.GatewayID = gwId.String()
 			new_action.UHFAddress = uhf_address.String()
 			new_action.EPC = ecp
-			optSvc.ActionSvc.CreateAction(context.Background(), new_action)
+			optSvc.AccessSvc.CreateAction(context.Background(), new_action)
 		}
 	}
 }
@@ -218,13 +250,13 @@ func gwUHFScanSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt
 				newUHF := &models.UHF{}
 				newUHF.GatewayID = gwId.String()
 				newUHF.ConnectState = uhf["connect_state"]
-				newUHF.State = uhf["state"]
+				newUHF.ActiveState = uhf["state"]
 				newUHF.UHFAddress = uhf["uhf_address"]
 				newUHF.UHFSerialNumber = uuid.New().String()
 				optSvc.UHFSvc.CreateUHF(context.Background(), newUHF)
 			} else {
 				existing_uhf.ConnectState = uhf["connect_state"]
-				existing_uhf.State = uhf["state"]
+				existing_uhf.ActiveState = uhf["state"]
 				existing_uhf.UHFAddress = uhf["uhf_address"]
 				optSvc.UHFSvc.UpdateUHF(context.Background(), existing_uhf)
 			}
@@ -260,20 +292,33 @@ func gwBootupSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 			newGw := &models.Gateway{}
 			newGw.GatewayID = gwId.String()
 			newGw.ConnectState = "connected"
-			newGw.SoftwareVersion = gjson.Get(payloadStr, "message.software_version").String()
+			newGw.SoftwareVersion = gjson.Get(payloadStr, "message.version").String()
 			optSvc.GatewaySvc.CreateGateway(context.Background(), newGw)
 			uhfs := []models.UHF{}
 			gw := []models.GwNetwork{}
+			new_gateway_log := &models.GatewayLog{}
+			new_gateway_log.GatewayID = gwId.String()
+			new_gateway_log.StateType = "Connect State"
+			new_gateway_log.StateValue = "Connected"
+			new_gateway_log.LogTime = time.Now()
+			optSvc.LogSvc.CreateGatewayLog(context.Background(), new_gateway_log)
 			t := client.Publish(TOPIC_SV_SYNC, 1, false, ServerBootupSystemPayload(gwId.String(), uhfs, gw))
 			HandleMqttErr(t)
 			return
 		}
-		checkGw.SoftwareVersion = gjson.Get(payloadStr, "message.software_version").String()
+		checkGw.SoftwareVersion = gjson.Get(payloadStr, "message.version").String()
 		optSvc.GatewaySvc.UpdateGateway(context.Background(), checkGw)
 		uhfs := checkGw.UHFs
 		gw_networks := checkGw.GwNetworks
 		t := client.Publish(TOPIC_SV_SYNC, 1, false, ServerBootupSystemPayload(gwId.String(), uhfs, gw_networks))
 		HandleMqttErr(t)
+		new_gateway_log := &models.GatewayLog{}
+		new_gateway_log.GatewayID = gwId.String()
+		new_gateway_log.StateType = "Connect State"
+		new_gateway_log.StateValue = "Connected"
+		new_gateway_log.LogTime = time.Now()
+		optSvc.LogSvc.CreateGatewayLog(context.Background(), new_gateway_log)
+		return
 	}
 }
 

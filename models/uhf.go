@@ -17,7 +17,7 @@ type UHF struct {
 	AreaId          string `json:"area_id"`
 	Lane            string `json:"lane"`
 	UHFAddress      string `json:"uhf_address"`
-	State           string `json:"state"`
+	ActiveState     string `json:"active_state"`
 }
 
 // Struct defines HTTP request payload for openning doorlock

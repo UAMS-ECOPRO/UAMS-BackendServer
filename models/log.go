@@ -24,7 +24,7 @@ type GatewayLogTime struct {
 type GatewayLog struct {
 	ID         uint      `gorm:"primarykey;" json:"id"`
 	GatewayID  string    `json:"gateway_id"`
-	StateType  string    `json:"state_type"` // info, warn, debug, error, fatal
+	StateType  string    `json:"state_type"`
 	StateValue string    `json:"state_value"`
 	LogTime    time.Time `json:"log_time"`
 	CreatedAt  time.Time `swaggerignore:"true" json:"created_at"`
@@ -63,6 +63,15 @@ func (ls *LogSvc) FindAllGatewayLog(ctx context.Context) (glList []GatewayLog, e
 
 func (ls *LogSvc) FindGatewayLogByID(ctx context.Context, id string) (gl *GatewayLog, err error) {
 	result := ls.db.First(&gl, id)
+	if err := result.Error; err != nil {
+		err = utils.HandleQueryError(err)
+		return nil, err
+	}
+	return gl, nil
+}
+
+func (ls *LogSvc) FindGatewayByGatewayID(ctx context.Context, gatewayId string) (gl *[]GatewayLog, err error) {
+	result := ls.db.Where("gateway_id = ?", gatewayId).Find(&gl)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)
 		return nil, err

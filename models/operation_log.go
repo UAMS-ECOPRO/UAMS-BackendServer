@@ -32,8 +32,8 @@ func (dlsls *OperationLogSvc) GetAllOperationLogs(ctx context.Context) (dlslList
 	return dlslList, nil
 }
 
-func (dlsls *OperationLogSvc) GetOperationLogByDoorID(ctx context.Context, doorId string) (dlslList []OperationLog, err error) {
-	result := dlsls.db.Where("door_id = ?", doorId).Find(&dlslList)
+func (dlsls *OperationLogSvc) GetOperationLogByGatewayID(ctx context.Context, doorId string) (dlslList []OperationLog, err error) {
+	result := dlsls.db.Where("gateway_id = ?", doorId).Find(&dlslList)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)
 		return nil, err
@@ -49,7 +49,7 @@ func (dlsls *OperationLogSvc) CreateOperationLog(ctx context.Context, dlsl *Oper
 	return dlsl, nil
 }
 
-func (dlsls *OperationLogSvc) GetOperationLogInTimeRange(from string, to string) (dlslList *[]OperationLog, err error) {
+func (dlsls *OperationLogSvc) GetOperationLogInTimeRange(gateway_id string, from string, to string) (dlslList *[]OperationLog, err error) {
 	result := dlsls.db.Where("created_at >= ? AND created_at <= ?", from, to).Find(&dlslList)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)

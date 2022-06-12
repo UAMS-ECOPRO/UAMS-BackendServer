@@ -58,7 +58,7 @@ func ServerUpdateDoorlockPayload(doorlock *models.Doorlock) string {
 
 func ServerUpdateUHFPayload(uhf *models.UHF) string {
 	msg := fmt.Sprintf(`{"uhf_address":"%s","state":"%s"}`,
-		uhf.UHFAddress, uhf.State)
+		uhf.UHFAddress, uhf.ActiveState)
 	return PayloadWithGatewayId(uhf.GatewayID, msg)
 }
 
@@ -82,7 +82,7 @@ func ServerCmdDoorlockPayload(gwId string, doorlockAddress string, cmd *models.D
 }
 
 func ServerUpdateGatewayPayload(gw *models.Gateway) string {
-	msg := fmt.Sprintf(`{"state":"%s"}`, gw.State)
+	msg := fmt.Sprintf(`{"state":"%s"}`, gw.ConnectState)
 	return PayloadWithGatewayId(gw.GatewayID, msg)
 }
 
@@ -203,7 +203,7 @@ func ServerBootupUHFsPayload(gwId string, dls []models.UHF) string {
 	for _, dl := range dls {
 		buDl := UHFBootUp{
 			UHFAddress:  dl.UHFAddress,
-			ActiveState: dl.State,
+			ActiveState: dl.ActiveState,
 		}
 		bootupDls = append(bootupDls, buDl)
 	}
@@ -249,7 +249,7 @@ func ServerBootupSystemPayload(gwId string, uhfs []models.UHF, gw_networks []mod
 		new_uhf_important_info := UHFSyncPayload{}
 		new_uhf_important_info.UHFAddress = item.UHFAddress
 		new_uhf_important_info.ConnectState = item.ConnectState
-		new_uhf_important_info.State = item.State
+		new_uhf_important_info.State = item.ActiveState
 		uhf_important_info = append(uhf_important_info, new_uhf_important_info)
 	}
 	sync_payload := SyncPayload{UHFs: uhf_important_info, GW_networks: gw_networks, State: "active"}

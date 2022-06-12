@@ -6,24 +6,24 @@ import (
 	"gorm.io/gorm"
 )
 
-type Action struct {
+type Access struct {
 	GormModel
 	GatewayID  string `gorm:"type:varchar(256);" json:"gateway_id"`
 	UHFAddress string `gorm:"type:varchar(50);not null" json:"uhf_address"`
 	EPC        string `gorm:"type:varchar(256);" json:"epc"`
 }
 
-type ActionSvc struct {
+type AccessSvc struct {
 	db *gorm.DB
 }
 
-func NewActionSvc(db *gorm.DB) *ActionSvc {
-	return &ActionSvc{
+func NewAccessSvc(db *gorm.DB) *AccessSvc {
+	return &AccessSvc{
 		db: db,
 	}
 }
 
-func (gwns *ActionSvc) CreateAction(ctx context.Context, act *Action) (*Action, error) {
+func (gwns *AccessSvc) CreateAction(ctx context.Context, act *Access) (*Access, error) {
 	if err := gwns.db.Create(&act).Error; err != nil {
 		err = utils.HandleQueryError(err)
 		return nil, err
@@ -31,7 +31,7 @@ func (gwns *ActionSvc) CreateAction(ctx context.Context, act *Action) (*Action, 
 	return act, nil
 }
 
-func (gwns *ActionSvc) FindAllActions(ctx context.Context) (gwNet []Action, err error) {
+func (gwns *AccessSvc) FindAllActions(ctx context.Context) (gwNet []Access, err error) {
 	result := gwns.db.Find(&gwNet)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)
@@ -40,7 +40,7 @@ func (gwns *ActionSvc) FindAllActions(ctx context.Context) (gwNet []Action, err 
 	return gwNet, err
 }
 
-func (gwns *ActionSvc) FindAllActionsByEPC(ctx context.Context, epc string) (gwNet []Action, err error) {
+func (gwns *AccessSvc) FindAllActionsByEPC(ctx context.Context, epc string) (gwNet []Access, err error) {
 	result := gwns.db.Where("epc = ?", epc).Find(&gwNet)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)

@@ -40,20 +40,24 @@ func SetupRouter(
 		v1R.DELETE("/uhf", hOpts.UHFHandler.DeleteUHF)
 
 		// Gateway log routes
-		v1R.GET("/gatewayLogs", hOpts.LogHandler.FindAllGatewayLog)
-		v1R.GET("/gatewayLog/:id", hOpts.LogHandler.FindGatewayLogByID)
-		v1R.GET("/gatewayLogs/period/:id/date/:from/:to", hOpts.LogHandler.FindGatewayLogsByTime)
-		v1R.POST("/gatewayLogs/period", hOpts.LogHandler.UpdateGatewayLogCleanPeriod)
-		v1R.GET("/gatewayLogs/:id/period", hOpts.LogHandler.FindGatewayLogsTypeByTime)
+		v1R.GET("/gateway_logs", hOpts.LogHandler.FindAllGatewayLog)
+		v1R.GET("/gateway_log/:id", hOpts.LogHandler.FindGatewayLogByID)
+		v1R.GET("/gateway_log/gateway_id/:id", hOpts.LogHandler.FindGatewayByGatewayID)
+		v1R.GET("/gateway_logs/period/:id/date/:from/:to", hOpts.LogHandler.FindGatewayLogsByTime)
+		v1R.POST("/gateway_logs/period", hOpts.LogHandler.UpdateGatewayLogCleanPeriod)
+		v1R.GET("/gateway_logs/:id/period", hOpts.LogHandler.FindGatewayLogsTypeByTime)
 
-		v1R.GET("/uhfLogs", hOpts.UHFStatusLogHandler.GetAllUHFStatusLogs)
-		v1R.GET("/uhfLog/:uhf_address", hOpts.UHFStatusLogHandler.GetUHFStatusLogByUHFAddress)
-		v1R.GET("/uhfLogs/period/:gateway_id/:uhf_address/date/:from/:to", hOpts.UHFStatusLogHandler.GetUHFStatusLogInTimeRange)
-		v1R.GET("/uhfLogs/:id/period", hOpts.UHFStatusLogHandler.GetUHFStatusLogInTimeRange)
-		// Secret key routes
+		v1R.GET("/uhf_logs", hOpts.UHFStatusLogHandler.GetAllUHFStatusLogs)
+		v1R.GET("/uhf_log/:uhf_address", hOpts.UHFStatusLogHandler.GetUHFStatusLogByUHFAddress)
+		v1R.GET("/uhf_logs/period/:gateway_id/:uhf_address/date/:from/:to", hOpts.UHFStatusLogHandler.GetUHFStatusLogInTimeRange)
+		v1R.GET("/uhf_ogs/:id/period", hOpts.UHFStatusLogHandler.GetUHFStatusLogInTimeRange)
+		// Operation log
+		v1R.GET("/operation_logs", hOpts.OperationLogHandler.FindAllOperationLog)
+		v1R.GET("/operation_logs/:gateway_id", hOpts.OperationLogHandler.FindOperationLogByGatewayID)
+		v1R.GET("/operation_logs/period/:gateway_id/date/:from/:to", hOpts.OperationLogHandler.FindOperationLogsByTime)
 
-		v1R.GET("/accesses", hOpts.ActionHandler.FindAllAccesses)
-		v1R.GET("/access", hOpts.ActionHandler.FindAccess)
+		v1R.GET("/accesses", hOpts.AccessHandler.FindAllAccesses)
+		v1R.GET("/access", hOpts.AccessHandler.FindAccess)
 	}
 	return r
 }

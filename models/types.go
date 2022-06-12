@@ -42,7 +42,7 @@ type ServiceOptions struct {
 	SecretKeySvc    *SecretKeySvc
 	UHFStatusLogSvc *UHFStatusLogSvc
 	UHFSvc          *UHFSvc
-	ActionSvc       *ActionSvc
+	AccessSvc       *AccessSvc
 	SystemLogSvc    *SystemLogSvc
 	OperationLogSvc *OperationLogSvc
 }

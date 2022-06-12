@@ -17,7 +17,7 @@ type HandlerOptions struct {
 	SecretKeyHandler    *SecretKeyHandler
 	UHFStatusLogHandler *UHFStatusLogHandler
 	UHFHandler          *UHFHandler
-	ActionHandler       *ActionHandler
+	AccessHandler       *AccessHandler
 	OperationLogHandler *OperationLogHandler
 }
 
