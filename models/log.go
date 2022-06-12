@@ -22,12 +22,12 @@ type GatewayLogTime struct {
 	Second int `json:"second"`
 }
 type GatewayLog struct {
-	ID        uint      `gorm:"primarykey;"`
-	GatewayID string    `json:"gatewayId"`
-	LogType   string    `json:"-"` // info, warn, debug, error, fatal
-	Content   string    `json:"content"`
-	LogTime   time.Time `json:"logTime"`
-	CreatedAt time.Time `swaggerignore:"true"`
+	ID         uint      `gorm:"primarykey;" json:"id"`
+	GatewayID  string    `json:"gateway_id"`
+	StateType  string    `json:"state_type"` // info, warn, debug, error, fatal
+	StateValue string    `json:"state_value"`
+	LogTime    time.Time `json:"log_time"`
+	CreatedAt  time.Time `swaggerignore:"true" json:"created_at"`
 }
 
 type logsCleanTicker struct {
@@ -62,7 +62,7 @@ func (ls *LogSvc) FindAllGatewayLog(ctx context.Context) (glList []GatewayLog, e
 }
 
 func (ls *LogSvc) FindGatewayLogByID(ctx context.Context, id string) (gl *GatewayLog, err error) {
-	result := ls.db.Preload("Doorlocks").First(&gl, id)
+	result := ls.db.First(&gl, id)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)
 		return nil, err

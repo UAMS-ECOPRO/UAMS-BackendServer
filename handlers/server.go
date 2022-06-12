@@ -42,7 +42,7 @@ func SetupRouter(
 		v1R.DELETE("/uhf", hOpts.UHFHandler.DeleteUHF)
 
 		// Doorlock log route
-		//v1R.GET("/doorlockStatusLogs", hOpts.DoorlockStatusLogHandler.GetAllDoorlockStatusLogs)
+		//v1R.GET("/doStatusLogs", hOpts.DoorlockStatusLogHandler.GetAllDoorlockStatusLogs)
 		//v1R.GET("/doorlockStatusLog/:doorId", hOpts.DoorlockStatusLogHandler.GetDoorlockStatusLogByDoorID)
 		//v1R.GET("/doorlockStatusLog/date/:fromTime/:toTime", hOpts.DoorlockStatusLogHandler.GetDoorlockStatusLogInTimeRange)
 		//v1R.DELETE("/doorlockStatusLog/:doorId", hOpts.DoorlockStatusLogHandler.DeleteDoorlockStatusLogByDoorID)
@@ -87,6 +87,10 @@ func SetupRouter(
 		v1R.POST("/gatewayLogs/period", hOpts.LogHandler.UpdateGatewayLogCleanPeriod)
 		v1R.GET("/gatewayLogs/:id/period", hOpts.LogHandler.FindGatewayLogsTypeByTime)
 
+		v1R.GET("/uhfLogs", hOpts.UHFStatusLogHandler.GetAllUHFStatusLogs)
+		v1R.GET("/uhfLog/:id", hOpts.UHFStatusLogHandler.GetUHFStatusLogByUHFAddress)
+		v1R.GET("/uhfLogs/period/:id/date/:from/:to", hOpts.UHFStatusLogHandler.GetUHFStatusLogInTimeRange)
+		v1R.GET("/uhfLogs/:id/period", hOpts.UHFStatusLogHandler.GetUHFStatusLogInTimeRange)
 		// Secret key routes
 		v1R.GET("/secretkeys", hOpts.SecretKeyHandler.FindSecretKey)
 		v1R.POST("/secretkey", hOpts.SecretKeyHandler.CreateSecretKey)

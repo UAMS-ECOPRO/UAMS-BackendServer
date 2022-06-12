@@ -44,4 +44,5 @@ type ServiceOptions struct {
 	UHFSvc          *UHFSvc
 	ActionSvc       *ActionSvc
 	SystemLogSvc    *SystemLogSvc
+	OperationLogSvc *OperationLogSvc
 }

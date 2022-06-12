@@ -14,10 +14,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"strconv"
-	"time"
-
 	logger "github.com/ecoprohcm/DMS_BackendServer/logs"
+	"strconv"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/ecoprohcm/DMS_BackendServer/models"
@@ -96,13 +94,13 @@ func subGateway(client mqtt.Client, optSvc *models.ServiceOptions) {
 	topicSubscriberMap := map[string]GatewaySubscriber{}
 	topicSubscriberMap[TOPIC_GW_SHUTDOWN] = gwShutDownSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_BOOTUP] = gwBootupSubscriber(client, optSvc)
-	topicSubscriberMap[TOPIC_GW_LOG_C] = gwLogCreateSubscriber(client, optSvc)
+	//topicSubscriberMap[TOPIC_GW_LOG_C] = gwLogCreateSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_DOORLOCK_C] = gwDoorlockCreateSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_DOORLOCK_D] = gwDoorlockDeleteSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_UHF_CONNECT_STATE] = gwUHFConnectStateSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_UHF_SCAN] = gwUHFScanSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_TAG] = gwActionSubscriber(client, optSvc)
-	topicSubscriberMap[TOPIC_GW_SYSTEM] = gwSystemSubscriber(client, optSvc)
+	topicSubscriberMap[TOPIC_GW_LOG] = gwSystemSubscriber(client, optSvc)
 
 	for topic, subscriber := range topicSubscriberMap {
 		t := client.Subscribe(topic, 1, subscriber)
@@ -131,21 +129,40 @@ func gwUHFConnectStateSubscriber(client mqtt.Client, optSvc *models.ServiceOptio
 	}
 }
 
+//func gwSystemSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
+//	return func(c mqtt.Client, msg mqtt.Message) {
+//		var payloadStr = string(msg.Payload())
+//		gwId := gjson.Get(payloadStr, "gateway_id")
+//		debug_mode := gjson.Get(payloadStr, "message.debug_mode")
+//
+//		_, error := optSvc.GatewaySvc.FindGatewayByMacID(context.Background(), gwId.String())
+//		if error != nil {
+//			return
+//		}
+//		new_system_log := &models.SystemLog{}
+//		new_system_log.GatewayID = gwId.String()
+//		new_system_log.LogType = "DEBUG_MODE"
+//		new_system_log.Content = debug_mode.String()
+//		optSvc.SystemLogSvc.CreateSystemLog(context.Background(), new_system_log)
+//		return
+//	}
+//}
+
 func gwSystemSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
 	return func(c mqtt.Client, msg mqtt.Message) {
 		var payloadStr = string(msg.Payload())
 		gwId := gjson.Get(payloadStr, "gateway_id")
-		debug_mode := gjson.Get(payloadStr, "message.debug_mode")
+		log := gjson.Get(payloadStr, "message.log").String()
 
 		_, error := optSvc.GatewaySvc.FindGatewayByMacID(context.Background(), gwId.String())
 		if error != nil {
 			return
 		}
-		new_system_log := &models.SystemLog{}
-		new_system_log.GatewayID = gwId.String()
-		new_system_log.LogType = "DEBUG_MODE"
-		new_system_log.Content = debug_mode.String()
-		optSvc.SystemLogSvc.CreateSystemLog(context.Background(), new_system_log)
+		new_operation_log := &models.OperationLog{}
+		new_operation_log.GatewayID = gwId.String()
+		new_operation_log.Content = "DEBUG_MODE"
+		new_operation_log.Content = log
+		optSvc.OperationLogSvc.CreateOperationLog(context.Background(), new_operation_log)
 		return
 	}
 }
@@ -260,32 +277,32 @@ func gwBootupSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 	}
 }
 
-func gwLogCreateSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
-	return func(c mqtt.Client, msg mqtt.Message) {
-		var payloadStr = string(msg.Payload())
-		logMsg := gjson.Get(payloadStr, "message").String()
-		gatewayId := gjson.Get(payloadStr, "gateway_id")
-		logType := gjson.Get(logMsg, "log_type")
-		content := gjson.Get(logMsg, "log_data")
-		logTime := gjson.Get(logMsg, "log_time")
-		logger.LogfWithFields(logger.MQTT, logger.DebugLevel, logger.LoggerFields{
-			"logPayload": logMsg,
-		}, "Receive gw:%s logs message", gatewayId.String())
-		logTimeInt, e := strconv.ParseInt(logTime.String(), 10, 64)
-		if e != nil {
-			fmt.Println(e.Error())
-			return
-		}
-		formatLogTime := time.Unix(logTimeInt, 0)
-		fmt.Printf(" %s: %s \n", msg.Topic(), payloadStr)
-		optSvc.LogSvc.CreateGatewayLog(context.Background(), &models.GatewayLog{
-			GatewayID: gatewayId.String(),
-			LogType:   logType.String(),
-			Content:   content.String(),
-			LogTime:   formatLogTime,
-		})
-	}
-}
+//func gwLogCreateSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
+//	return func(c mqtt.Client, msg mqtt.Message) {
+//		var payloadStr = string(msg.Payload())
+//		logMsg := gjson.Get(payloadStr, "message").String()
+//		gatewayId := gjson.Get(payloadStr, "gateway_id")
+//		logType := gjson.Get(logMsg, "log_type")
+//		content := gjson.Get(logMsg, "log_data")
+//		logTime := gjson.Get(logMsg, "log_time")
+//		logger.LogfWithFields(logger.MQTT, logger.DebugLevel, logger.LoggerFields{
+//			"logPayload": logMsg,
+//		}, "Receive gw:%s logs message", gatewayId.String())
+//		logTimeInt, e := strconv.ParseInt(logTime.String(), 10, 64)
+//		if e != nil {
+//			fmt.Println(e.Error())
+//			return
+//		}
+//		formatLogTime := time.Unix(logTimeInt, 0)
+//		fmt.Printf(" %s: %s \n", msg.Topic(), payloadStr)
+//		optSvc.LogSvc.CreateGatewayLog(context.Background(), &models.GatewayLog{
+//			GatewayID: gatewayId.String(),
+//			LogType:   logType.String(),
+//			Content:   content.String(),
+//			LogTime:   formatLogTime,
+//		})
+//	}
+//}
 
 //func gwDoorlockUpdateSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
 //	return func(c mqtt.Client, msg mqtt.Message) {

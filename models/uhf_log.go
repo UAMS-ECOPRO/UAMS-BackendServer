@@ -31,7 +31,7 @@ func NewUHFStatusLogSvc(db *gorm.DB) *UHFStatusLogSvc {
 	return uhfStatusSvc
 }
 
-func (dlsls *UHFStatusLogSvc) GetAllDoorlockStatusLogs(ctx context.Context) (dlslList []UHFStatusLog, err error) {
+func (dlsls *UHFStatusLogSvc) GetAllUHFStatusLogs(ctx context.Context) (dlslList []UHFStatusLog, err error) {
 	result := dlsls.db.Find(&dlslList)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)
@@ -40,8 +40,8 @@ func (dlsls *UHFStatusLogSvc) GetAllDoorlockStatusLogs(ctx context.Context) (dls
 	return dlslList, nil
 }
 
-func (dlsls *UHFStatusLogSvc) GetDoorlockStatusLogByDoorID(ctx context.Context, doorId string) (dlslList []UHFStatusLog, err error) {
-	result := dlsls.db.Where("door_id = ?", doorId).Find(&dlslList)
+func (dlsls *UHFStatusLogSvc) GetUHFStatusLogByDoorID(ctx context.Context, doorId string) (dlslList []UHFStatusLog, err error) {
+	result := dlsls.db.Where("uhf_address = ?", doorId).Find(&dlslList)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)
 		return nil, err
@@ -57,7 +57,7 @@ func (dlsls *UHFStatusLogSvc) CreateUHFStatusLog(ctx context.Context, dlsl *UHFS
 	return dlsl, nil
 }
 
-func (dlsls *UHFStatusLogSvc) GetDoorlockStatusLogInTimeRange(from string, to string) (dlslList *[]UHFStatusLog, err error) {
+func (dlsls *UHFStatusLogSvc) GetUHFStatusLogInTimeRange(from string, to string) (dlslList *[]UHFStatusLog, err error) {
 	result := dlsls.db.Where("created_at >= ? AND created_at <= ?", from, to).Find(&dlslList)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)
@@ -66,12 +66,12 @@ func (dlsls *UHFStatusLogSvc) GetDoorlockStatusLogInTimeRange(from string, to st
 	return dlslList, nil
 }
 
-func (dlsls *UHFStatusLogSvc) DeleteDoorlockStatusLogInTimeRange(from string, to string) (bool, error) {
+func (dlsls *UHFStatusLogSvc) DeleteUHFStatusLogInTimeRange(from string, to string) (bool, error) {
 	result := dlsls.db.Unscoped().Where("created_at >= ? AND created_at <= ?", from, to).Delete(&UHFStatusLog{})
 	return utils.ReturnBoolStateFromResult(result)
 }
 
-func (dlsls *UHFStatusLogSvc) DeleteDoorlockStatusLogByDoorID(doorId string) (bool, error) {
+func (dlsls *UHFStatusLogSvc) DeleteUHFStatusLogUHFID(doorId string) (bool, error) {
 	result := dlsls.db.Unscoped().Where("door_id = ?", doorId).Delete(&UHFStatusLog{})
 	return utils.ReturnBoolStateFromResult(result)
 }

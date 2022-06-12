@@ -14,6 +14,7 @@ func Migrate(db *gorm.DB) {
 		&Action{},
 		&SystemLog{},
 		&UHFStatusLog{},
+		&OperationLog{},
 	)
 	if err != nil {
 		panic(err)

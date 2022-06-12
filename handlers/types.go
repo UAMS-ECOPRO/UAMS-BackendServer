@@ -18,6 +18,7 @@ type HandlerOptions struct {
 	UHFStatusLogHandler *UHFStatusLogHandler
 	UHFHandler          *UHFHandler
 	ActionHandler       *ActionHandler
+	OperationLogHandler *OperationLogHandler
 }
 
 type HandlerDependencies struct {

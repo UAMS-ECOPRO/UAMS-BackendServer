@@ -64,6 +64,7 @@ func ProvideSvcOptions(db *gorm.DB) *models.ServiceOptions {
 		UHFSvc:          models.NewUHFSvc(db),
 		ActionSvc:       models.NewActionSvc(db),
 		SystemLogSvc:    models.NewSystemLogSvc(db),
+		OperationLogSvc: models.NewOperationLogSvc(db),
 	}
 }
 
@@ -95,6 +96,7 @@ func ProvideHandlerOptions(svcOptions *models.ServiceOptions, mqttClient mqtt.Cl
 		UHFStatusLogHandler: handlers.NewUHFStatusLogHandler(deps),
 		UHFHandler:          handlers.NewUHFHandler(deps),
 		ActionHandler:       handlers.NewActionHandler(deps),
+		OperationLogHandler: handlers.NewOperationLogHandler(deps),
 	}
 }
 
