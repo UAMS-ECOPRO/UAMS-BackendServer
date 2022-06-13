@@ -100,7 +100,7 @@ func subGateway(client mqtt.Client, optSvc *models.ServiceOptions) {
 	topicSubscriberMap[TOPIC_GW_DOORLOCK_D] = gwDoorlockDeleteSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_UHF_CONNECT_STATE] = gwUHFConnectStateSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_UHF_SCAN] = gwUHFScanSubscriber(client, optSvc)
-	topicSubscriberMap[TOPIC_GW_TAG] = gwActionSubscriber(client, optSvc)
+	topicSubscriberMap[TOPIC_GW_TAG] = gwAccessSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_LOG] = gwSystemSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_LASTWILL] = gwLastWillSubscriber(client, optSvc)
 
@@ -199,7 +199,7 @@ func gwSystemSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 	}
 }
 
-func gwActionSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
+func gwAccessSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
 	return func(c mqtt.Client, msg mqtt.Message) {
 		var payloadStr = string(msg.Payload())
 		var ecps_string []string
@@ -218,11 +218,11 @@ func gwActionSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 			return
 		}
 		for _, ecp := range ecps_string {
-			var new_action = &models.Access{}
-			new_action.GatewayID = gwId.String()
-			new_action.UHFAddress = uhf_address.String()
-			new_action.EPC = ecp
-			optSvc.AccessSvc.CreateAction(context.Background(), new_action)
+			var new_access = &models.UserAccess{}
+			new_access.UserID = gwId.String()
+			new_access.Random = uhf_address.String()
+			new_access.Group = ecp
+			optSvc.UserAccessSvc.CreateUserAccess(context.Background(), new_access)
 		}
 	}
 }

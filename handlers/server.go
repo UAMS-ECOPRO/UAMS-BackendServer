@@ -56,8 +56,14 @@ func SetupRouter(
 		v1R.GET("/operation_logs/:gateway_id", hOpts.OperationLogHandler.FindOperationLogByGatewayID)
 		v1R.GET("/operation_logs/period/:gateway_id/date/:from/:to", hOpts.OperationLogHandler.FindOperationLogsByTime)
 
-		v1R.GET("/accesses", hOpts.AccessHandler.FindAllAccesses)
-		v1R.GET("/access", hOpts.AccessHandler.FindAccess)
+		v1R.GET("/user_accesses", hOpts.UserAccessHandler.FindAllAccesses)
+		v1R.GET("/user_accesses/user_id/:id", hOpts.UserAccessHandler.FindUserAccessByUserID)
+		v1R.GET("/user_accesses/user_id/:id/period/:from/:to", hOpts.UserAccessHandler.FindUserAccessByUserIDAndTimeRange)
+
+		v1R.GET("/package_accesses", hOpts.PackageAccessHandler.FindAllAccesses)
+		v1R.GET("/package_accesses/package_id/:id", hOpts.PackageAccessHandler.FindPackageAccessByPackageID)
+		v1R.GET("/package_accesses/package_id/:id/period/:from/:to", hOpts.PackageAccessHandler.FindPackageAccessByPackageIDAndTimeRange)
+
 	}
 	return r
 }
