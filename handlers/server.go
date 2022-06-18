@@ -58,12 +58,21 @@ func SetupRouter(
 
 		v1R.GET("/user_accesses", hOpts.UserAccessHandler.FindAllAccesses)
 		v1R.GET("/user_accesses/user_id/:id", hOpts.UserAccessHandler.FindUserAccessByUserID)
+		v1R.GET("/user_accesses/user_id/:id/area_id/:id", hOpts.UserAccessHandler.FindUserAccessByUserIDAndAreaID)
 		v1R.GET("/user_accesses/user_id/:id/period/:from/:to", hOpts.UserAccessHandler.FindUserAccessByUserIDAndTimeRange)
+		v1R.GET("/user_accesses/user_id/:id/area_id/:id/period/:from/:to", hOpts.UserAccessHandler.FindAllUserAccessByUserIDAndAreaIDinTimeRange)
+		v1R.GET("/user_accesses/area_id/:area_id", hOpts.UserAccessHandler.FindAllUserAccessByAreaID)
+		v1R.GET("/user_accesses/area_id/:area_id/period/:from/:to", hOpts.UserAccessHandler.FindAllUserAccessByAreaIDAndTimeRange)
+		v1R.GET("/user_accesses/period/:from/:to", hOpts.UserAccessHandler.FindAllUserAccessTimeRange)
 
 		v1R.GET("/package_accesses", hOpts.PackageAccessHandler.FindAllAccesses)
 		v1R.GET("/package_accesses/package_id/:id", hOpts.PackageAccessHandler.FindPackageAccessByPackageID)
+		v1R.GET("/package_accesses/package_id/:id/area_id/:id", hOpts.PackageAccessHandler.FindPackageAccessByPackageIDAndAreaID)
 		v1R.GET("/package_accesses/package_id/:id/period/:from/:to", hOpts.PackageAccessHandler.FindPackageAccessByPackageIDAndTimeRange)
-
+		v1R.GET("/package_accesses/package_id/:id/area_id/:id/period/:from/:to", hOpts.PackageAccessHandler.FindAllPackageAccessByPackageIDAndAreaIDinTimeRange)
+		v1R.GET("/package_accesses/area_id/:area_id", hOpts.PackageAccessHandler.FindAllPackageAccessByAreaID)
+		v1R.GET("/package_accesses/area_id/:area_id/period/:from/:to", hOpts.PackageAccessHandler.FindAllPackageAccessByAreaIDAndTimeRange)
+		v1R.GET("/package_accesses/period/:from/:to", hOpts.PackageAccessHandler.FindAllPackageAccessTimeRange)
 	}
 	return r
 }

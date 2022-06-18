@@ -52,8 +52,62 @@ func (gwns *PackageAccessSvc) FindAllPackageAccessByPackageID(ctx context.Contex
 	return package_acesses, err
 }
 
-func (ls *PackageAccessSvc) FindUserPackageByPackageIDAndTimeRange(user_id string, from string, to string) (package_acesses *[]PackageAccess, err error) {
-	result := ls.db.Where("package_id = ? AND time >= ? AND time <= ?", user_id, from, to).Find(&package_acesses)
+func (ls *PackageAccessSvc) FindPackageAccessByPackageIDAndTimeRange(ctx context.Context, package_id string, from string, to string) (package_acesses *[]PackageAccess, err error) {
+	result := ls.db.Where("package_id = ? AND time >= ? AND time <= ?", package_id, from, to).Find(&package_acesses)
+	if err := result.Error; err != nil {
+		err = utils.HandleQueryError(err)
+		return nil, err
+	}
+	return package_acesses, nil
+}
+
+func (ls *PackageAccessSvc) FindPackageAccessByPackageIDAndAreaID(ctx context.Context, package_id string, area_id string) (package_acesses *[]PackageAccess, err error) {
+	result := ls.db.Where("package_id = ? AND area_id = ?", package_id, area_id).Find(&package_acesses)
+	if err := result.Error; err != nil {
+		err = utils.HandleQueryError(err)
+		return nil, err
+	}
+	return package_acesses, nil
+}
+
+func (ls *PackageAccessSvc) FindAllPackageAccessByPackageIDAndAreaIDinTimeRange(ctx context.Context, package_id string, area_id string, from string, to string) (package_acesses *[]PackageAccess, err error) {
+	result := ls.db.Where("package_id = ? AND area_id = ? AND time >= ? AND time <= ?", package_id, area_id, from, to).Find(&package_acesses)
+	if err := result.Error; err != nil {
+		err = utils.HandleQueryError(err)
+		return nil, err
+	}
+	return package_acesses, nil
+}
+
+func (ls *PackageAccessSvc) FindAllUserAccessByAreaID(ctx context.Context, package_id string, area_id string, from string, to string) (package_acesses *[]PackageAccess, err error) {
+	result := ls.db.Where("package_id = ? AND area_id = ? AND time >= ? AND time <= ?", package_id, area_id, from, to).Find(&package_acesses)
+	if err := result.Error; err != nil {
+		err = utils.HandleQueryError(err)
+		return nil, err
+	}
+	return package_acesses, nil
+}
+
+func (ls *PackageAccessSvc) FindAllPackageAccessByAreaID(ctx context.Context, area_id string) (package_acesses *[]PackageAccess, err error) {
+	result := ls.db.Where("area_id = ?", area_id).Find(&package_acesses)
+	if err := result.Error; err != nil {
+		err = utils.HandleQueryError(err)
+		return nil, err
+	}
+	return package_acesses, nil
+}
+
+func (ls *PackageAccessSvc) FindAllPackageAccessByAreaIDAndTimeRange(ctx context.Context, area_id string, from string, to string) (package_acesses *[]PackageAccess, err error) {
+	result := ls.db.Where("area_id = ? AND time >= ? AND time <= ?", area_id, from, to).Find(&package_acesses)
+	if err := result.Error; err != nil {
+		err = utils.HandleQueryError(err)
+		return nil, err
+	}
+	return package_acesses, nil
+}
+
+func (ls *PackageAccessSvc) FindAllPackageAccessTimeRange(ctx context.Context, from string, to string) (package_acesses *[]PackageAccess, err error) {
+	result := ls.db.Where("time >= ? AND time <= ?", from, to).Find(&package_acesses)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)
 		return nil, err
