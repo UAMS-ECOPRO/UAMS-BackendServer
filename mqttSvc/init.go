@@ -53,6 +53,11 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 	logger.LogfWithoutFields(logger.MQTT, logger.ErrorLevel, "Connect lost: %v\n", err)
 }
 
+type UHFTagInfo struct {
+	EPC string `json:"epc"`
+	Mem string `json:"mem"`
+}
+
 // Define mqtt connections and configs
 func MqttClient(
 	clientID string,
@@ -202,28 +207,54 @@ func gwSystemSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 func gwAccessSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
 	return func(c mqtt.Client, msg mqtt.Message) {
 		var payloadStr = string(msg.Payload())
-		var ecps_string []string
+		var tags_list []UHFTagInfo
 
 		gwId := gjson.Get(payloadStr, "gateway_id")
 		uhf_address := gjson.Get(payloadStr, "message.uhf_address")
-		epcs := gjson.Get(payloadStr, "message.epcs")
-		epcs_string := epcs.String()
+		tags := gjson.Get(payloadStr, "message.tags")
+		tags_string := tags.String()
 
-		err := json.Unmarshal([]byte(epcs_string), &ecps_string)
+		err := json.Unmarshal([]byte(tags_string), &tags_list)
 		if err != nil {
 			return
 		}
-		_, error := optSvc.UHFSvc.FindUHFByAddress(context.Background(), uhf_address.String(), gwId.String())
+		existing_uhf, error := optSvc.UHFSvc.FindUHFByAddress(context.Background(), uhf_address.String(), gwId.String())
 		if error != nil {
 			return
 		}
-		for _, ecp := range ecps_string {
-			var new_access = &models.UserAccess{}
-			new_access.UserID = gwId.String()
-			new_access.Random = uhf_address.String()
-			new_access.Group = ecp
-			optSvc.UserAccessSvc.CreateUserAccess(context.Background(), new_access)
+		if existing_uhf.AreaId == "" {
+			return
 		}
+		for _, item := range tags_list {
+			var mem = item.Mem
+			var access_type = mem[0:1]
+			var access_group = mem[1:3]
+			var access_id = mem[3:13]
+			var access_random = mem[13:16]
+			_ = access_type
+			_ = access_group
+			_ = access_id
+			_ = access_random
+			if access_type == "U" {
+				var new_user_access = &models.UserAccess{}
+				new_user_access.UserID = access_id
+				new_user_access.Random = access_random
+				new_user_access.Group = access_group
+				new_user_access.AreaID = existing_uhf.AreaId
+				new_user_access.Time = time.Now()
+				optSvc.UserAccessSvc.CreateUserAccess(context.Background(), new_user_access)
+			} else if access_type == "P" {
+				var new_package_access = &models.PackageAccess{}
+				new_package_access.PackageID = access_id
+				new_package_access.Random = access_random
+				new_package_access.Group = access_group
+				new_package_access.AreaID = existing_uhf.AreaId
+				new_package_access.Time = time.Now()
+				optSvc.PackageAccessSvc.CreatePackageAccess(context.Background(), new_package_access)
+			}
+
+		}
+		return
 	}
 }
 

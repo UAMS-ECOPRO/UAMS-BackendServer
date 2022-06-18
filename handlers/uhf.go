@@ -89,6 +89,35 @@ func (h *UHFHandler) UpdateUHF(c *gin.Context) {
 		return
 	}
 
+	existing_uhf, _ := h.deps.SvcOpts.UHFSvc.FindUHFByAddress(c.Request.Context(), dl.UHFAddress, dl.GatewayID)
+	if err != nil {
+		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Msg:        "There is no UHF",
+			ErrorMsg:   err.Error(),
+		})
+		return
+	}
+	if existing_uhf.AreaId == "" {
+		if dl.AreaId == "" {
+			utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Msg:        "Please input AreaID",
+				ErrorMsg:   "Please input AreaID",
+			})
+			return
+		}
+		_, err = h.deps.SvcOpts.AreaSvc.FindAreaByID(c.Request.Context(), dl.AreaId)
+		if err != nil {
+			utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Msg:        "This area ID does not exist",
+				ErrorMsg:   "This area ID does not exist",
+			})
+			return
+		}
+	}
+
 	isSuccess, err := h.deps.SvcOpts.UHFSvc.UpdateUHF(c.Request.Context(), dl)
 	if err != nil || !isSuccess {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{

@@ -15,7 +15,6 @@ type UHF struct {
 	GatewayID       string `gorm:"type:varchar(256);" json:"gateway_id"`
 	ConnectState    string `json:"connect_state"`
 	AreaId          string `json:"area_id"`
-	Lane            string `json:"lane"`
 	UHFAddress      string `json:"uhf_address"`
 	ActiveState     string `json:"active_state"`
 }
