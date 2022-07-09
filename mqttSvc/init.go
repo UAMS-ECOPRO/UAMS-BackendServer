@@ -9,7 +9,6 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
-	_ "fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -54,8 +53,9 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 }
 
 type UHFTagInfo struct {
-	EPC string `json:"epc"`
-	Mem string `json:"mem"`
+	EPC       string `json:"epc"`
+	Mem       string `json:"mem"`
+	TimeStamp string `json:"timestamp"`
 }
 
 // Define mqtt connections and configs
@@ -123,6 +123,7 @@ func gwUHFConnectStateSubscriber(client mqtt.Client, optSvc *models.ServiceOptio
 		gwId := gjson.Get(payloadStr, "gateway_id")
 		uhf_address := gjson.Get(payloadStr, "message.uhf_address")
 		uhf_connect_state := gjson.Get(payloadStr, "message.connection_state")
+		time_stamp := gjson.Get(payloadStr, "message.timestamp")
 		logger.LogfWithFields(logger.MQTT, logger.InfoLevel, logger.LoggerFields{
 			"GwMsg": payloadStr,
 		}, "Connect state of  ID %s", gwId.String())
@@ -132,12 +133,14 @@ func gwUHFConnectStateSubscriber(client mqtt.Client, optSvc *models.ServiceOptio
 		}
 		uhf.ConnectState = uhf_connect_state.String()
 		optSvc.UHFSvc.UpdateUHF(context.Background(), uhf)
-
+		time_layout := "2006-01-02 15:04:05"
+		var time_stamp_converted, _ = time.ParseInLocation(time_layout, time_stamp.String(), time.Local)
 		new_uhf_log := &models.UHFStatusLog{}
 		new_uhf_log.GatewayID = gwId.String()
 		new_uhf_log.UHFAddress = uhf_address.String()
 		new_uhf_log.StateType = "Connect State"
 		new_uhf_log.StateValue = uhf_connect_state.String()
+		new_uhf_log.Time = time_stamp_converted
 		optSvc.UHFStatusLogSvc.CreateUHFStatusLog(context.Background(), new_uhf_log)
 		return
 	}
@@ -213,6 +216,7 @@ func gwAccessSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 		uhf_address := gjson.Get(payloadStr, "message.uhf_address")
 		tags := gjson.Get(payloadStr, "message.tags")
 		tags_string := tags.String()
+		time_layout := "2006-01-02 15:04:05"
 
 		err := json.Unmarshal([]byte(tags_string), &tags_list)
 		if err != nil {
@@ -227,6 +231,7 @@ func gwAccessSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 		}
 		for _, item := range tags_list {
 			var mem = item.Mem
+			var time_stamp, _ = time.ParseInLocation(time_layout, item.TimeStamp, time.Local)
 			var access_type = mem[0:1]
 			var access_group = mem[1:3]
 			var access_id = mem[3:13]
@@ -241,7 +246,7 @@ func gwAccessSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 				new_user_access.Random = access_random
 				new_user_access.Group = access_group
 				new_user_access.AreaID = existing_uhf.AreaId
-				new_user_access.Time = time.Now()
+				new_user_access.Time = time_stamp
 				optSvc.UserAccessSvc.CreateUserAccess(context.Background(), new_user_access)
 			} else if access_type == "P" {
 				var new_package_access = &models.PackageAccess{}
@@ -249,7 +254,7 @@ func gwAccessSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 				new_package_access.Random = access_random
 				new_package_access.Group = access_group
 				new_package_access.AreaID = existing_uhf.AreaId
-				new_package_access.Time = time.Now()
+				new_package_access.Time = time_stamp
 				optSvc.PackageAccessSvc.CreatePackageAccess(context.Background(), new_package_access)
 			}
 
