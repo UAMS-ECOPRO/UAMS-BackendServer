@@ -108,12 +108,37 @@ func subGateway(client mqtt.Client, optSvc *models.ServiceOptions) {
 	topicSubscriberMap[TOPIC_GW_TAG] = gwAccessSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_LOG] = gwSystemSubscriber(client, optSvc)
 	topicSubscriberMap[TOPIC_GW_LASTWILL] = gwLastWillSubscriber(client, optSvc)
+	topicSubscriberMap[TOPIC_GW_GW_CONNECT_STATE] = gwGatewayConnectStateSubscriber(client, optSvc)
 
 	for topic, subscriber := range topicSubscriberMap {
 		t := client.Subscribe(topic, 1, subscriber)
 		if err := HandleMqttErr(t); err == nil {
 			logger.LogfWithoutFields(logger.MQTT, logger.InfoLevel, "[MQTT-INFO] Subscribed to topic %s", topic)
 		}
+	}
+}
+
+func gwGatewayConnectStateSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
+	return func(c mqtt.Client, msg mqtt.Message) {
+		var payloadStr = string(msg.Payload())
+		gwId := gjson.Get(payloadStr, "gateway_id")
+		gw_connect_state := gjson.Get(payloadStr, "message.connection_state")
+		logger.LogfWithFields(logger.MQTT, logger.InfoLevel, logger.LoggerFields{
+			"GwMsg": payloadStr,
+		}, "Connect state of  ID %s", gwId.String())
+		gw, error := optSvc.GatewaySvc.FindGatewayByMacID(context.Background(), gwId.String())
+		if error != nil {
+			return
+		}
+		gw.ConnectState = gw_connect_state.String()
+		optSvc.GatewaySvc.UpdateGateway(context.Background(), gw)
+		new_gw_log := &models.GatewayLog{}
+		new_gw_log.GatewayID = gwId.String()
+		new_gw_log.StateType = "Connect State"
+		new_gw_log.StateValue = gw_connect_state.String()
+		new_gw_log.LogTime = time.Now()
+		optSvc.LogSvc.CreateGatewayLog(context.Background(), new_gw_log)
+		return
 	}
 }
 
