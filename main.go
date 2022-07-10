@@ -17,7 +17,7 @@ import (
 // @description    This is API document for DMS backend server
 // @contact.name   Mr. Khai
 
-// @host      http://iot.hcmue.space:8002
+// @host      http://iot.hcmue.space:8001
 // @BasePath  /v1
 
 func main() {
