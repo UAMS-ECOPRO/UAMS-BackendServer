@@ -6,7 +6,7 @@ IMAGE_NAME=$(APP_NAME):$(VERSION)
 LOCAL_DIR=${HOME}/Desktop/$(APP_NAME).tar
 SERVER_USER=sviot
 SERVER_HOST=iot.hcmue.space
-SERVER_DIR=~/iot/
+SERVER_DIR=~/uams/
 
 swagger:
 	swag init --parseDependency --parseInternal
