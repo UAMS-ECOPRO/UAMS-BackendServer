@@ -3,11 +3,10 @@ name: CI/CD
 on:
   pull_request:
     branches: [main]
-    types: [opened, closed]
+    types: [opened, edited, closed]
 
 jobs:
   ci:
-    if: ${{ github.event.action }} == 'opened'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
