@@ -58,7 +58,7 @@ jobs:
 
       - name: Docker Build
         env:
-          IMAGE_NAME: dms-be
+          IMAGE_NAME: uams-be
         run: |
           docker build -t $IMAGE_NAME .
           docker tag $IMAGE_NAME:latest ${{secrets.DOCKER_USER}}/$IMAGE_NAME:latest
@@ -67,7 +67,7 @@ jobs:
       - name: Deploy
         uses: appleboy/ssh-action@master
         env:
-          IMAGE_NAME: dms-be
+          IMAGE_NAME: uams-be
         with:
           host: ${{secrets.DMS_HOST}}
           port: ${{secrets.DMS_PORT}}

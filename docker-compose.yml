@@ -31,11 +31,11 @@ services:
         restart: unless-stopped
         depends_on:
             - mssql
-        container_name: dms-be
-        image: 'dms-be:latest'
+        container_name: uams-be
+        image: 'uams-be:latest'
         ports:
             - '8080:8080'
 networks:
     default:
         external: true
-        name: dms-nw
+        name: uams-nw

@@ -11,7 +11,7 @@ SERVER_DIR=~/iot/
 swagger:
 	swag init --parseDependency --parseInternal
 build:
-	DOCKER_BUILDKIT=1 docker build --platform linux/amd64 -t dms-be .
+	DOCKER_BUILDKIT=1 docker build --platform linux/amd64 -t uams-be .
 deploy: build
 	docker save $(IMAGE_NAME) > $(LOCAL_DIR) && \
 	sshpass -p "$(SERVER_PW)" scp $(LOCAL_DIR)  $(SERVER_USER)@$(SERVER_HOST):$(SERVER_DIR)
