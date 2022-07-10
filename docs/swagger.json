@@ -8,7 +8,7 @@
         },
         "version": "1.0"
     },
-    "host": "http://iot.hcmue.space:8002",
+    "host": "http://iot.hcmue.space:8001",
     "basePath": "/v1",
     "paths": {
         "/v1//scheduler/excel": {

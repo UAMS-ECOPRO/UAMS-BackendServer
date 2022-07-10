@@ -633,7 +633,7 @@ definitions:
       statusCode:
         type: integer
     type: object
-host: http://iot.hcmue.space:8002
+host: http://iot.hcmue.space:8001
 info:
   contact:
     name: Mr. Khai

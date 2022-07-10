@@ -2980,7 +2980,7 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "1.0",
-	Host:        "http://iot.hcmue.space:8002",
+	Host:        "http://iot.hcmue.space:8001",
 	BasePath:    "/v1",
 	Schemes:     []string{},
 	Title:       "Backend API",
