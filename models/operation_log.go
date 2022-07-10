@@ -2,15 +2,17 @@ package models
 
 import (
 	"context"
+	"time"
 
 	"github.com/ecoprohcm/DMS_BackendServer/utils"
 	"gorm.io/gorm"
 )
 
 type OperationLog struct {
-	GormModel
-	GatewayID string `json:"gateway_id"`
-	Content   string `json:"content"` // corresponding statetype
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	Time      time.Time `swaggerignore:"true" json:"time"`
+	GatewayID string    `json:"gateway_id"`
+	Content   string    `json:"content"` // corresponding statetype
 }
 type OperationLogSvc struct {
 	db *gorm.DB
@@ -50,7 +52,7 @@ func (dlsls *OperationLogSvc) CreateOperationLog(ctx context.Context, dlsl *Oper
 }
 
 func (dlsls *OperationLogSvc) GetOperationLogInTimeRange(gateway_id string, from string, to string) (dlslList *[]OperationLog, err error) {
-	result := dlsls.db.Where("created_at >= ? AND created_at <= ?", from, to).Find(&dlslList)
+	result := dlsls.db.Where("time >= ? AND time <= ?", from, to).Find(&dlslList)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)
 		return nil, err
@@ -59,7 +61,7 @@ func (dlsls *OperationLogSvc) GetOperationLogInTimeRange(gateway_id string, from
 }
 
 func (dlsls *OperationLogSvc) DeleteOperationLogInTimeRange(from string, to string) (bool, error) {
-	result := dlsls.db.Unscoped().Where("created_at >= ? AND created_at <= ?", from, to).Delete(&OperationLog{})
+	result := dlsls.db.Unscoped().Where("time >= ? AND time <= ?", from, to).Delete(&OperationLog{})
 	return utils.ReturnBoolStateFromResult(result)
 }
 

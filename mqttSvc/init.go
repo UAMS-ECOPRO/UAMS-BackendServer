@@ -193,7 +193,8 @@ func gwSystemSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 		var payloadStr = string(msg.Payload())
 		gwId := gjson.Get(payloadStr, "gateway_id")
 		log := gjson.Get(payloadStr, "message.log").String()
-
+		time_layout := "2006-01-02 15:04:05"
+		var time_stamp, _ = time.ParseInLocation(time_layout, gjson.Get(payloadStr, "message.timestamp").String(), time.Local)
 		_, error := optSvc.GatewaySvc.FindGatewayByMacID(context.Background(), gwId.String())
 		if error != nil {
 			return
@@ -202,6 +203,7 @@ func gwSystemSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 		new_operation_log.GatewayID = gwId.String()
 		new_operation_log.Content = "DEBUG_MODE"
 		new_operation_log.Content = log
+		new_operation_log.Time = time_stamp
 		optSvc.OperationLogSvc.CreateOperationLog(context.Background(), new_operation_log)
 		return
 	}
