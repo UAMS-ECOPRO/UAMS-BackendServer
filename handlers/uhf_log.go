@@ -20,14 +20,6 @@ func NewUHFStatusLogHandler(deps *HandlerDependencies) *UHFStatusLogHandler {
 	}
 }
 
-// Find all doorlock status logs info
-// @Summary Find All DoorlockStatusLog
-// @Schemes
-// @Description find all doorlock status logs info
-// @Produce json
-// @Success 200 {array} []models.DoorlockStatusLog
-// @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/doorlockStatusLogs [get]
 func (h *UHFStatusLogHandler) GetAllUHFStatusLogs(c *gin.Context) {
 	dlslList, err := h.deps.SvcOpts.UHFStatusLogSvc.GetAllUHFStatusLogs(c)
 	if err != nil {
@@ -41,15 +33,6 @@ func (h *UHFStatusLogHandler) GetAllUHFStatusLogs(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, dlslList)
 }
 
-// Find doorlock status logs by door id
-// @Summary Find DoorlockStatusLog By DoorID
-// @Schemes
-// @Description find doorlock status logs by door id
-// @Produce json
-// @Param        id	path	string	true	"DoorlockStatusLog ID"
-// @Success 200 {object} models.DoorlockStatusLog
-// @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/doorlockStatusLog/{doorId} [get]
 func (h *UHFStatusLogHandler) GetUHFStatusLogByUHFAddress(c *gin.Context) {
 	doorId := c.Param("uhf_address")
 	gl, err := h.deps.SvcOpts.UHFStatusLogSvc.GetUHFStatusLogByDoorID(c, doorId)
@@ -84,16 +67,6 @@ func (h *UHFStatusLogHandler) GetUHFStatusLogInTimeRange(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, dlslList)
 }
 
-// Delete Doorlock status logs in time range
-// @Summary Delete DoorlockStatusLog In Time Range
-// @Schemes
-// @Description delete doorlock status logs in time range
-// @Produce json
-// @Param 		 fromTime path  string  true    "From Unix time"
-// @Param 		 toTime path    string  true    "To Unix time"
-// @Success 200 {boolean} true
-// @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/doorlockStatusLog/:fromTime/:toTime [delete]
 func (h *UHFStatusLogHandler) DeleteUHFStatusLogInTimeRange(c *gin.Context) {
 	from := c.Param("fromTime")
 	to := c.Param("toTime")
@@ -112,15 +85,6 @@ func (h *UHFStatusLogHandler) DeleteUHFStatusLogInTimeRange(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, isSuccess)
 }
 
-// Delete Doorlock status logs by doorId
-// @Summary Delete Doorlock status logs by doorId
-// @Schemes
-// @Description delete doorlock status logs by doorId
-// @Produce json
-// @Param        id	path	string	true	"DoorID"
-// @Success 200 {boolean} true
-// @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/doorlockStatusLog/door/:id [delete]
 func (h *UHFStatusLogHandler) DeleteUHFStatusLogByDoorID(c *gin.Context) {
 	doorId := c.Param("id")
 	isSuccess, err := h.deps.SvcOpts.UHFStatusLogSvc.DeleteUHFStatusLogUHFID(doorId)
