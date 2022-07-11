@@ -7,14 +7,8 @@ import (
 
 type HandlerOptions struct {
 	AreaHandler          *AreaHandler
-	CustomerHandler      *CustomerHandler
-	DoorlockHandler      *DoorlockHandler
-	EmployeeHandler      *EmployeeHandler
 	GatewayHandler       *GatewayHandler
 	LogHandler           *GatewayLogHandler
-	StudentHandler       *StudentHandler
-	SchedulerHandler     *SchedulerHandler
-	SecretKeyHandler     *SecretKeyHandler
 	UHFStatusLogHandler  *UHFStatusLogHandler
 	UHFHandler           *UHFHandler
 	UserAccessHandler    *UserAccessHandler
