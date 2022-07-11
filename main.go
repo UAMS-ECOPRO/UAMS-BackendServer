@@ -29,13 +29,13 @@ func main() {
 	// HTTP Serve
 	r := handlers.SetupRouter(cc.HandlerOptions)
 	initSwagger(r)
-	r.Run(":8081")
+	r.Run(":8079")
 	cc.MqttClient.Disconnect(250)
 }
 
 func initSwagger(r *gin.Engine) {
 	ginSwagger.WrapHandler(swaggerFiles.Handler,
-		ginSwagger.URL("http://localhost:8081/swagger/doc.json"),
+		ginSwagger.URL("http://localhost:8079/swagger/doc.json"),
 		ginSwagger.DefaultModelsExpandDepth(-1))
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }
