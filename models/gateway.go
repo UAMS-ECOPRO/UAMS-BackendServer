@@ -96,3 +96,19 @@ func (gs *GatewaySvc) DeleteGatewayUHF(ctx context.Context, gw *Gateway, d *UHF)
 	}
 	return gw, nil
 }
+
+func (gs *GatewaySvc) UpdateGatewayConnectState(ctx context.Context, gwId string, state string) (bool, error) {
+	if err := gs.db.Model(&Gateway{}).Where("gateway_id = ?", gwId).Update("connect_state", state).Error; err != nil {
+		err = utils.HandleQueryError(err)
+		return false, err
+	}
+	return true, nil
+}
+
+func (gs *GatewaySvc) CreateGateway(ctx context.Context, g *Gateway) (*Gateway, error) {
+	if err := gs.db.Create(&g).Error; err != nil {
+		err = utils.HandleQueryError(err)
+		return nil, err
+	}
+	return g, nil
+}

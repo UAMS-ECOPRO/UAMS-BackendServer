@@ -127,3 +127,11 @@ func (uhfs *UHFSvc) FindAllUHFByGatewayID(ctx context.Context, gwId string) (dlL
 	}
 	return dlList, nil
 }
+
+func (uhfs *UHFSvc) CreateUHF(ctx context.Context, dl *UHF) (*UHF, error) {
+	if err := uhfs.db.Create(&dl).Error; err != nil {
+		err = utils.HandleQueryError(err)
+		return nil, err
+	}
+	return dl, nil
+}

@@ -40,20 +40,8 @@ type UHFSyncPayload struct {
 }
 
 type SyncPayload struct {
-	UHFs        []UHFSyncPayload   `json:"uhfs"`
-	GW_networks []models.GwNetwork `json:"gw_network"`
-	State       string             `json:"state"`
-}
-
-func ServerCreateDoorlockPayload(doorlock *models.Doorlock) string {
-	msg := fmt.Sprintf(`{"doorlock_address":"%s"}`, doorlock.DoorlockAddress)
-	return PayloadWithGatewayId(doorlock.GatewayID, msg)
-}
-
-func ServerUpdateDoorlockPayload(doorlock *models.Doorlock) string {
-	msg := fmt.Sprintf(`{"doorlock_address":"%s","doorlock_active_state":"%s"}`,
-		doorlock.DoorlockAddress, doorlock.ActiveState)
-	return PayloadWithGatewayId(doorlock.GatewayID, msg)
+	UHFs  []UHFSyncPayload `json:"uhfs"`
+	State string           `json:"state"`
 }
 
 func ServerUpdateUHFPayload(uhf *models.UHF) string {
@@ -62,23 +50,9 @@ func ServerUpdateUHFPayload(uhf *models.UHF) string {
 	return PayloadWithGatewayId(uhf.GatewayID, msg)
 }
 
-func ServerDeleteDoorlockPayload(doorlock *models.Doorlock) string {
-	msg := fmt.Sprintf(`{"doorlock_address":"%s"}`, doorlock.DoorlockAddress)
-	return PayloadWithGatewayId(doorlock.GatewayID, msg)
-}
-
 func ServerDeleteUHFPayload(uhf *models.UHF) string {
 	msg := fmt.Sprintf(`{"uhf_address":"%s"}`, uhf.UHFAddress)
 	return PayloadWithGatewayId(uhf.GatewayID, msg)
-}
-
-func ServerCmdDoorlockPayload(gwId string, doorlockAddress string, cmd *models.DoorlockCmd) string {
-	var duration string = ""
-	if cmd.Duration != "" {
-		duration = fmt.Sprintf(`,"duration":"%s"`, cmd.Duration)
-	}
-	msg := fmt.Sprintf(`{"doorlock_address":"%s","action":"%s"%s}`, doorlockAddress, cmd.State, duration)
-	return PayloadWithGatewayId(gwId, msg)
 }
 
 func ServerUpdateGatewayPayload(gw *models.Gateway) string {
@@ -89,86 +63,6 @@ func ServerUpdateGatewayPayload(gw *models.Gateway) string {
 func ServerDeleteGatewayPayload(gwID string) string {
 	msg := `{}`
 	return PayloadWithGatewayId(gwID, msg)
-}
-
-func ServerCreateRegisterPayload(
-	gwId string,
-	doorlockAddress string,
-	sche *models.Scheduler,
-	uP *UserIDPassword,
-) string {
-
-	loc, _ := time.LoadLocation("Asia/Ho_Chi_Minh")
-	startDmySlice := getDayMonthYearSlice(sche.StartDate)
-	start := time.Date(startDmySlice[2], time.Month(startDmySlice[1]), startDmySlice[0], 0, 0, 0, 0, loc).Unix()
-	endDmySlice := getDayMonthYearSlice(sche.EndDate)
-	end := time.Date(endDmySlice[2], time.Month(endDmySlice[1]), endDmySlice[0], 23, 59, 59, 0, loc).Unix()
-
-	msg := fmt.Sprintf(`{"register_id":"%d",
-	"user_id":"%s",
-	"doorlock_address":"%s",
-	"rfid_pw":"%s",
-	"keypad_pw":"%s",
-	"start_date":"%d",
-	"end_date":"%d",
-	"week_day":"%d",
-	"start_class":"%d",
-	"end_class":"%d"}`,
-		sche.ID, uP.UserId, doorlockAddress, uP.RfidPass, uP.KeypadPass,
-		start, end, sche.WeekDay, sche.StartClassTime, sche.EndClassTime)
-
-	return PayloadWithGatewayId(gwId, msg)
-}
-
-func ServerUpdateRegisterPayload(gwId string, uSche *models.UpdateScheduler) string {
-	sche := uSche.Scheduler
-	loc, _ := time.LoadLocation("Asia/Ho_Chi_Minh")
-	startDmySlice := getDayMonthYearSlice(sche.StartDate)
-	start := time.Date(startDmySlice[2], time.Month(startDmySlice[1]), startDmySlice[0], 0, 0, 0, 0, loc).Unix()
-	endDmySlice := getDayMonthYearSlice(sche.EndDate)
-
-	end := time.Date(endDmySlice[2], time.Month(endDmySlice[1]), endDmySlice[0], 23, 59, 59, 0, loc).Unix()
-	msg := fmt.Sprintf(`{"register_id":"%d",
-	"user_id":"%s",
-	"doorlock_address":"%s",
-	"start_date":"%d",
-	"end_date":"%d",
-	"week_day":"%d",
-	"start_class":"%d",
-	"end_class":"%d"}`,
-		sche.ID, uSche.UserID, uSche.DoorlockAddress,
-		start, end, sche.WeekDay, sche.StartClassTime, sche.EndClassTime)
-	return PayloadWithGatewayId(gwId, msg)
-}
-
-func ServerDeleteRegisterPayload(gwId string, registerId uint) string {
-	msg := fmt.Sprintf(`{"register_id":"%d"}`, registerId)
-	return PayloadWithGatewayId(gwId, msg)
-}
-
-func ServerBootuptHPEmployeePayload(gwId string, emps []models.Employee) string {
-	bootupEmps := []UserIDPassword{}
-	for _, emp := range emps {
-		buEmp := UserIDPassword{
-			UserId:     emp.MSNV,
-			RfidPass:   emp.RfidPass,
-			KeypadPass: emp.KeypadPass,
-		}
-		bootupEmps = append(bootupEmps, buEmp)
-	}
-	bootupEmpsJson, _ := json.Marshal(bootupEmps)
-	return PayloadWithGatewayId(gwId, string(bootupEmpsJson))
-}
-
-func ServerUpdateUserPayload(gwId string, userId string, rfidPw string, keypadPw string) string {
-	msg := fmt.Sprintf(`{"user_id":"%s","rfid_pw":"%s", "keypad_pw":"%s"}`,
-		userId, rfidPw, keypadPw)
-	return PayloadWithGatewayId(gwId, msg)
-}
-
-func ServerDeleteUserPayload(gwId string, msnv string) string {
-	msg := fmt.Sprintf(`{"user_id":"%s"}`, msnv)
-	return PayloadWithGatewayId(gwId, msg)
 }
 
 func PayloadWithGatewayId(gwId string, msg string) string {
@@ -243,7 +137,7 @@ func isPastTime(t_compared int64) bool {
 	return true
 }
 
-func ServerBootupSystemPayload(gwId string, uhfs []models.UHF, gw_networks []models.GwNetwork) string {
+func ServerBootupSystemPayload(gwId string, uhfs []models.UHF) string {
 	uhf_important_info := []UHFSyncPayload{}
 	for _, item := range uhfs {
 		new_uhf_important_info := UHFSyncPayload{}
@@ -252,7 +146,7 @@ func ServerBootupSystemPayload(gwId string, uhfs []models.UHF, gw_networks []mod
 		new_uhf_important_info.State = item.ActiveState
 		uhf_important_info = append(uhf_important_info, new_uhf_important_info)
 	}
-	sync_payload := SyncPayload{UHFs: uhf_important_info, GW_networks: gw_networks, State: "active"}
+	sync_payload := SyncPayload{UHFs: uhf_important_info, State: "active"}
 	sync_payload_converted, _ := json.Marshal(sync_payload)
 	return PayloadWithGatewayId(gwId, string(sync_payload_converted))
 }

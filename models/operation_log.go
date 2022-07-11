@@ -60,3 +60,11 @@ func (dlsls *OperationLogSvc) FindOperationLogsByTime(from string, to string) (d
 	}
 	return dlslList, nil
 }
+
+func (dlsls *OperationLogSvc) CreateOperationLog(ctx context.Context, dlsl *OperationLog) (*OperationLog, error) {
+	if err := dlsls.db.Create(&dlsl).Error; err != nil {
+		err = utils.HandleQueryError(err)
+		return nil, err
+	}
+	return dlsl, nil
+}
