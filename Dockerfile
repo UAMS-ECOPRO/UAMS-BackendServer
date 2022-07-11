@@ -16,6 +16,6 @@ COPY --from=builder /app/$APP_NAME .
 COPY --from=builder /app/certs /certs
 RUN apk add --no-cache tzdata
 RUN cp /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime
-EXPOSE 8080
+EXPOSE 8079
 
 CMD /app/uams-be
