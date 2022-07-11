@@ -33,7 +33,7 @@ func ProvideConfig(envFilePath string) (Config, error) {
 		return cfg, err
 	}
 
-	logger.InitLogger("log/hoang.log")
+	logger.InitLogger(cfg.SvLogPath)
 	return cfg, nil
 }
 
