@@ -73,7 +73,7 @@ func (h *UHFHandler) FindUHFByID(c *gin.Context) {
 // @Description Update UHF, must have "gatewayId" and "UHFAddress" field. Send updated info to MQTT broker
 // @Accept  json
 // @Produce json
-// @Param	data	body	models.SwagUpdateUHF	true	"Fields need to update a UHF"
+// @Param	data	body	models.UHF	true	"Fields need to update a UHF"
 // @Success 200 {boolean} true
 // @Failure 400 {object} utils.ErrorResponse
 // @Router /v1/uhf [patch]

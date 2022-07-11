@@ -3,9 +3,10 @@ package main
 
 import (
 	"fmt"
+	_ "github.com/ecoprohcm/DMS_BackendServer/docs"
+	"github.com/ecoprohcm/DMS_BackendServer/handlers"
 	"os"
 
-	"github.com/ecoprohcm/DMS_BackendServer/handlers"
 	"github.com/ecoprohcm/DMS_BackendServer/initializers"
 	"github.com/gin-gonic/gin"                 // swagger embed files
 	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware

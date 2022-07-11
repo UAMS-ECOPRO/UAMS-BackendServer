@@ -49,7 +49,7 @@ func (h *OperationLogHandler) FindAllOperationLog(c *gin.Context) {
 // @Param        id	path	string	true	"GatewayLog ID"
 // @Success 200 {object} models.GatewayLog
 // @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/gatewayLog/{id} [get]
+// @Router /v1/operation_logs/{id} [get]
 func (h *OperationLogHandler) FindOperationLogByGatewayID(c *gin.Context) {
 	id := c.Param("gateway_id")
 	gl, err := h.deps.SvcOpts.OperationLogSvc.GetOperationLogByGatewayID(c, id)
@@ -74,7 +74,7 @@ func (h *OperationLogHandler) FindOperationLogByGatewayID(c *gin.Context) {
 // @Param 		 to path    string  true    "To Unix time"
 // @Success 200 {object} []models.GatewayLog
 // @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/gatewayLogs/period/{id}/date/:from/:to [get]
+// @Router /v1/operation_logs/gateway_id/:gateway_id/period/:from/:to [get]
 func (h *OperationLogHandler) FindOperationLogsByGatewayIDAndTime(c *gin.Context) {
 	gatewayId := c.Param("gateway_id")
 	from := c.Param("from")
@@ -105,7 +105,7 @@ func (h *OperationLogHandler) FindOperationLogsByGatewayIDAndTime(c *gin.Context
 // @Param 		 to path    string  true    "To Unix time"
 // @Success 200 {object} []models.GatewayLog
 // @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/gatewayLogs/period/{id}/date/:from/:to [get]
+// @Router /v1/operation_logs/period/:from/:to [get]
 func (h *OperationLogHandler) FindOperationLogsByTime(c *gin.Context) {
 	from := c.Param("from")
 	to := c.Param("to")
