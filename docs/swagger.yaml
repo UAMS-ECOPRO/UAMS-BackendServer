@@ -108,6 +108,21 @@ definitions:
       uhf_serial_number:
         type: string
     type: object
+  models.UHFStatusLog:
+    properties:
+      gateway_id:
+        type: string
+      id:
+        type: integer
+      state_type:
+        description: ConnectState, DoorState, LockState
+        type: string
+      state_value:
+        description: corresponding statetype
+        type: string
+      uhf_address:
+        type: string
+    type: object
   models.UserAccess:
     properties:
       area_id:
@@ -847,6 +862,101 @@ paths:
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Find UHF By ID
+  /v1/uhf_logs:
+    get:
+      description: find all UHF Status logs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.UHFStatusLog'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find All UHF Status logs
+  /v1/uhf_logs/{id}:
+    get:
+      description: find all UHF Status logs by ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.UHFStatusLog'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find All UHF Status logs by ID
+  /v1/uhf_logs/gateway_id/{gateway_id}/uhf_address/{uhf_address}:
+    get:
+      description: find all UHF Status logs by Gateway ID and UHF Address
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.UHFStatusLog'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find All UHF Status logs by Gateway ID and UHF Address
+  /v1/uhf_logs/gateway_id/{gateway_id}/uhf_address/{uhf_address}/period/{from}/{to}:
+    get:
+      description: find all UHF Status logs by GatewayID, AddressID and TimeRange
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.UHFStatusLog'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find All UHF Status logs by GatewayID, AddressID and TimeRange
+  /v1/uhf_logs/period/{from}/{to}:
+    get:
+      description: find all UHF Status logs by Timerange
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.UHFStatusLog'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find All UHF Status logs by Timerange
   /v1/uhfs:
     get:
       description: find all UHF info
