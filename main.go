@@ -15,10 +15,10 @@ import (
 
 // @title          Backend API
 // @version        1.0
-// @description    This is API document for DMS backend server
+// @description    This is API document for UAMS backend server
 // @contact.name   Mr. Khai
 
-// @host      http://iot.hcmue.space:8001
+// @host      http://iot.hcmue.space:8079
 // @BasePath  /v1
 
 func main() {

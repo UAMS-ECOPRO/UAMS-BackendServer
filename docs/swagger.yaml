@@ -41,10 +41,31 @@ definitions:
       state_value:
         type: string
     type: object
+  models.OperationLog:
+    properties:
+      content:
+        description: corresponding statetype
+        type: string
+      gateway_id:
+        type: string
+      id:
+        type: integer
+    type: object
+  models.PackageAccess:
+    properties:
+      area_id:
+        type: string
+      group:
+        type: string
+      id:
+        type: integer
+      package_id:
+        type: string
+      random:
+        type: string
+    type: object
   models.SwagCreateArea:
     properties:
-      gateway:
-        $ref: '#/definitions/models.Gateway'
       manager:
         type: string
       name:
@@ -53,18 +74,14 @@ definitions:
   models.SwagUpateGateway:
     properties:
       areaId:
-        type: integer
+        type: string
       gatewayId:
         type: string
-      id:
-        type: integer
       name:
         type: string
     type: object
   models.SwagUpdateArea:
     properties:
-      gateway:
-        $ref: '#/definitions/models.Gateway'
       id:
         type: integer
       manager:
@@ -91,6 +108,19 @@ definitions:
       uhf_serial_number:
         type: string
     type: object
+  models.UserAccess:
+    properties:
+      area_id:
+        type: string
+      group:
+        type: string
+      id:
+        type: integer
+      random:
+        type: string
+      user_id:
+        type: string
+    type: object
   utils.ErrorResponse:
     properties:
       errorMsg:
@@ -100,11 +130,11 @@ definitions:
       statusCode:
         type: integer
     type: object
-host: http://iot.hcmue.space:8001
+host: http://iot.hcmue.space:8079
 info:
   contact:
     name: Mr. Khai
-  description: This is API document for DMS backend server
+  description: This is API document for UAMS backend server
   title: Backend API
   version: "1.0"
 paths:
@@ -227,7 +257,7 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Delete gateway using "" field. Send deleted info to MQTT broker
+      description: Delete gateway using "id" field. Send deleted info to MQTT broker
       parameters:
       - description: Gateway ID
         in: body
@@ -278,9 +308,9 @@ paths:
       summary: Update Gateway By Gateway ID
   /v1/gateway/{id}:
     get:
-      description: find gateway and doorlock info by gateway id
+      description: find gateway and uhf info by id
       parameters:
-      - description: Gateway ID
+      - description: ID
         in: path
         name: id
         required: true
@@ -297,6 +327,27 @@ paths:
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Find Gateway By ID
+  /v1/gateway/gateway_id/{gateway_id}:
+    get:
+      description: find gateway and uhf info by gateway_id
+      parameters:
+      - description: gateway_id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Gateway'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find Gateway By Gateway ID
   /v1/gateway_logs:
     get:
       description: find all gateway logs info
@@ -337,7 +388,7 @@ paths:
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Find GatewayLog By ID
-  /v1/gateway_logs/gateway_id/:id/period/:from/:to:
+  /v1/gateway_logs/gateway_id/{gateway_id}/period/{from}/{to}:
     get:
       description: find Gateway logs by period of time
       parameters:
@@ -391,7 +442,7 @@ paths:
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Find GatewayLog By Gateway ID
-  /v1/gateway_logs/period/:from/:to:
+  /v1/gateway_logs/period/{from}/{to}:
     get:
       description: find Gateway logs by period of time
       parameters:
@@ -445,7 +496,7 @@ paths:
       summary: Find All Gateway
   /v1/operation_logs:
     get:
-      description: find all gateway logs info
+      description: find all operation logs info
       produces:
       - application/json
       responses:
@@ -454,17 +505,38 @@ paths:
           schema:
             items:
               items:
-                $ref: '#/definitions/models.GatewayLog'
+                $ref: '#/definitions/models.OperationLog'
               type: array
             type: array
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
-      summary: Find All GatewayLog
+      summary: Find All OperationLog
   /v1/operation_logs/{id}:
     get:
-      description: find gateway log info by id
+      description: find operation log info by id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OperationLog'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find Operation By ID
+  /v1/operation_logs/gateway_id/{gateway_id}:
+    get:
+      description: find operation log info by gateway_id
       parameters:
       - description: GatewayLog ID
         in: path
@@ -477,17 +549,17 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.GatewayLog'
+            $ref: '#/definitions/models.OperationLog'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
-      summary: Find GatewayLog By ID
-  /v1/operation_logs/gateway_id/:gateway_id/period/:from/:to:
+      summary: Find Operation By GatewayID
+  /v1/operation_logs/gateway_id/{gateway_id}/period/{from}/{to}:
     get:
-      description: find Gateway logs by period of time
+      description: find operation logs by period of time
       parameters:
-      - description: GatewayLog ID
+      - description: Gateway ID
         in: path
         name: id
         required: true
@@ -509,18 +581,18 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.GatewayLog'
+              $ref: '#/definitions/models.OperationLog'
             type: array
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
-      summary: Find Gateway logs by period of time
-  /v1/operation_logs/period/:from/:to:
+      summary: Find operation logs by period of time
+  /v1/operation_logs/period/{from}/{to}:
     get:
-      description: find Gateway logs by period of time
+      description: find Operation logs by period of time
       parameters:
-      - description: GatewayLog ID
+      - description: Gateway ID
         in: path
         name: id
         required: true
@@ -542,13 +614,165 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.GatewayLog'
+              $ref: '#/definitions/models.OperationLog'
             type: array
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
-      summary: Find Gateway logs by period of time
+      summary: Find Operation logs by period of time
+  /v1/package_accesses:
+    get:
+      description: find all package access log
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.PackageAccess'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find Package Access log
+  /v1/package_accesses/area_id/{area_id}:
+    get:
+      description: find all package access log by  and AreaID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.PackageAccess'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find Package Access log by AreaID
+  /v1/package_accesses/area_id/{area_id}/period/{from}/{to}:
+    get:
+      description: find all package access log by AreaID and TimeRange
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.PackageAccess'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find Package Access log by AreaID and TimeRange
+  /v1/package_accesses/package_id/{id}:
+    get:
+      description: find all package access log by Package ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.PackageAccess'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find Package Access log by Package ID
+  /v1/package_accesses/package_id/{id}/area_id/{area_id}:
+    get:
+      description: find all package access log by Package ID and AreaID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.PackageAccess'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find Package Access log by Package ID and AreaID
+  /v1/package_accesses/package_id/{id}/area_id/{area_id}/period/{from}/{to}:
+    get:
+      description: find all package access log by Package ID and AreaID and TimeRange
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.PackageAccess'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find Package Access log by Package ID and AreaID and TimeRange
+  /v1/package_accesses/package_id/{id}/period/{from}/{to}:
+    get:
+      description: find all package access log by Package ID and TimeRange
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.PackageAccess'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find Package Access log by Package ID and TimeRange
+  /v1/package_accesses/period/{from}/{to}:
+    get:
+      description: find all package access log by TimeRange
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.PackageAccess'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find Package Access log by TimeRange
   /v1/uhf:
     delete:
       consumes:
@@ -642,4 +866,156 @@ paths:
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Find All UHF
+  /v1/user_accesses:
+    get:
+      description: find all user access log
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.UserAccess'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find User Access log
+  /v1/user_accesses/area_id/{area_id}:
+    get:
+      description: find all user access log by Area Id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.UserAccess'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find User Access log by Area Id
+  /v1/user_accesses/area_id/{area_id}/period/{from}/{to}:
+    get:
+      description: find all user access log by Area Id and TimeRange
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.UserAccess'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find User Access log by Area Id and TimeRange
+  /v1/user_accesses/period/{from}/{to}:
+    get:
+      description: find all user access log by TimeRange
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.UserAccess'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find User Access log by TimeRange
+  /v1/user_accesses/user_id/{id}:
+    get:
+      description: find all user access log by user id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.UserAccess'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find User Access log by User ID
+  /v1/user_accesses/user_id/{id}/area_id/{area_id}:
+    get:
+      description: find all user access log by user id and Area Id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.UserAccess'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find User Access log by User ID and Area Id
+  /v1/user_accesses/user_id/{id}/area_id/{area_id}/period/{from}/{to}:
+    get:
+      description: find all user access log by user id and Area Id and TimeRange
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.UserAccess'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find User Access log by User ID and Area Id and TimeRange
+  /v1/user_accesses/user_id/{id}/period/{from}/{to}:
+    get:
+      description: find all user access log by user id and Time Range
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.UserAccess'
+              type: array
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Find User Access log by User ID and Time Range
 swagger: "2.0"

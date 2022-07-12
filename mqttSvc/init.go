@@ -121,7 +121,7 @@ func gwGatewayConnectStateSubscriber(client mqtt.Client, optSvc *models.ServiceO
 		logger.LogfWithFields(logger.MQTT, logger.InfoLevel, logger.LoggerFields{
 			"GwMsg": payloadStr,
 		}, "Connect state of  ID %s", gwId.String())
-		gw, error := optSvc.GatewaySvc.FindGatewayByMacID(context.Background(), gwId.String())
+		gw, error := optSvc.GatewaySvc.FindGatewayByGatewayID(context.Background(), gwId.String())
 		if error != nil {
 			return
 		}
@@ -171,7 +171,7 @@ func gwLastWillSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqt
 		var payloadStr = string(msg.Payload())
 		gwId := gjson.Get(payloadStr, "gateway_id")
 		logger.LogfWithoutFields(logger.MQTT, logger.DebugLevel, "Gateway ID %s has disconnected", gwId.String())
-		gw, _ := optSvc.GatewaySvc.FindGatewayByMacID(context.Background(), gwId.String())
+		gw, _ := optSvc.GatewaySvc.FindGatewayByGatewayID(context.Background(), gwId.String())
 		if gw != nil {
 			gw.ConnectState = "disconnected"
 			_, err := optSvc.GatewaySvc.UpdateGatewayConnectState(context.Background(), gw.GatewayID, gw.ConnectState)
@@ -215,7 +215,7 @@ func gwSystemSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 		log := gjson.Get(payloadStr, "message.log").String()
 		time_layout := "2006-01-02 15:04:05"
 		var time_stamp, _ = time.ParseInLocation(time_layout, gjson.Get(payloadStr, "message.timestamp").String(), time.Local)
-		_, error := optSvc.GatewaySvc.FindGatewayByMacID(context.Background(), gwId.String())
+		_, error := optSvc.GatewaySvc.FindGatewayByGatewayID(context.Background(), gwId.String())
 		if error != nil {
 			return
 		}
@@ -295,7 +295,7 @@ func gwUHFScanSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt
 		if err != nil {
 			return
 		}
-		_, err = optSvc.GatewaySvc.FindGatewayByMacID(context.Background(), gwId.String())
+		_, err = optSvc.GatewaySvc.FindGatewayByGatewayID(context.Background(), gwId.String())
 		if err != nil {
 			return
 		}
@@ -344,7 +344,7 @@ func gwBootupSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 			"payload": payloadStr,
 		}, "Gateway bootup with ID %s", gw_string)
 
-		checkGw, _ := optSvc.GatewaySvc.FindGatewayByMacID(context.Background(), gwId.String())
+		checkGw, _ := optSvc.GatewaySvc.FindGatewayByGatewayID(context.Background(), gwId.String())
 
 		if checkGw == nil {
 			newGw := &models.Gateway{}

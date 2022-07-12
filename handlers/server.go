@@ -19,6 +19,7 @@ func SetupRouter(
 		// Gateway routes
 		v1R.GET("/gateways", hOpts.GatewayHandler.FindAllGateway)
 		v1R.GET("/gateway/:id", hOpts.GatewayHandler.FindGatewayByID)
+		v1R.GET("/gateway/gateway_id/:gateway_id", hOpts.GatewayHandler.FindGatewayByGatewayID)
 		v1R.PATCH("/gateway", hOpts.GatewayHandler.UpdateGateway)
 		v1R.DELETE("/gateway", hOpts.GatewayHandler.DeleteGateway)
 
@@ -49,6 +50,7 @@ func SetupRouter(
 		v1R.GET("/uhf_logs/period/:from/:to", hOpts.UHFStatusLogHandler.GetUHFStatusLogInTimeRange)
 		// Operation log
 		v1R.GET("/operation_logs", hOpts.OperationLogHandler.FindAllOperationLog)
+		v1R.GET("/operation_logs/:id", hOpts.OperationLogHandler.FindAllOperationLogByID)
 		v1R.GET("/operation_logs/gateway_id/:gateway_id", hOpts.OperationLogHandler.FindOperationLogByGatewayID)
 		v1R.GET("/operation_logs/gateway_id/:gateway_id/period/:from/:to", hOpts.OperationLogHandler.FindOperationLogsByGatewayIDAndTime)
 		v1R.GET("/operation_logs/period/:from/:to", hOpts.OperationLogHandler.FindOperationLogsByTime)

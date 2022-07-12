@@ -42,12 +42,12 @@ func (h *GatewayHandler) FindAllGateway(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, gwList)
 }
 
-// Find gateway and doorlock info by id
+// Find gateway and uhf info by id
 // @Summary Find Gateway By ID
 // @Schemes
-// @Description find gateway and doorlock info by gateway id
+// @Description find gateway and uhf info by id
 // @Produce json
-// @Param        id	path	string	true	"Gateway ID"
+// @Param        id	path	string	true	"ID"
 // @Success 200 {object} models.Gateway
 // @Failure 400 {object} utils.ErrorResponse
 // @Router /v1/gateway/{id} [get]
@@ -55,6 +55,30 @@ func (h *GatewayHandler) FindGatewayByID(c *gin.Context) {
 	id := c.Param("id")
 
 	gw, err := h.deps.SvcOpts.GatewaySvc.FindGatewayByID(c, id)
+	if err != nil {
+		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Msg:        "Get gateway failed",
+			ErrorMsg:   err.Error(),
+		})
+		return
+	}
+	utils.ResponseJson(c, http.StatusOK, gw)
+}
+
+// Find gateway and uhf info by id
+// @Summary Find Gateway By Gateway ID
+// @Schemes
+// @Description find gateway and uhf info by gateway_id
+// @Produce json
+// @Param        id	path	string	true	"gateway_id"
+// @Success 200 {object} models.Gateway
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/gateway/gateway_id/{gateway_id} [get]
+func (h *GatewayHandler) FindGatewayByGatewayID(c *gin.Context) {
+	id := c.Param("gateway_id")
+
+	gw, err := h.deps.SvcOpts.GatewaySvc.FindGatewayByGatewayID(c, id)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
@@ -97,7 +121,7 @@ func (h *GatewayHandler) UpdateGateway(c *gin.Context) {
 		})
 		return
 	}
-	updated_gw, _ := h.deps.SvcOpts.GatewaySvc.FindGatewayByMacID(c.Request.Context(), gw.GatewayID)
+	updated_gw, _ := h.deps.SvcOpts.GatewaySvc.FindGatewayByGatewayID(c.Request.Context(), gw.GatewayID)
 	new_gw_log := &models.GatewayLog{}
 	new_gw_log.StateType = "ConnectState"
 	new_gw_log.GatewayID = gw.GatewayID
@@ -121,7 +145,7 @@ func (h *GatewayHandler) UpdateGateway(c *gin.Context) {
 // Delete gateway
 // @Summary Delete Gateway By Gateway ID
 // @Schemes
-// @Description Delete gateway using "" field. Send deleted info to MQTT broker
+// @Description Delete gateway using "id" field. Send deleted info to MQTT broker
 // @Accept  json
 // @Produce json
 // @Param	data	body	object{gateway_id=string}	true	"Gateway ID"
@@ -140,7 +164,7 @@ func (h *GatewayHandler) DeleteGateway(c *gin.Context) {
 		return
 	}
 
-	_, err1 := h.deps.SvcOpts.GatewaySvc.FindGatewayByMacID(c.Request.Context(), dgw.GatewayID)
+	_, err1 := h.deps.SvcOpts.GatewaySvc.FindGatewayByGatewayID(c.Request.Context(), dgw.GatewayID)
 	if err1 != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,

@@ -200,7 +200,7 @@ const docTemplate = `{
         },
         "/v1/gateway": {
             "delete": {
-                "description": "Delete gateway using \"\" field. Send deleted info to MQTT broker",
+                "description": "Delete gateway using \"id\" field. Send deleted info to MQTT broker",
                 "consumes": [
                     "application/json"
                 ],
@@ -282,9 +282,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/gateway/gateway_id/{gateway_id}": {
+            "get": {
+                "description": "find gateway and uhf info by gateway_id",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find Gateway By Gateway ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "gateway_id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Gateway"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/gateway/{id}": {
             "get": {
-                "description": "find gateway and doorlock info by gateway id",
+                "description": "find gateway and uhf info by id",
                 "produces": [
                     "application/json"
                 ],
@@ -292,7 +324,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Gateway ID",
+                        "description": "ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -343,7 +375,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/gateway_logs/gateway_id/:id/period/:from/:to": {
+        "/v1/gateway_logs/gateway_id/{gateway_id}/period/{from}/{to}": {
             "get": {
                 "description": "find Gateway logs by period of time",
                 "produces": [
@@ -424,7 +456,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/gateway_logs/period/:from/:to": {
+        "/v1/gateway_logs/period/{from}/{to}": {
             "get": {
                 "description": "find Gateway logs by period of time",
                 "produces": [
@@ -536,11 +568,11 @@ const docTemplate = `{
         },
         "/v1/operation_logs": {
             "get": {
-                "description": "find all gateway logs info",
+                "description": "find all operation logs info",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Find All GatewayLog",
+                "summary": "Find All OperationLog",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -549,7 +581,7 @@ const docTemplate = `{
                             "items": {
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#/definitions/models.GatewayLog"
+                                    "$ref": "#/definitions/models.OperationLog"
                                 }
                             }
                         }
@@ -563,17 +595,49 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/operation_logs/gateway_id/:gateway_id/period/:from/:to": {
+        "/v1/operation_logs/gateway_id/{gateway_id}": {
             "get": {
-                "description": "find Gateway logs by period of time",
+                "description": "find operation log info by gateway_id",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Find Gateway logs by period of time",
+                "summary": "Find Operation By GatewayID",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "GatewayLog ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.OperationLog"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/operation_logs/gateway_id/{gateway_id}/period/{from}/{to}": {
+            "get": {
+                "description": "find operation logs by period of time",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find operation logs by period of time",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Gateway ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -599,7 +663,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.GatewayLog"
+                                "$ref": "#/definitions/models.OperationLog"
                             }
                         }
                     },
@@ -612,17 +676,17 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/operation_logs/period/:from/:to": {
+        "/v1/operation_logs/period/{from}/{to}": {
             "get": {
-                "description": "find Gateway logs by period of time",
+                "description": "find Operation logs by period of time",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Find Gateway logs by period of time",
+                "summary": "Find Operation logs by period of time",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "GatewayLog ID",
+                        "description": "Gateway ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -648,7 +712,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.GatewayLog"
+                                "$ref": "#/definitions/models.OperationLog"
                             }
                         }
                     },
@@ -663,15 +727,15 @@ const docTemplate = `{
         },
         "/v1/operation_logs/{id}": {
             "get": {
-                "description": "find gateway log info by id",
+                "description": "find operation log info by id",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Find GatewayLog By ID",
+                "summary": "Find Operation By ID",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "GatewayLog ID",
+                        "description": "ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -681,7 +745,239 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.GatewayLog"
+                            "$ref": "#/definitions/models.OperationLog"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/package_accesses": {
+            "get": {
+                "description": "find all package access log",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find Package Access log",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.PackageAccess"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/package_accesses/area_id/{area_id}": {
+            "get": {
+                "description": "find all package access log by  and AreaID",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find Package Access log by AreaID",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.PackageAccess"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/package_accesses/area_id/{area_id}/period/{from}/{to}": {
+            "get": {
+                "description": "find all package access log by AreaID and TimeRange",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find Package Access log by AreaID and TimeRange",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.PackageAccess"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/package_accesses/package_id/{id}": {
+            "get": {
+                "description": "find all package access log by Package ID",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find Package Access log by Package ID",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.PackageAccess"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/package_accesses/package_id/{id}/area_id/{area_id}": {
+            "get": {
+                "description": "find all package access log by Package ID and AreaID",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find Package Access log by Package ID and AreaID",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.PackageAccess"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/package_accesses/package_id/{id}/area_id/{area_id}/period/{from}/{to}": {
+            "get": {
+                "description": "find all package access log by Package ID and AreaID and TimeRange",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find Package Access log by Package ID and AreaID and TimeRange",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.PackageAccess"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/package_accesses/package_id/{id}/period/{from}/{to}": {
+            "get": {
+                "description": "find all package access log by Package ID and TimeRange",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find Package Access log by Package ID and TimeRange",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.PackageAccess"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/package_accesses/period/{from}/{to}": {
+            "get": {
+                "description": "find all package access log by TimeRange",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find Package Access log by TimeRange",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.PackageAccess"
+                                }
+                            }
                         }
                     },
                     "400": {
@@ -837,6 +1133,238 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v1/user_accesses": {
+            "get": {
+                "description": "find all user access log",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find User Access log",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.UserAccess"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/user_accesses/area_id/{area_id}": {
+            "get": {
+                "description": "find all user access log by Area Id",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find User Access log by Area Id",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.UserAccess"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/user_accesses/area_id/{area_id}/period/{from}/{to}": {
+            "get": {
+                "description": "find all user access log by Area Id and TimeRange",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find User Access log by Area Id and TimeRange",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.UserAccess"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/user_accesses/period/{from}/{to}": {
+            "get": {
+                "description": "find all user access log by TimeRange",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find User Access log by TimeRange",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.UserAccess"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/user_accesses/user_id/{id}": {
+            "get": {
+                "description": "find all user access log by user id",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find User Access log by User ID",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.UserAccess"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/user_accesses/user_id/{id}/area_id/{area_id}": {
+            "get": {
+                "description": "find all user access log by user id and Area Id",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find User Access log by User ID and Area Id",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.UserAccess"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/user_accesses/user_id/{id}/area_id/{area_id}/period/{from}/{to}": {
+            "get": {
+                "description": "find all user access log by user id and Area Id and TimeRange",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find User Access log by User ID and Area Id and TimeRange",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.UserAccess"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/user_accesses/user_id/{id}/period/{from}/{to}": {
+            "get": {
+                "description": "find all user access log by user id and Time Range",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find User Access log by User ID and Time Range",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.UserAccess"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -903,12 +1431,44 @@ const docTemplate = `{
                 }
             }
         },
+        "models.OperationLog": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "description": "corresponding statetype",
+                    "type": "string"
+                },
+                "gateway_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.PackageAccess": {
+            "type": "object",
+            "properties": {
+                "area_id": {
+                    "type": "string"
+                },
+                "group": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "package_id": {
+                    "type": "string"
+                },
+                "random": {
+                    "type": "string"
+                }
+            }
+        },
         "models.SwagCreateArea": {
             "type": "object",
             "properties": {
-                "gateway": {
-                    "$ref": "#/definitions/models.Gateway"
-                },
                 "manager": {
                     "type": "string"
                 },
@@ -921,13 +1481,10 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "areaId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "gatewayId": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -937,9 +1494,6 @@ const docTemplate = `{
         "models.SwagUpdateArea": {
             "type": "object",
             "properties": {
-                "gateway": {
-                    "$ref": "#/definitions/models.Gateway"
-                },
                 "id": {
                     "type": "integer"
                 },
@@ -980,6 +1534,26 @@ const docTemplate = `{
                 }
             }
         },
+        "models.UserAccess": {
+            "type": "object",
+            "properties": {
+                "area_id": {
+                    "type": "string"
+                },
+                "group": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "random": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "utils.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -1000,11 +1574,11 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "http://iot.hcmue.space:8001",
+	Host:             "http://iot.hcmue.space:8079",
 	BasePath:         "/v1",
 	Schemes:          []string{},
 	Title:            "Backend API",
-	Description:      "This is API document for DMS backend server",
+	Description:      "This is API document for UAMS backend server",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }

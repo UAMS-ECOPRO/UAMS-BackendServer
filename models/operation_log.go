@@ -34,6 +34,15 @@ func (dlsls *OperationLogSvc) GetAllOperationLogs(ctx context.Context) (dlslList
 	return dlslList, nil
 }
 
+func (dlsls *OperationLogSvc) GetOperationLogByID(ctx context.Context, id string) (ol *OperationLog, err error) {
+	result := dlsls.db.First(&ol, id)
+	if err := result.Error; err != nil {
+		err = utils.HandleQueryError(err)
+		return nil, err
+	}
+	return ol, nil
+}
+
 func (dlsls *OperationLogSvc) GetOperationLogByGatewayID(ctx context.Context, doorId string) (dlslList []OperationLog, err error) {
 	result := dlsls.db.Where("gateway_id = ?", doorId).Find(&dlslList)
 	if err := result.Error; err != nil {

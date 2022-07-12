@@ -97,7 +97,7 @@ func (h *GatewayLogHandler) FindGatewayByGatewayID(c *gin.Context) {
 // @Param 		 to path    string  true    "To Unix time"
 // @Success 200 {object} []models.GatewayLog
 // @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/gateway_logs/gateway_id/:id/period/:from/:to [get]
+// @Router /v1/gateway_logs/gateway_id/{gateway_id}/period/{from}/{to} [get]
 func (h *GatewayLogHandler) FindGatewayLogsByGatewayIDAndTime(c *gin.Context) {
 	gatewayId := c.Param("id")
 	from := c.Param("from")
@@ -128,7 +128,7 @@ func (h *GatewayLogHandler) FindGatewayLogsByGatewayIDAndTime(c *gin.Context) {
 // @Param 		 to path    string  true    "To Unix time"
 // @Success 200 {object} []models.GatewayLog
 // @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/gateway_logs/period/:from/:to [get]
+// @Router /v1/gateway_logs/period/{from}/{to} [get]
 func (h *GatewayLogHandler) FindGatewayLogByPeriod(c *gin.Context) {
 	from := c.Param("from")
 	to := c.Param("to")

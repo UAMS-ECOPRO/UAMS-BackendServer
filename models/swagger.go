@@ -1,20 +1,18 @@
 package models
 
 type SwagCreateGateway struct {
-	AreaID    uint   `json:"areaId"`
+	AreaID    string `json:"areaId"`
 	GatewayID string `json:"gatewayId"`
 	Name      string `json:"name"`
 }
 
 type SwagUpateGateway struct {
-	GormModel
 	SwagCreateGateway
 }
 
 type SwagCreateArea struct {
-	Gateway Gateway `json:"gateway"`
-	Name    string  `json:"name"`
-	Manager string  `json:"manager"`
+	Name    string `json:"name"`
+	Manager string `json:"manager"`
 }
 
 type SwagUpdateArea struct {
