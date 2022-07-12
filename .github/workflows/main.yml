@@ -47,6 +47,8 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: 1.17
+      - name: Install Swagger package
+        run: go install github.com/swaggo/swag/cmd/swag@v1.7.8
       - name: Docker Login
         env:
           DOCKER_USER: ${{secrets.DOCKER_USER}}

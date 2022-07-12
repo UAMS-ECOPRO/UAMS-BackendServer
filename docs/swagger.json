@@ -1098,6 +1098,151 @@
                 }
             }
         },
+        "/v1/uhf_logs": {
+            "get": {
+                "description": "find all UHF Status logs",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find All UHF Status logs",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.UHFStatusLog"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/uhf_logs/gateway_id/{gateway_id}/uhf_address/{uhf_address}": {
+            "get": {
+                "description": "find all UHF Status logs by Gateway ID and UHF Address",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find All UHF Status logs by Gateway ID and UHF Address",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.UHFStatusLog"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/uhf_logs/gateway_id/{gateway_id}/uhf_address/{uhf_address}/period/{from}/{to}": {
+            "get": {
+                "description": "find all UHF Status logs by GatewayID, AddressID and TimeRange",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find All UHF Status logs by GatewayID, AddressID and TimeRange",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.UHFStatusLog"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/uhf_logs/period/{from}/{to}": {
+            "get": {
+                "description": "find all UHF Status logs by Timerange",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find All UHF Status logs by Timerange",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.UHFStatusLog"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/uhf_logs/{id}": {
+            "get": {
+                "description": "find all UHF Status logs by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Find All UHF Status logs by ID",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.UHFStatusLog"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/uhfs": {
             "get": {
                 "description": "find all UHF info",
@@ -1523,6 +1668,28 @@
                     "type": "string"
                 },
                 "uhf_serial_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UHFStatusLog": {
+            "type": "object",
+            "properties": {
+                "gateway_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "state_type": {
+                    "description": "ConnectState, DoorState, LockState",
+                    "type": "string"
+                },
+                "state_value": {
+                    "description": "corresponding statetype",
+                    "type": "string"
+                },
+                "uhf_address": {
                     "type": "string"
                 }
             }
