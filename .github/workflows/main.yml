@@ -36,34 +36,6 @@ jobs:
           source: "./docs/swagger.yaml"
           target: "$HOME/uams/swagger-ui"
 
-      - name: Docker Login
-        env:
-          DOCKER_USER: ${{secrets.DOCKER_USER}}
-          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-        run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-
-      - name: Docker Build
-        env:
-          IMAGE_NAME: uams-be
-        run: |
-          docker build -t $IMAGE_NAME .
-          docker tag $IMAGE_NAME:latest ${{secrets.DOCKER_USER}}/$IMAGE_NAME:latest
-          docker push ${{secrets.DOCKER_USER}}/$IMAGE_NAME
-
-      - name: Deploy
-        uses: appleboy/ssh-action@master
-        env:
-          IMAGE_NAME: uams-be
-        with:
-          host: ${{secrets.UAMS_HOST}}
-          port: ${{secrets.UAMS_PORT}}
-          username: sviot
-          password: ${{secrets.UAMS_SSH_PASS}}
-          envs: IMAGE_NAME
-          script: |
-            docker login 
-            docker pull ${{secrets.DOCKER_USER}}/$IMAGE_NAME
-            cd $HOME/uams && docker-compose down && docker-compose up -d
   cd:
     needs: ci
     if: ${{ github.event.pull_request.merged }}
