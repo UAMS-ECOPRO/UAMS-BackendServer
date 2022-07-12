@@ -3,7 +3,6 @@ package models
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/ecoprohcm/DMS_BackendServer/utils"
@@ -87,13 +86,7 @@ func (ls *LogSvc) CreateGatewayLog(ctx context.Context, gl *GatewayLog) (*Gatewa
 	return gl, nil
 }
 
-func (ls *LogSvc) UpdateGatewayLogCleanPeriod(p *GatewayLogTime) error {
-	fmt.Println("PERIOD ", p.toTimeDuration())
-	ls.cleanTicker.setPeriod(p.toTimeDuration()).restart()
-	return nil
-}
-
-func (ls *LogSvc) FindGatewayLogsByTime(gatewayId string, from string, to string) (glList *[]GatewayLog, err error) {
+func (ls *LogSvc) FindGatewayLogsByGatewayIDAndTime(gatewayId string, from string, to string) (glList *[]GatewayLog, err error) {
 	result := ls.db.Where("gateway_id = ? AND log_time >= ? AND log_time <= ?", gatewayId, from, to).Find(&glList)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)
@@ -102,8 +95,8 @@ func (ls *LogSvc) FindGatewayLogsByTime(gatewayId string, from string, to string
 	return glList, nil
 }
 
-func (ls *LogSvc) FindGatewayLogsTypeByTime(gatewayId string, logType string, from string, to string) (glList *[]GatewayLog, err error) {
-	result := ls.db.Where("gateway_id = ? AND log_type = ? AND log_time >= ? AND log_time <= ?", gatewayId, strings.ToUpper(logType), from, to).Find(&glList)
+func (ls *LogSvc) FindGatewayLogsByTime(from string, to string) (glList *[]GatewayLog, err error) {
+	result := ls.db.Where("log_time >= ? AND log_time <= ?", from, to).Find(&glList)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)
 		return nil, err

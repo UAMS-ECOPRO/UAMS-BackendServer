@@ -1,4 +1,4 @@
-# DMS_BackendServer
+# UAMS_BackendServer
 
 ## How to run app
 ```bash
@@ -24,7 +24,7 @@
 4. SSH to server: 
  - Run cmd to clear *old* ssh key: `ssh-keygen -R iot.hcmue.space`
  - `ssh -p 2223 sviot@iot.hcmue.space`
-5. `cd ./iot && docker load -i ./dms-be.tar && docker-compose down && docker-compose up -d`
+5. `cd ./uams && docker load -i ./uams-be.tar && docker-compose down && docker-compose up -d`
 
 ## How to deploy swagger
 ### NOTES: Use [swag](github.com/swaggo/swag/cmd/swag@v1.7.8) to do `make swagger` & avoid weird error => It'll break CI
@@ -32,7 +32,7 @@
 1. Update new `gin-swagger` comments for new APIs
 2. `make swagger` ( Remember to add $GOPATH to your $PATH env variable )
 3. SSH to server
-4. Copy content of `docs/swagger.yaml` into `iot/swagger-ui/doc/api.yaml`
+4. Copy content of `docs/swagger.yaml` into `uams/swagger-ui/doc/api.yaml`
 
 ## How to use Logger
 ### About logger

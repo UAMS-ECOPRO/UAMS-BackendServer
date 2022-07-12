@@ -3,9 +3,10 @@ package main
 
 import (
 	"fmt"
+	_ "github.com/ecoprohcm/DMS_BackendServer/docs"
+	"github.com/ecoprohcm/DMS_BackendServer/handlers"
 	"os"
 
-	"github.com/ecoprohcm/DMS_BackendServer/handlers"
 	"github.com/ecoprohcm/DMS_BackendServer/initializers"
 	"github.com/gin-gonic/gin"                 // swagger embed files
 	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
@@ -14,10 +15,10 @@ import (
 
 // @title          Backend API
 // @version        1.0
-// @description    This is API document for DMS backend server
+// @description    This is API document for UAMS backend server
 // @contact.name   Mr. Khai
 
-// @host      http://iot.hcmue.space:8002
+// @host      http://iot.hcmue.space:8079
 // @BasePath  /v1
 
 func main() {
@@ -29,13 +30,13 @@ func main() {
 	// HTTP Serve
 	r := handlers.SetupRouter(cc.HandlerOptions)
 	initSwagger(r)
-	r.Run(":8081")
+	r.Run(":8079")
 	cc.MqttClient.Disconnect(250)
 }
 
 func initSwagger(r *gin.Engine) {
 	ginSwagger.WrapHandler(swaggerFiles.Handler,
-		ginSwagger.URL("http://localhost:8081/swagger/doc.json"),
+		ginSwagger.URL("http://localhost:8079/swagger/doc.json"),
 		ginSwagger.DefaultModelsExpandDepth(-1))
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }

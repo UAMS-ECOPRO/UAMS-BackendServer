@@ -3,7 +3,7 @@ name: CI/CD
 on:
   pull_request:
     branches: [main]
-    types: [opened, closed]
+    types: [opened, edited, closed]
 
 jobs:
   ci:
@@ -20,9 +20,6 @@ jobs:
       - name: Lint
         run: go fmt ./...
 
-      - name: Test
-        run: make test
-
       - name: Swagger
         run: |
           go install github.com/swaggo/swag/cmd/swag@v1.7.8
@@ -32,12 +29,12 @@ jobs:
       - name: Deploy swagger
         uses: appleboy/scp-action@master
         with:
-          host: ${{secrets.DMS_HOST}}
-          port: ${{secrets.DMS_PORT}}
+          host: ${{secrets.UAMS_HOST}}
+          port: ${{secrets.UAMS_PORT}}
           username: sviot
-          password: ${{secrets.DMS_SSH_PASS}}
+          password: ${{secrets.UAMS_SSH_PASS}}
           source: "./docs/swagger.yaml"
-          target: "$HOME/iot/swagger-ui"
+          target: "$HOME/uams/swagger-ui"
 
   cd:
     needs: ci
@@ -58,7 +55,7 @@ jobs:
 
       - name: Docker Build
         env:
-          IMAGE_NAME: dms-be
+          IMAGE_NAME: uams-be
         run: |
           docker build -t $IMAGE_NAME .
           docker tag $IMAGE_NAME:latest ${{secrets.DOCKER_USER}}/$IMAGE_NAME:latest
@@ -67,12 +64,12 @@ jobs:
       - name: Deploy
         uses: appleboy/ssh-action@master
         env:
-          IMAGE_NAME: dms-be
+          IMAGE_NAME: uams-be
         with:
-          host: ${{secrets.DMS_HOST}}
-          port: ${{secrets.DMS_PORT}}
+          host: ${{secrets.UAMS_HOST}}
+          port: ${{secrets.UAMS_PORT}}
           username: sviot
-          password: ${{secrets.DMS_SSH_PASS}}
+          password: ${{secrets.UAMS_SSH_PASS}}
           envs: IMAGE_NAME
           script: |
             docker login 

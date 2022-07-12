@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/ecoprohcm/DMS_BackendServer/utils"
 	"gorm.io/gorm"
-	"time"
 )
 
 type UHF struct {
@@ -90,14 +89,6 @@ func (uhfs *UHFSvc) FindUHFByAddress(ctx context.Context, address string, gwID s
 	return dl, nil
 }
 
-func (uhfs *UHFSvc) CreateUHF(ctx context.Context, dl *UHF) (*UHF, error) {
-	if err := uhfs.db.Create(&dl).Error; err != nil {
-		err = utils.HandleQueryError(err)
-		return nil, err
-	}
-	return dl, nil
-}
-
 func (uhfs *UHFSvc) UpdateUHF(ctx context.Context, dl *UHF) (bool, error) {
 	result := uhfs.db.Model(&dl).Where("uhf_address = ? AND gateway_id = ?", dl.UHFAddress, dl.GatewayID).Updates(dl)
 	return utils.ReturnBoolStateFromResult(result)
@@ -108,43 +99,8 @@ func (uhfs *UHFSvc) UpdateUHFByAddress(ctx context.Context, dl *UHF) (bool, erro
 	return utils.ReturnBoolStateFromResult(result)
 }
 
-func (uhfs *UHFSvc) UpdateUHFState(ctx context.Context, dl *DoorlockCmd) (bool, error) {
-	result := uhfs.db.Model(&Doorlock{}).Where("id = ?", dl.ID).Update("last_open_time", time.Now().UnixMilli())
-	return utils.ReturnBoolStateFromResult(result)
-}
-
 func (uhfs *UHFSvc) DeleteUHF(ctx context.Context, id string) (bool, error) {
 	result := uhfs.db.Unscoped().Where("id = ?", id).Delete(&UHF{})
-	return utils.ReturnBoolStateFromResult(result)
-}
-
-func (uhfs *UHFSvc) DeleteUHFByAddress(ctx context.Context, dl *UHF) (bool, error) {
-	result := uhfs.db.Unscoped().Where("gateway_id = ? AND doorlock_address = ?", dl.GatewayID, dl.UHFAddress).Delete(&Doorlock{})
-	return utils.ReturnBoolStateFromResult(result)
-}
-
-func (uhfs *UHFSvc) UpdateUHFStatus(ctx context.Context, dl *DoorlockStatus) (bool, error) {
-	result := uhfs.db.Model(&Doorlock{}).Where("id = ?", dl.ID).Updates(Doorlock{DoorState: dl.DoorState, LockState: dl.LockState})
-	return utils.ReturnBoolStateFromResult(result)
-}
-
-func (uhfs *UHFSvc) GetUHFStatusByID(ctx context.Context, id string) (dl *DoorlockStatus, err error) {
-	var cnt int64
-	result := uhfs.db.Model(&Doorlock{}).Where("id = ?", id).Find(&dl).Count(&cnt)
-	if err := result.Error; err != nil {
-		err = utils.HandleQueryError(err)
-		return nil, err
-	}
-
-	if cnt <= 0 {
-		return nil, fmt.Errorf("find no records")
-	}
-
-	return dl, nil
-}
-
-func (uhfs *UHFSvc) UpdateUHFStateCmd(ctx context.Context, dl *DoorlockCmd) (bool, error) {
-	result := uhfs.db.Model(&Doorlock{}).Where("id = ?", dl.ID).Update("lock_state", dl.State)
 	return utils.ReturnBoolStateFromResult(result)
 }
 
@@ -170,4 +126,12 @@ func (uhfs *UHFSvc) FindAllUHFByGatewayID(ctx context.Context, gwId string) (dlL
 		return nil, err
 	}
 	return dlList, nil
+}
+
+func (uhfs *UHFSvc) CreateUHF(ctx context.Context, dl *UHF) (*UHF, error) {
+	if err := uhfs.db.Create(&dl).Error; err != nil {
+		err = utils.HandleQueryError(err)
+		return nil, err
+	}
+	return dl, nil
 }

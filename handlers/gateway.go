@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -43,12 +42,12 @@ func (h *GatewayHandler) FindAllGateway(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, gwList)
 }
 
-// Find gateway and doorlock info by id
+// Find gateway and uhf info by id
 // @Summary Find Gateway By ID
 // @Schemes
-// @Description find gateway and doorlock info by gateway id
+// @Description find gateway and uhf info by id
 // @Produce json
-// @Param        id	path	string	true	"Gateway ID"
+// @Param        id	path	string	true	"ID"
 // @Success 200 {object} models.Gateway
 // @Failure 400 {object} utils.ErrorResponse
 // @Router /v1/gateway/{id} [get]
@@ -56,6 +55,30 @@ func (h *GatewayHandler) FindGatewayByID(c *gin.Context) {
 	id := c.Param("id")
 
 	gw, err := h.deps.SvcOpts.GatewaySvc.FindGatewayByID(c, id)
+	if err != nil {
+		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Msg:        "Get gateway failed",
+			ErrorMsg:   err.Error(),
+		})
+		return
+	}
+	utils.ResponseJson(c, http.StatusOK, gw)
+}
+
+// Find gateway and uhf info by id
+// @Summary Find Gateway By Gateway ID
+// @Schemes
+// @Description find gateway and uhf info by gateway_id
+// @Produce json
+// @Param        id	path	string	true	"gateway_id"
+// @Success 200 {object} models.Gateway
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/gateway/gateway_id/{gateway_id} [get]
+func (h *GatewayHandler) FindGatewayByGatewayID(c *gin.Context) {
+	id := c.Param("gateway_id")
+
+	gw, err := h.deps.SvcOpts.GatewaySvc.FindGatewayByGatewayID(c, id)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
@@ -98,7 +121,7 @@ func (h *GatewayHandler) UpdateGateway(c *gin.Context) {
 		})
 		return
 	}
-	updated_gw, _ := h.deps.SvcOpts.GatewaySvc.FindGatewayByMacID(c.Request.Context(), gw.GatewayID)
+	updated_gw, _ := h.deps.SvcOpts.GatewaySvc.FindGatewayByGatewayID(c.Request.Context(), gw.GatewayID)
 	new_gw_log := &models.GatewayLog{}
 	new_gw_log.StateType = "ConnectState"
 	new_gw_log.GatewayID = gw.GatewayID
@@ -122,7 +145,7 @@ func (h *GatewayHandler) UpdateGateway(c *gin.Context) {
 // Delete gateway
 // @Summary Delete Gateway By Gateway ID
 // @Schemes
-// @Description Delete gateway using "" field. Send deleted info to MQTT broker
+// @Description Delete gateway using "id" field. Send deleted info to MQTT broker
 // @Accept  json
 // @Produce json
 // @Param	data	body	object{gateway_id=string}	true	"Gateway ID"
@@ -141,7 +164,7 @@ func (h *GatewayHandler) DeleteGateway(c *gin.Context) {
 		return
 	}
 
-	_, err1 := h.deps.SvcOpts.GatewaySvc.FindGatewayByMacID(c.Request.Context(), dgw.GatewayID)
+	_, err1 := h.deps.SvcOpts.GatewaySvc.FindGatewayByGatewayID(c.Request.Context(), dgw.GatewayID)
 	if err1 != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
@@ -193,166 +216,6 @@ func (h *GatewayHandler) DeleteGateway(c *gin.Context) {
 			})
 			return
 		}
-
-		//t := h.deps.MqttClient.Publish(mqttSvc.TOPIC_SV_DOORLOCK_D, 1, false,
-		//	mqttSvc.ServerDeleteUHFPayload(&dls[i]))
-		//if err := mqttSvc.HandleMqttErr(t); err != nil {
-		//	utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-		//		StatusCode: http.StatusBadRequest,
-		//		Msg:        "Delete doorlock mqtt failed",
-		//		ErrorMsg:   err.Error(),
-		//	})
-		//	return
-		//}
-
-	}
-
-	utils.ResponseJson(c, http.StatusOK, isSuccess)
-}
-
-func (h *GatewayHandler) DeleteGatewayUHF(c *gin.Context) {
-	d := &models.UHF{}
-	gwId := c.Param("id")
-	err := c.ShouldBind(d)
-	if err != nil {
-		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Msg:        "Invalid req body",
-			ErrorMsg:   err.Error(),
-		})
-		return
-	}
-
-	gw, err := h.deps.SvcOpts.GatewaySvc.FindGatewayByID(c, gwId)
-	if err != nil {
-		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Msg:        "Get gateway failed",
-			ErrorMsg:   err.Error(),
-		})
-		return
-	}
-
-	_, err = h.deps.SvcOpts.GatewaySvc.DeleteGatewayDoorlock(c.Request.Context(), gw, d)
-	if err != nil {
-		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Msg:        "Delete gateway door failed",
-			ErrorMsg:   err.Error(),
-		})
-		return
-	}
-
-	utils.ResponseJson(c, http.StatusOK, true)
-}
-
-// Unlock or Lock all gateway's doorlocks by BlockID
-// @Summary Unlock or Lock all gateway's doorlocks by BlockID
-// @Schemes
-// @Description Unlock or Lock all doorlocks in a Block
-// @Accept  json
-// @Produce json
-// @Param	data	body	models.GatewayBlockCmd	true	"Gateway Block command"
-// @Success 200 {boolean} true
-// @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/block/cmd [post]
-func (h *GatewayHandler) UpdateGatewayCmdByBlockID(c *gin.Context) {
-	cmd := &models.GatewayBlockCmd{}
-	err := c.ShouldBind(cmd)
-	if err != nil {
-		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Msg:        "Invalid request body",
-			ErrorMsg:   err.Error(),
-		})
-		return
-	}
-	// Find all gateways based on Block ID
-	gwList, err := h.deps.SvcOpts.GatewaySvc.FindAllGatewaysByBlockID(c.Request.Context(), cmd.BlockId)
-	if err != nil {
-		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Msg:        fmt.Sprintf("Failed to find all gateways in Block ID %s\n", cmd.BlockId),
-			ErrorMsg:   err.Error(),
-		})
-		return
-	}
-	// Send command action to all gateways
-	for _, v := range gwList {
-		t := h.deps.MqttClient.Publish(mqttSvc.TOPIC_SV_DOORLOCK_CMD, 1, false, mqttSvc.ServerUpdateGatewayCmd(v, cmd.Action))
-		if err := mqttSvc.HandleMqttErr(t); err != nil {
-			utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Msg:        fmt.Sprintf("Failed to send command %s to all doorlocks at gatewayID %s\n", cmd.Action, v),
-				ErrorMsg:   err.Error(),
-			})
-		}
-	}
-	// Update all doorlock status
-	_, err = h.deps.SvcOpts.GatewaySvc.UpdateAllDoorlocksStateByBlockID(c.Request.Context(), cmd.BlockId, cmd.Action)
-	if err != nil {
-		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Msg:        fmt.Sprintf("Failed to update Doorlock state %s for blockID %s\n", cmd.Action, cmd.BlockId),
-			ErrorMsg:   err.Error(),
-		})
-		return
-	}
-	utils.ResponseJson(c, http.StatusOK, true)
-}
-
-// Add gateway doorlock
-// @Summary Add Doorlock for Gateway
-// @Schemes
-// @Description Add Doorlock for Gateway
-// @Accept  json
-// @Produce json
-// @Param	data	body	models.Doorlock	true	"Request with Doorlock"
-// @Success 200 {boolean} true
-// @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/gateway/{id}/doorlock [post]
-func (h *GatewayHandler) AppendGatewayDoorlock(c *gin.Context) {
-	dl := &models.Doorlock{}
-	gwID := c.Param("id")
-	err := c.ShouldBind(dl)
-	if err != nil {
-		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Msg:        "Invalid req body",
-			ErrorMsg:   err.Error(),
-		})
-		return
-	}
-
-	gw, err := h.deps.SvcOpts.GatewaySvc.FindGatewayByID(c, gwID)
-	if err != nil {
-		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Msg:        "Get gateway failed",
-			ErrorMsg:   err.Error(),
-		})
-		return
-	}
-	dl.GatewayID = gw.GatewayID
-
-	isSuccess, err := h.deps.SvcOpts.GatewaySvc.AppendGatewayDoorlock(c, gw, dl)
-	if err != nil {
-		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Msg:        "Update doorlock failed",
-			ErrorMsg:   err.Error(),
-		})
-		return
-	}
-
-	t := h.deps.MqttClient.Publish(mqttSvc.TOPIC_SV_GATEWAY_U, 1, false, mqttSvc.ServerUpdateGatewayPayload(gw))
-	if err := mqttSvc.HandleMqttErr(t); err != nil {
-		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Msg:        "Update gateway mqtt failed",
-			ErrorMsg:   err.Error(),
-		})
-		return
 	}
 
 	utils.ResponseJson(c, http.StatusOK, isSuccess)

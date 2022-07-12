@@ -10,7 +10,6 @@ func Migrate(db *gorm.DB) {
 		&Gateway{},
 		&UHF{},
 		&GatewayLog{},
-		&GwNetwork{},
 		&UserAccess{},
 		&PackageAccess{},
 		&SystemLog{},

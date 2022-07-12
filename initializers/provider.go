@@ -33,7 +33,7 @@ func ProvideConfig(envFilePath string) (Config, error) {
 		return cfg, err
 	}
 
-	logger.InitLogger("log/hoang.log")
+	logger.InitLogger(cfg.SvLogPath)
 	return cfg, nil
 }
 
@@ -51,15 +51,8 @@ func ProvideGormDb(config Config) (*gorm.DB, error) {
 func ProvideSvcOptions(db *gorm.DB) *models.ServiceOptions {
 	return &models.ServiceOptions{
 		GatewaySvc:       models.NewGatewaySvc(db),
-		GwNetworkSvc:     models.NewGwNetworkSvc(db),
 		AreaSvc:          models.NewAreaSvc(db),
-		DoorlockSvc:      models.NewDoorlockSvc(db),
 		LogSvc:           models.NewLogSvc(db),
-		StudentSvc:       models.NewStudentSvc(db),
-		EmployeeSvc:      models.NewEmployeeSvc(db),
-		SchedulerSvc:     models.NewSchedulerSvc(db),
-		CustomerSvc:      models.NewCustomerSvc(db),
-		SecretKeySvc:     models.NewSecretKeySvc(db),
 		UHFStatusLogSvc:  models.NewUHFStatusLogSvc(db),
 		UHFSvc:           models.NewUHFSvc(db),
 		UserAccessSvc:    models.NewUserAccessSvc(db),
@@ -86,14 +79,8 @@ func ProvideHandlerOptions(svcOptions *models.ServiceOptions, mqttClient mqtt.Cl
 
 	return &handlers.HandlerOptions{
 		AreaHandler:          handlers.NewAreaHandler(deps),
-		CustomerHandler:      handlers.NewCustomerHandler(deps),
-		DoorlockHandler:      handlers.NewDoorlockHandler(deps),
-		EmployeeHandler:      handlers.NewEmployeeHandler(deps),
 		GatewayHandler:       handlers.NewGatewayHandler(deps),
 		LogHandler:           handlers.NewGatewayLogHandler(deps),
-		StudentHandler:       handlers.NewStudentHandler(deps),
-		SchedulerHandler:     handlers.NewSchedulerHandler(deps),
-		SecretKeyHandler:     handlers.NewSecretKeyHandler(deps),
 		UHFStatusLogHandler:  handlers.NewUHFStatusLogHandler(deps),
 		UHFHandler:           handlers.NewUHFHandler(deps),
 		UserAccessHandler:    handlers.NewUserAccessHandler(deps),

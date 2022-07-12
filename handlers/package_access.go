@@ -20,6 +20,14 @@ func NewPackageAccessHandler(deps *HandlerDependencies) *PackageAccessHandler {
 	}
 }
 
+// Find all Package Access log
+// @Summary Find Package Access log
+// @Schemes
+// @Description find all package access log
+// @Produce json
+// @Success 200 {array} []models.PackageAccess
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/package_accesses [get]
 func (h *PackageAccessHandler) FindAllAccesses(c *gin.Context) {
 	gwList, err := h.deps.SvcOpts.PackageAccessSvc.FindAllPackageAccess(c)
 	if err != nil {
@@ -33,6 +41,14 @@ func (h *PackageAccessHandler) FindAllAccesses(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, gwList)
 }
 
+// Find all Package Access log by Package ID
+// @Summary Find Package Access log by Package ID
+// @Schemes
+// @Description find all package access log by Package ID
+// @Produce json
+// @Success 200 {array} []models.PackageAccess
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/package_accesses/package_id/{id} [get]
 func (h *PackageAccessHandler) FindPackageAccessByPackageID(c *gin.Context) {
 	id := c.Param("id")
 	accesslist, err := h.deps.SvcOpts.PackageAccessSvc.FindAllPackageAccessByPackageID(context.Background(), id)
@@ -47,6 +63,14 @@ func (h *PackageAccessHandler) FindPackageAccessByPackageID(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, accesslist)
 }
 
+// Find all Package Access log by Package ID and TimeRange
+// @Summary Find Package Access log by Package ID and TimeRange
+// @Schemes
+// @Description find all package access log by Package ID and TimeRange
+// @Produce json
+// @Success 200 {array} []models.PackageAccess
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/package_accesses/package_id/{id}/period/{from}/{to} [get]
 func (h *PackageAccessHandler) FindPackageAccessByPackageIDAndTimeRange(c *gin.Context) {
 	package_id := c.Param("id")
 	from := c.Param("from")
@@ -67,6 +91,14 @@ func (h *PackageAccessHandler) FindPackageAccessByPackageIDAndTimeRange(c *gin.C
 	utils.ResponseJson(c, http.StatusOK, glList)
 }
 
+// Find all Package Access log by Package ID and AreaID and TimeRange
+// @Summary Find Package Access log by Package ID and AreaID and TimeRange
+// @Schemes
+// @Description find all package access log by Package ID and AreaID and TimeRange
+// @Produce json
+// @Success 200 {array} []models.PackageAccess
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/package_accesses/package_id/{id}/area_id/{area_id}/period/{from}/{to} [get]
 func (h *PackageAccessHandler) FindAllPackageAccessByPackageIDAndAreaIDinTimeRange(c *gin.Context) {
 	package_id := c.Param("id")
 	area_id := c.Param("area_id")
@@ -88,6 +120,14 @@ func (h *PackageAccessHandler) FindAllPackageAccessByPackageIDAndAreaIDinTimeRan
 	utils.ResponseJson(c, http.StatusOK, glList)
 }
 
+// Find all Package Access log by Package ID and AreaID
+// @Summary Find Package Access log by Package ID and AreaID
+// @Schemes
+// @Description find all package access log by Package ID and AreaID
+// @Produce json
+// @Success 200 {array} []models.PackageAccess
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/package_accesses/package_id/{id}/area_id/{area_id} [get]
 func (h *PackageAccessHandler) FindPackageAccessByPackageIDAndAreaID(c *gin.Context) {
 	package_id := c.Param("id")
 	area_id := c.Param("area_id")
@@ -103,6 +143,14 @@ func (h *PackageAccessHandler) FindPackageAccessByPackageIDAndAreaID(c *gin.Cont
 	utils.ResponseJson(c, http.StatusOK, glList)
 }
 
+// Find all Package Access log by AreaID
+// @Summary Find Package Access log by AreaID
+// @Schemes
+// @Description find all package access log by  and AreaID
+// @Produce json
+// @Success 200 {array} []models.PackageAccess
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/package_accesses/area_id/{area_id} [get]
 func (h *PackageAccessHandler) FindAllPackageAccessByAreaID(c *gin.Context) {
 	area_id := c.Param("area_id")
 	glList, err := h.deps.SvcOpts.PackageAccessSvc.FindAllPackageAccessByAreaID(context.Background(), area_id)
@@ -117,6 +165,14 @@ func (h *PackageAccessHandler) FindAllPackageAccessByAreaID(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, glList)
 }
 
+// Find all Package Access log by AreaID and TimeRange
+// @Summary Find Package Access log by AreaID and TimeRange
+// @Schemes
+// @Description find all package access log by AreaID and TimeRange
+// @Produce json
+// @Success 200 {array} []models.PackageAccess
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/package_accesses/area_id/{area_id}/period/{from}/{to} [get]
 func (h *PackageAccessHandler) FindAllPackageAccessByAreaIDAndTimeRange(c *gin.Context) {
 	area_id := c.Param("area_id")
 
@@ -137,6 +193,14 @@ func (h *PackageAccessHandler) FindAllPackageAccessByAreaIDAndTimeRange(c *gin.C
 	utils.ResponseJson(c, http.StatusOK, glList)
 }
 
+// Find all Package Access log by TimeRange
+// @Summary Find Package Access log by TimeRange
+// @Schemes
+// @Description find all package access log by TimeRange
+// @Produce json
+// @Success 200 {array} []models.PackageAccess
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/package_accesses/period/{from}/{to} [get]
 func (h *PackageAccessHandler) FindAllPackageAccessTimeRange(c *gin.Context) {
 	from := c.Param("from")
 	to := c.Param("to")

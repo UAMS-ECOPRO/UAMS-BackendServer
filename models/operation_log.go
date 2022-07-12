@@ -34,8 +34,35 @@ func (dlsls *OperationLogSvc) GetAllOperationLogs(ctx context.Context) (dlslList
 	return dlslList, nil
 }
 
+func (dlsls *OperationLogSvc) GetOperationLogByID(ctx context.Context, id string) (ol *OperationLog, err error) {
+	result := dlsls.db.First(&ol, id)
+	if err := result.Error; err != nil {
+		err = utils.HandleQueryError(err)
+		return nil, err
+	}
+	return ol, nil
+}
+
 func (dlsls *OperationLogSvc) GetOperationLogByGatewayID(ctx context.Context, doorId string) (dlslList []OperationLog, err error) {
 	result := dlsls.db.Where("gateway_id = ?", doorId).Find(&dlslList)
+	if err := result.Error; err != nil {
+		err = utils.HandleQueryError(err)
+		return nil, err
+	}
+	return dlslList, nil
+}
+
+func (dlsls *OperationLogSvc) FindOperationLogsByGatewayIDAndTime(gateway_id string, from string, to string) (dlslList *[]OperationLog, err error) {
+	result := dlsls.db.Where("gateway_id = ? AND time >= ? AND time <= ?", gateway_id, from, to).Find(&dlslList)
+	if err := result.Error; err != nil {
+		err = utils.HandleQueryError(err)
+		return nil, err
+	}
+	return dlslList, nil
+}
+
+func (dlsls *OperationLogSvc) FindOperationLogsByTime(from string, to string) (dlslList *[]OperationLog, err error) {
+	result := dlsls.db.Where("time >= ? AND time <= ?", from, to).Find(&dlslList)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)
 		return nil, err
@@ -49,23 +76,4 @@ func (dlsls *OperationLogSvc) CreateOperationLog(ctx context.Context, dlsl *Oper
 		return nil, err
 	}
 	return dlsl, nil
-}
-
-func (dlsls *OperationLogSvc) GetOperationLogInTimeRange(gateway_id string, from string, to string) (dlslList *[]OperationLog, err error) {
-	result := dlsls.db.Where("time >= ? AND time <= ?", from, to).Find(&dlslList)
-	if err := result.Error; err != nil {
-		err = utils.HandleQueryError(err)
-		return nil, err
-	}
-	return dlslList, nil
-}
-
-func (dlsls *OperationLogSvc) DeleteOperationLogInTimeRange(from string, to string) (bool, error) {
-	result := dlsls.db.Unscoped().Where("time >= ? AND time <= ?", from, to).Delete(&OperationLog{})
-	return utils.ReturnBoolStateFromResult(result)
-}
-
-func (dlsls *OperationLogSvc) DeleteOperationLogByDoorID(doorId string) (bool, error) {
-	result := dlsls.db.Unscoped().Where("door_id = ?", doorId).Delete(&OperationLog{})
-	return utils.ReturnBoolStateFromResult(result)
 }

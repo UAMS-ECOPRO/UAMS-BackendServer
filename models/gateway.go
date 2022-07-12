@@ -9,13 +9,12 @@ import (
 
 type Gateway struct {
 	GormModel
-	AreaID          string      `json:"area_id"`
-	GatewayID       string      `gorm:"type:varchar(256);unique;not null;" json:"gateway_id"`
-	Name            string      `json:"name"`
-	ConnectState    string      `json:"connect_state"`
-	SoftwareVersion string      `json:"software_version"`
-	UHFs            []UHF       `gorm:"foreignKey:GatewayID;references:GatewayID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"uhfs"`
-	GwNetworks      []GwNetwork `gorm:"foreignKey:GatewayID;references:GatewayID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"gw_networks"`
+	AreaID          string `json:"area_id"`
+	GatewayID       string `gorm:"type:varchar(256);unique;not null;" json:"gateway_id"`
+	Name            string `json:"name"`
+	ConnectState    string `json:"connect_state"`
+	SoftwareVersion string `json:"software_version"`
+	UHFs            []UHF  `gorm:"foreignKey:GatewayID;references:GatewayID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"uhfs"`
 }
 
 // Struct defines HTTP request payload for deleting gateway
@@ -42,7 +41,7 @@ func NewGatewaySvc(db *gorm.DB) *GatewaySvc {
 }
 
 func (gs *GatewaySvc) FindAllGateway(ctx context.Context) (gwList []Gateway, err error) {
-	result := gs.db.Preload("UHFs").Preload("GwNetworks").Find(&gwList)
+	result := gs.db.Preload("UHFs").Find(&gwList)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)
 		return nil, err
@@ -51,7 +50,7 @@ func (gs *GatewaySvc) FindAllGateway(ctx context.Context) (gwList []Gateway, err
 }
 
 func (gs *GatewaySvc) FindGatewayByID(ctx context.Context, id string) (gw *Gateway, err error) {
-	result := gs.db.Preload("UHFs").Preload("GwNetworks").First(&gw, id)
+	result := gs.db.Preload("UHFs").First(&gw, id)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)
 		return nil, err
@@ -59,9 +58,9 @@ func (gs *GatewaySvc) FindGatewayByID(ctx context.Context, id string) (gw *Gatew
 	return gw, nil
 }
 
-func (gs *GatewaySvc) FindGatewayByMacID(ctx context.Context, id string) (gw *Gateway, err error) {
+func (gs *GatewaySvc) FindGatewayByGatewayID(ctx context.Context, id string) (gw *Gateway, err error) {
 	var cnt int64
-	result := gs.db.Preload("GwNetworks").Preload("UHFs").Where("gateway_id = ?", id).Find(&gw).Count(&cnt)
+	result := gs.db.Preload("UHFs").Where("gateway_id = ?", id).Find(&gw).Count(&cnt)
 	if err := result.Error; err != nil {
 		err = utils.HandleQueryError(err)
 		return nil, err
@@ -72,14 +71,6 @@ func (gs *GatewaySvc) FindGatewayByMacID(ctx context.Context, id string) (gw *Ga
 	}
 
 	return gw, nil
-}
-
-func (gs *GatewaySvc) CreateGateway(ctx context.Context, g *Gateway) (*Gateway, error) {
-	if err := gs.db.Create(&g).Error; err != nil {
-		err = utils.HandleQueryError(err)
-		return nil, err
-	}
-	return g, nil
 }
 
 func (gs *GatewaySvc) UpdateGateway(ctx context.Context, g *Gateway) (bool, error) {
@@ -98,41 +89,12 @@ func (gs *GatewaySvc) DeleteGateway(ctx context.Context, gwID string) (bool, err
 	return utils.ReturnBoolStateFromResult(result)
 }
 
-func (gs *GatewaySvc) AppendGatewayDoorlock(ctx context.Context, gw *Gateway, d *Doorlock) (*Gateway, error) {
-	if err := gs.db.Model(&gw).Association("Doorlocks").Append(d); err != nil {
-		err = utils.HandleQueryError(err)
-		return nil, err
-	}
-	return gw, nil
-}
-
-func (gs *GatewaySvc) UpdateGatewayDoorlock(ctx context.Context, gw *Gateway, d *Doorlock) (*Gateway, error) {
-	if err := gs.db.Model(&gw).Association("Doorlocks").Replace(d); err != nil {
-		err = utils.HandleQueryError(err)
-		return nil, err
-	}
-	return gw, nil
-}
-
-func (gs *GatewaySvc) DeleteGatewayDoorlock(ctx context.Context, gw *Gateway, d *UHF) (*Gateway, error) {
+func (gs *GatewaySvc) DeleteGatewayUHF(ctx context.Context, gw *Gateway, d *UHF) (*Gateway, error) {
 	if err := gs.db.Model(&gw).Association("UHFs").Delete(d); err != nil {
 		err = utils.HandleQueryError(err)
 		return nil, err
 	}
 	return gw, nil
-}
-
-func (gs *GatewaySvc) FindAllGatewaysByBlockID(ctx context.Context, block_id string) (gwList []string, err error) {
-	if err := gs.db.Model(&Doorlock{}).Select("gateway_id").Where("block_id = ?", block_id).Group("gateway_id").Find(&gwList).Error; err != nil {
-		err = utils.HandleQueryError(err)
-		return nil, err
-	}
-	return gwList, nil
-}
-
-func (gs *GatewaySvc) UpdateAllDoorlocksStateByBlockID(ctx context.Context, block_id string, state string) (bool, error) {
-	result := gs.db.Model(&Doorlock{}).Where("block_id = ?", block_id).Update("lock_state", state)
-	return utils.ReturnBoolStateFromResult(result)
 }
 
 func (gs *GatewaySvc) UpdateGatewayConnectState(ctx context.Context, gwId string, state string) (bool, error) {
@@ -141,4 +103,12 @@ func (gs *GatewaySvc) UpdateGatewayConnectState(ctx context.Context, gwId string
 		return false, err
 	}
 	return true, nil
+}
+
+func (gs *GatewaySvc) CreateGateway(ctx context.Context, g *Gateway) (*Gateway, error) {
+	if err := gs.db.Create(&g).Error; err != nil {
+		err = utils.HandleQueryError(err)
+		return nil, err
+	}
+	return g, nil
 }

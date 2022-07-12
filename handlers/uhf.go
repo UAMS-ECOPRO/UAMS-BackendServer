@@ -21,21 +21,21 @@ func NewUHFHandler(deps *HandlerDependencies) *UHFHandler {
 	}
 }
 
-// Find all doorlocks info
-// @Summary Find All Doorlock
+// Find all UHF info
+// @Summary Find All UHF
 // @Schemes
-// @Description find all doorlocks info
+// @Description find all UHF info
 // @Produce json
 // @Success 200 {array} []models.UHF
 // @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/doorlocks [get]
+// @Router /v1/uhfs [get]
 func (h *UHFHandler) FindAllUHFs(c *gin.Context) {
 	test := h.deps
 	dlList, err := test.SvcOpts.UHFSvc.FindAllUHF(c)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
-			Msg:        "Get all doorlocks failed",
+			Msg:        "Get all UHfs failed",
 			ErrorMsg:   err.Error(),
 		})
 		return
@@ -43,15 +43,15 @@ func (h *UHFHandler) FindAllUHFs(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, dlList)
 }
 
-// Find doorlock info by id
-// @Summary Find Doorlock By ID
+// Find UHF info by id
+// @Summary Find UHF By ID
 // @Schemes
-// @Description find doorlock info by doorlock id
+// @Description find UHF info by UHF id
 // @Produce json
-// @Param        id	path	string	true	"Doorlock ID"
-// @Success 200 {object} models.Doorlock
+// @Param        id	path	string	true	"UHF ID"
+// @Success 200 {object} models.UHF
 // @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/doorlock/{id} [get]
+// @Router /v1/uhf/{id} [get]
 func (h *UHFHandler) FindUHFByID(c *gin.Context) {
 	id := c.Param("id")
 
@@ -67,16 +67,16 @@ func (h *UHFHandler) FindUHFByID(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, dl)
 }
 
-// Update doorlock
-// @Summary Update Doorlock By Doorlock Address and GatewayID
+// Update UHF
+// @Summary Update UHF By UHF Address and GatewayID
 // @Schemes
-// @Description Update doorlock, must have "gatewayId" and "doorlockAddress" field. Send updated info to MQTT broker
+// @Description Update UHF, must have "gatewayId" and "UHFAddress" field. Send updated info to MQTT broker
 // @Accept  json
 // @Produce json
-// @Param	data	body	models.SwagUpdateDoorlock	true	"Fields need to update a doorlock"
+// @Param	data	body	models.UHF	true	"Fields need to update a UHF"
 // @Success 200 {boolean} true
 // @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/doorlock [patch]
+// @Router /v1/uhf [patch]
 func (h *UHFHandler) UpdateUHF(c *gin.Context) {
 	dl := &models.UHF{}
 	err := c.ShouldBind(dl)
@@ -150,16 +150,16 @@ func (h *UHFHandler) UpdateUHF(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, isSuccess)
 }
 
-// Delete doorlock
-// @Summary Delete Doorlock By ID
+// Delete UHF
+// @Summary Delete UHF By ID
 // @Schemes
-// @Description Delete doorlock using "id" field. Send deleted info to MQTT broker
+// @Description Delete UHF using "id" field. Send deleted info to MQTT broker
 // @Accept  json
 // @Produce json
-// @Param	data	body	object{id=int}	true	"Doorlock Delete payload"
+// @Param	data	body	object{id=int}	true	"UHF Delete payload"
 // @Success 200 {boolean} true
 // @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/doorlock [delete]
+// @Router /v1/uhf [delete]
 func (h *UHFHandler) DeleteUHF(c *gin.Context) {
 	dl := &models.UHFDelete{}
 	err := c.ShouldBind(dl)
@@ -176,7 +176,7 @@ func (h *UHFHandler) DeleteUHF(c *gin.Context) {
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
-			Msg:        "Find doorlock fail",
+			Msg:        "Find UHF fail",
 			ErrorMsg:   err.Error(),
 		})
 		return
@@ -187,7 +187,7 @@ func (h *UHFHandler) DeleteUHF(c *gin.Context) {
 	if err := mqttSvc.HandleMqttErr(t); err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
-			Msg:        "Delete doorlock mqtt failed",
+			Msg:        "Delete UHF mqtt failed",
 			ErrorMsg:   err.Error(),
 		})
 		return

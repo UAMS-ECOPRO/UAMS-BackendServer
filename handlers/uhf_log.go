@@ -20,39 +20,39 @@ func NewUHFStatusLogHandler(deps *HandlerDependencies) *UHFStatusLogHandler {
 	}
 }
 
-// Find all doorlock status logs info
-// @Summary Find All DoorlockStatusLog
+// Find all UHF Status logs info
+// @Summary Find All UHF Status logs
 // @Schemes
-// @Description find all doorlock status logs info
+// @Description find all UHF Status logs
 // @Produce json
-// @Success 200 {array} []models.DoorlockStatusLog
+// @Success 200 {array} []models.UHFStatusLog
 // @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/doorlockStatusLogs [get]
+// @Router /v1/uhf_logs [get]
 func (h *UHFStatusLogHandler) GetAllUHFStatusLogs(c *gin.Context) {
-	dlslList, err := h.deps.SvcOpts.UHFStatusLogSvc.GetAllUHFStatusLogs(c)
+	uhflList, err := h.deps.SvcOpts.UHFStatusLogSvc.GetAllUHFStatusLogs(c)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
-			Msg:        "Get all UHF status logs failed",
+			Msg:        "Get all UHF logs failed",
 			ErrorMsg:   err.Error(),
 		})
 		return
 	}
-	utils.ResponseJson(c, http.StatusOK, dlslList)
+	utils.ResponseJson(c, http.StatusOK, uhflList)
 }
 
-// Find doorlock status logs by door id
-// @Summary Find DoorlockStatusLog By DoorID
+// Find all UHF Status logs info by Gateway ID and UHF Address
+// @Summary Find All UHF Status logs by Gateway ID and UHF Address
 // @Schemes
-// @Description find doorlock status logs by door id
+// @Description find all UHF Status logs by Gateway ID and UHF Address
 // @Produce json
-// @Param        id	path	string	true	"DoorlockStatusLog ID"
-// @Success 200 {object} models.DoorlockStatusLog
+// @Success 200 {array} []models.UHFStatusLog
 // @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/doorlockStatusLog/{doorId} [get]
+// @Router /v1/uhf_logs/gateway_id/{gateway_id}/uhf_address/{uhf_address} [get]
 func (h *UHFStatusLogHandler) GetUHFStatusLogByUHFAddress(c *gin.Context) {
-	doorId := c.Param("uhf_address")
-	gl, err := h.deps.SvcOpts.UHFStatusLogSvc.GetUHFStatusLogByDoorID(c, doorId)
+	uhf_address := c.Param("uhf_address")
+	gateway_id := c.Param("gateway_id")
+	uhfl, err := h.deps.SvcOpts.UHFStatusLogSvc.GetUHFStatusLogByUHFAddress(c, uhf_address, gateway_id)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
@@ -61,19 +61,47 @@ func (h *UHFStatusLogHandler) GetUHFStatusLogByUHFAddress(c *gin.Context) {
 		})
 		return
 	}
-	utils.ResponseJson(c, http.StatusOK, gl)
+	utils.ResponseJson(c, http.StatusOK, uhfl)
 }
 
+// Find all UHF Status logs info by ID
+// @Summary Find All UHF Status logs by ID
+// @Schemes
+// @Description find all UHF Status logs by ID
+// @Produce json
+// @Success 200 {array} []models.UHFStatusLog
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/uhf_logs/{id} [get]
+func (h *UHFStatusLogHandler) GetUHFStatusLogsByID(c *gin.Context) {
+	Id := c.Param("id")
+	uhfl, err := h.deps.SvcOpts.UHFStatusLogSvc.GetUHFStatusLogByID(c, Id)
+	if err != nil {
+		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Msg:        "Get UHF log failed",
+			ErrorMsg:   err.Error(),
+		})
+		return
+	}
+	utils.ResponseJson(c, http.StatusOK, uhfl)
+}
+
+// Find all UHF Status logs info by Timerange
+// @Summary Find All UHF Status logs by Timerange
+// @Schemes
+// @Description find all UHF Status logs by Timerange
+// @Produce json
+// @Success 200 {array} []models.UHFStatusLog
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/uhf_logs/period/{from}/{to} [get]
 func (h *UHFStatusLogHandler) GetUHFStatusLogInTimeRange(c *gin.Context) {
-	gateway_id := c.Param("gateway_id")
-	uhf_address := c.Param("uhf_address")
 	from := c.Param("from")
 	to := c.Param("to")
 	fromInt, _ := strconv.ParseInt(from, 10, 64)
 	toInt, _ := strconv.ParseInt(to, 10, 64)
 	fromFormatted := time.Unix(fromInt, 0).Format(models.DEFAULT_TIME_FORMAT)
 	toFormatted := time.Unix(toInt, 0).Format(models.DEFAULT_TIME_FORMAT)
-	dlslList, err := h.deps.SvcOpts.UHFStatusLogSvc.GetUHFStatusLogInTimeRange(fromFormatted, toFormatted, gateway_id, uhf_address)
+	dlslList, err := h.deps.SvcOpts.UHFStatusLogSvc.GetUHFStatusLogInTimeRange(fromFormatted, toFormatted)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
@@ -84,52 +112,30 @@ func (h *UHFStatusLogHandler) GetUHFStatusLogInTimeRange(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, dlslList)
 }
 
-// Delete Doorlock status logs in time range
-// @Summary Delete DoorlockStatusLog In Time Range
+// Find all UHF Status logs info by GatewayID, AddressID and TimeRange
+// @Summary Find All UHF Status logs by GatewayID, AddressID and TimeRange
 // @Schemes
-// @Description delete doorlock status logs in time range
+// @Description find all UHF Status logs by GatewayID, AddressID and TimeRange
 // @Produce json
-// @Param 		 fromTime path  string  true    "From Unix time"
-// @Param 		 toTime path    string  true    "To Unix time"
-// @Success 200 {boolean} true
+// @Success 200 {array} []models.UHFStatusLog
 // @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/doorlockStatusLog/:fromTime/:toTime [delete]
-func (h *UHFStatusLogHandler) DeleteUHFStatusLogInTimeRange(c *gin.Context) {
-	from := c.Param("fromTime")
-	to := c.Param("toTime")
+// @Router /v1/uhf_logs/gateway_id/{gateway_id}/uhf_address/{uhf_address}/period/{from}/{to} [get]
+func (h *UHFStatusLogHandler) GetUHFStatusLogBYGatewayIDAndUHFAddressInTimeRange(c *gin.Context) {
+	gateway_id := c.Param("gateway_id")
+	uhf_address := c.Param("uhf_address")
+	from := c.Param("from")
+	to := c.Param("to")
 	fromInt, _ := strconv.ParseInt(from, 10, 64)
 	toInt, _ := strconv.ParseInt(to, 10, 64)
 	fromFormatted := time.Unix(fromInt, 0).Format(models.DEFAULT_TIME_FORMAT)
 	toFormatted := time.Unix(toInt, 0).Format(models.DEFAULT_TIME_FORMAT)
-	isSuccess, err := h.deps.SvcOpts.UHFStatusLogSvc.DeleteUHFStatusLogInTimeRange(fromFormatted, toFormatted)
+	dlslList, err := h.deps.SvcOpts.UHFStatusLogSvc.GetUHFStatusLogBYGatewayIDAndUHFAddressInTimeRange(fromFormatted, toFormatted, gateway_id, uhf_address)
 	if err != nil {
 		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
-			Msg:        "Failed to delete UHF status logs",
+			Msg:        "Failed to get UHF status logs",
 			ErrorMsg:   err.Error(),
 		})
 	}
-	utils.ResponseJson(c, http.StatusOK, isSuccess)
-}
-
-// Delete Doorlock status logs by doorId
-// @Summary Delete Doorlock status logs by doorId
-// @Schemes
-// @Description delete doorlock status logs by doorId
-// @Produce json
-// @Param        id	path	string	true	"DoorID"
-// @Success 200 {boolean} true
-// @Failure 400 {object} utils.ErrorResponse
-// @Router /v1/doorlockStatusLog/door/:id [delete]
-func (h *UHFStatusLogHandler) DeleteUHFStatusLogByDoorID(c *gin.Context) {
-	doorId := c.Param("id")
-	isSuccess, err := h.deps.SvcOpts.UHFStatusLogSvc.DeleteUHFStatusLogUHFID(doorId)
-	if err != nil {
-		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
-			StatusCode: http.StatusBadRequest,
-			Msg:        "Failed to delete UHF status logs",
-			ErrorMsg:   err.Error(),
-		})
-	}
-	utils.ResponseJson(c, http.StatusOK, isSuccess)
+	utils.ResponseJson(c, http.StatusOK, dlslList)
 }

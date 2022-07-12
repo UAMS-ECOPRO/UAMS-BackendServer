@@ -6,12 +6,12 @@ IMAGE_NAME=$(APP_NAME):$(VERSION)
 LOCAL_DIR=${HOME}/Desktop/$(APP_NAME).tar
 SERVER_USER=sviot
 SERVER_HOST=iot.hcmue.space
-SERVER_DIR=~/iot/
+SERVER_DIR=~/uams/
 
 swagger:
 	swag init --parseDependency --parseInternal
 build:
-	DOCKER_BUILDKIT=1 docker build --platform linux/amd64 -t dms-be .
+	DOCKER_BUILDKIT=1 docker build --platform linux/amd64 -t uams-be .
 deploy: build
 	docker save $(IMAGE_NAME) > $(LOCAL_DIR) && \
 	sshpass -p "$(SERVER_PW)" scp $(LOCAL_DIR)  $(SERVER_USER)@$(SERVER_HOST):$(SERVER_DIR)

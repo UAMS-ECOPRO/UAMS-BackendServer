@@ -20,6 +20,14 @@ func NewUserAccessHandler(deps *HandlerDependencies) *UserAccessHandler {
 	}
 }
 
+// Find all User Access log
+// @Summary Find User Access log
+// @Schemes
+// @Description find all user access log
+// @Produce json
+// @Success 200 {array} []models.UserAccess
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/user_accesses [get]
 func (h *UserAccessHandler) FindAllAccesses(c *gin.Context) {
 	gwList, err := h.deps.SvcOpts.UserAccessSvc.FindAllUserAccess(c)
 	if err != nil {
@@ -33,6 +41,14 @@ func (h *UserAccessHandler) FindAllAccesses(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, gwList)
 }
 
+// Find all User Access log by User ID
+// @Summary Find User Access log by User ID
+// @Schemes
+// @Description find all user access log by user id
+// @Produce json
+// @Success 200 {array} []models.UserAccess
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/user_accesses/user_id/{id} [get]
 func (h *UserAccessHandler) FindUserAccessByUserID(c *gin.Context) {
 	id := c.Param("id")
 	accesslist, err := h.deps.SvcOpts.UserAccessSvc.FindAllUserAccessByUserID(context.Background(), id)
@@ -47,6 +63,14 @@ func (h *UserAccessHandler) FindUserAccessByUserID(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, accesslist)
 }
 
+// Find all User Access log by User ID and Time Range
+// @Summary Find User Access log by User ID and Time Range
+// @Schemes
+// @Description find all user access log by user id and Time Range
+// @Produce json
+// @Success 200 {array} []models.UserAccess
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/user_accesses/user_id/{id}/period/{from}/{to} [get]
 func (h *UserAccessHandler) FindUserAccessByUserIDAndTimeRange(c *gin.Context) {
 	user_id := c.Param("id")
 	from := c.Param("from")
@@ -67,6 +91,14 @@ func (h *UserAccessHandler) FindUserAccessByUserIDAndTimeRange(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, glList)
 }
 
+// Find all User Access log by User ID and Area Id
+// @Summary Find User Access log by User ID and Area Id
+// @Schemes
+// @Description find all user access log by user id and Area Id
+// @Produce json
+// @Success 200 {array} []models.UserAccess
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/user_accesses/user_id/{id}/area_id/{area_id} [get]
 func (h *UserAccessHandler) FindUserAccessByUserIDAndAreaID(c *gin.Context) {
 	id := c.Param("id")
 	area_id := c.Param("area_id")
@@ -82,6 +114,14 @@ func (h *UserAccessHandler) FindUserAccessByUserIDAndAreaID(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, accesslist)
 }
 
+// Find all User Access log by User ID and Area Id and TimeRange
+// @Summary Find User Access log by User ID and Area Id and TimeRange
+// @Schemes
+// @Description find all user access log by user id and Area Id and TimeRange
+// @Produce json
+// @Success 200 {array} []models.UserAccess
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/user_accesses/user_id/{id}/area_id/{area_id}/period/{from}/{to} [get]
 func (h *UserAccessHandler) FindAllUserAccessByUserIDAndAreaIDinTimeRange(c *gin.Context) {
 	user_id := c.Param("id")
 	area_id := c.Param("area_id")
@@ -103,6 +143,14 @@ func (h *UserAccessHandler) FindAllUserAccessByUserIDAndAreaIDinTimeRange(c *gin
 	utils.ResponseJson(c, http.StatusOK, glList)
 }
 
+// Find all User Access log by Area Id
+// @Summary Find User Access log by Area Id
+// @Schemes
+// @Description find all user access log by Area Id
+// @Produce json
+// @Success 200 {array} []models.UserAccess
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/user_accesses/area_id/{area_id} [get]
 func (h *UserAccessHandler) FindAllUserAccessByAreaID(c *gin.Context) {
 	area_id := c.Param("area_id")
 	glList, err := h.deps.SvcOpts.UserAccessSvc.FindAllUserAccessByAreaID(context.Background(), area_id)
@@ -117,6 +165,14 @@ func (h *UserAccessHandler) FindAllUserAccessByAreaID(c *gin.Context) {
 	utils.ResponseJson(c, http.StatusOK, glList)
 }
 
+// Find all User Access log by Area Id and TimeRange
+// @Summary Find User Access log by Area Id and TimeRange
+// @Schemes
+// @Description find all user access log by Area Id and TimeRange
+// @Produce json
+// @Success 200 {array} []models.UserAccess
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/user_accesses/area_id/{area_id}/period/{from}/{to} [get]
 func (h *UserAccessHandler) FindAllUserAccessByAreaIDAndTimeRange(c *gin.Context) {
 	area_id := c.Param("area_id")
 	from := c.Param("from")
@@ -137,6 +193,14 @@ func (h *UserAccessHandler) FindAllUserAccessByAreaIDAndTimeRange(c *gin.Context
 	utils.ResponseJson(c, http.StatusOK, glList)
 }
 
+// Find all User Access log by TimeRange
+// @Summary Find User Access log by TimeRange
+// @Schemes
+// @Description find all user access log by TimeRange
+// @Produce json
+// @Success 200 {array} []models.UserAccess
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/user_accesses/period/{from}/{to} [get]
 func (h *UserAccessHandler) FindAllUserAccessTimeRange(c *gin.Context) {
 	from := c.Param("from")
 	to := c.Param("to")
