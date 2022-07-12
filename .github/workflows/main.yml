@@ -76,4 +76,4 @@ jobs:
           script: |
             docker login 
             docker pull ${{secrets.DOCKER_USER}}/$IMAGE_NAME
-            cd $HOME/iot && docker-compose down && docker-compose up -d
+            cd $HOME/uams && docker-compose down && docker-compose up -d
