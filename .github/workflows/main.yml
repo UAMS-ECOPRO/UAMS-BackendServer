@@ -41,12 +41,6 @@ jobs:
     if: ${{ github.event.pull_request.merged }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.17
       - name: Docker Login
         env:
           DOCKER_USER: ${{secrets.DOCKER_USER}}
