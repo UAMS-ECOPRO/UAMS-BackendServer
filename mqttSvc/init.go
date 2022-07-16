@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -141,7 +142,7 @@ func gwUHFConnectStateSubscriber(client mqtt.Client, optSvc *models.ServiceOptio
 	return func(c mqtt.Client, msg mqtt.Message) {
 		var payloadStr = string(msg.Payload())
 		gwId := gjson.Get(payloadStr, "gateway_id")
-		uhf_address := gjson.Get(payloadStr, "message.uhf_address")
+		uhf_address := gjson.Get(payloadStr, "message.address")
 		uhf_connect_state := gjson.Get(payloadStr, "message.connection_state")
 		time_stamp := gjson.Get(payloadStr, "message.timestamp")
 		logger.LogfWithFields(logger.MQTT, logger.InfoLevel, logger.LoggerFields{
@@ -170,10 +171,10 @@ func gwLastWillSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqt
 	return func(c mqtt.Client, msg mqtt.Message) {
 		var payloadStr = string(msg.Payload())
 		gwId := gjson.Get(payloadStr, "gateway_id")
-		logger.LogfWithoutFields(logger.MQTT, logger.DebugLevel, "Gateway ID %s has disconnected", gwId.String())
+		logger.LogfWithoutFields(logger.MQTT, logger.DebugLevel, "Gateway ID %s has disconnect", gwId.String())
 		gw, _ := optSvc.GatewaySvc.FindGatewayByGatewayID(context.Background(), gwId.String())
 		if gw != nil {
-			gw.ConnectState = "disconnected"
+			gw.ConnectState = "disconnect"
 			_, err := optSvc.GatewaySvc.UpdateGatewayConnectState(context.Background(), gw.GatewayID, gw.ConnectState)
 			if err != nil {
 				logger.LogfWithoutFields(logger.MQTT, logger.ErrorLevel,
@@ -182,7 +183,7 @@ func gwLastWillSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqt
 			new_gateway_log := &models.GatewayLog{}
 			new_gateway_log.GatewayID = gwId.String()
 			new_gateway_log.StateType = "Connect State"
-			new_gateway_log.StateValue = "Disconnected"
+			new_gateway_log.StateValue = "disconnect"
 			new_gateway_log.LogTime = time.Now()
 			optSvc.LogSvc.CreateGatewayLog(context.Background(), new_gateway_log)
 		}
@@ -235,7 +236,7 @@ func gwAccessSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 		var tags_list []UHFTagInfo
 
 		gwId := gjson.Get(payloadStr, "gateway_id")
-		uhf_address := gjson.Get(payloadStr, "message.uhf_address")
+		uhf_address := gjson.Get(payloadStr, "message.address")
 		tags := gjson.Get(payloadStr, "message.tags")
 		tags_string := tags.String()
 		time_layout := "2006-01-02 15:04:05"
@@ -258,10 +259,6 @@ func gwAccessSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 			var access_group = mem[1:3]
 			var access_id = mem[3:13]
 			var access_random = mem[13:16]
-			_ = access_type
-			_ = access_group
-			_ = access_id
-			_ = access_random
 			if access_type == "U" {
 				var new_user_access = &models.UserAccess{}
 				new_user_access.UserID = access_id
@@ -303,22 +300,37 @@ func gwUHFScanSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt
 			"payload": payloadStr,
 		}, "Gateway bootup with ID %s and uhfs %s", gwId.String(), uhfs.String())
 		for _, uhf := range uhf_list {
-			existing_uhf, err := optSvc.UHFSvc.FindUHFByAddress(context.Background(), uhf["uhf_address"], gwId.String())
+			_, err := optSvc.UHFSvc.FindUHFByAddress(context.Background(), uhf["address"], gwId.String())
 			if err != nil {
 				newUHF := &models.UHF{}
 				newUHF.GatewayID = gwId.String()
-				newUHF.ConnectState = uhf["connect_state"]
-				newUHF.ActiveState = uhf["state"]
-				newUHF.UHFAddress = uhf["uhf_address"]
+				newUHF.ConnectState = "connect"
+				newUHF.ActiveState = "inactive"
+				newUHF.UHFAddress = uhf["address"]
 				newUHF.UHFSerialNumber = uuid.New().String()
 				optSvc.UHFSvc.CreateUHF(context.Background(), newUHF)
-			} else {
-				existing_uhf.ConnectState = uhf["connect_state"]
-				existing_uhf.ActiveState = uhf["state"]
-				existing_uhf.UHFAddress = uhf["uhf_address"]
-				optSvc.UHFSvc.UpdateUHF(context.Background(), existing_uhf)
 			}
+			//else {
+			//	//existing_uhf.ConnectState = uhf["connect_state"]
+			//	//existing_uhf.ActiveState = uhf["state"]
+			//	existing_uhf.UHFAddress = uhf["uhf_address"]
+			//	optSvc.UHFSvc.UpdateUHF(context.Background(), existing_uhf)
+			//}
 		}
+		checkGw, _ := optSvc.GatewaySvc.FindGatewayByGatewayID(context.Background(), gwId.String())
+		uhf_in_db_list := checkGw.UHFs
+		for _, uhf_in_db := range uhf_in_db_list {
+			for _, uhf := range uhf_list {
+				if uhf_in_db.UHFAddress == uhf["address"] {
+					continue
+				}
+				optSvc.UHFSvc.DeleteUHF(context.Background(), strconv.FormatUint(uint64(uhf_in_db.ID), 10))
+			}
+
+		}
+		checkGw_again, _ := optSvc.GatewaySvc.FindGatewayByGatewayID(context.Background(), gwId.String())
+		t := client.Publish(TOPIC_SV_SYNC, 1, false, ServerBootupSystemPayload(gwId.String(), checkGw_again.UHFs))
+		HandleMqttErr(t)
 		return
 	}
 }
@@ -349,14 +361,14 @@ func gwBootupSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 		if checkGw == nil {
 			newGw := &models.Gateway{}
 			newGw.GatewayID = gwId.String()
-			newGw.ConnectState = "connected"
+			newGw.ConnectState = "connect"
 			newGw.SoftwareVersion = gjson.Get(payloadStr, "message.version").String()
 			optSvc.GatewaySvc.CreateGateway(context.Background(), newGw)
 			uhfs := []models.UHF{}
 			new_gateway_log := &models.GatewayLog{}
 			new_gateway_log.GatewayID = gwId.String()
 			new_gateway_log.StateType = "Connect State"
-			new_gateway_log.StateValue = "Connected"
+			new_gateway_log.StateValue = "connect"
 			new_gateway_log.LogTime = time.Now()
 			optSvc.LogSvc.CreateGatewayLog(context.Background(), new_gateway_log)
 			t := client.Publish(TOPIC_SV_SYNC, 1, false, ServerBootupSystemPayload(gwId.String(), uhfs))
@@ -371,7 +383,7 @@ func gwBootupSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 		new_gateway_log := &models.GatewayLog{}
 		new_gateway_log.GatewayID = gwId.String()
 		new_gateway_log.StateType = "Connect State"
-		new_gateway_log.StateValue = "Connected"
+		new_gateway_log.StateValue = "connect"
 		new_gateway_log.LogTime = time.Now()
 		optSvc.LogSvc.CreateGatewayLog(context.Background(), new_gateway_log)
 		return

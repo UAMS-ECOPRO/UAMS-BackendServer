@@ -45,13 +45,13 @@ type SyncPayload struct {
 }
 
 func ServerUpdateUHFPayload(uhf *models.UHF) string {
-	msg := fmt.Sprintf(`{"uhf_address":"%s","state":"%s"}`,
+	msg := fmt.Sprintf(`{"address":"%s","state":"%s"}`,
 		uhf.UHFAddress, uhf.ActiveState)
 	return PayloadWithGatewayId(uhf.GatewayID, msg)
 }
 
 func ServerDeleteUHFPayload(uhf *models.UHF) string {
-	msg := fmt.Sprintf(`{"uhf_address":"%s"}`, uhf.UHFAddress)
+	msg := fmt.Sprintf(`{"address":"%s"}`, uhf.UHFAddress)
 	return PayloadWithGatewayId(uhf.GatewayID, msg)
 }
 
