@@ -41,7 +41,7 @@ func SetupRouter(
 		v1R.GET("/gateway_logs/:id", hOpts.LogHandler.FindGatewayLogByID)
 		v1R.GET("/gateway_logs/gateway_id/:id", hOpts.LogHandler.FindGatewayByGatewayID)
 		v1R.GET("/gateway_logs/gateway_id/:id/period/:from/:to", hOpts.LogHandler.FindGatewayLogsByGatewayIDAndTime)
-		v1R.POST("/gateway_logs/period/:from/:to", hOpts.LogHandler.FindGatewayLogByPeriod)
+		v1R.GET("/gateway_logs/period/:from/:to", hOpts.LogHandler.FindGatewayLogByPeriod)
 
 		v1R.GET("/uhf_logs", hOpts.UHFStatusLogHandler.GetAllUHFStatusLogs)
 		v1R.GET("/uhf_logs/:id", hOpts.UHFStatusLogHandler.GetUHFStatusLogsByID)
