@@ -320,19 +320,24 @@ func gwUHFScanSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt
 		checkGw, _ := optSvc.GatewaySvc.FindGatewayByGatewayID(context.Background(), gwId.String())
 		uhf_in_db_list := checkGw.UHFs
 		for _, uhf_in_db := range uhf_in_db_list {
-			for _, uhf := range uhf_list {
-				if uhf_in_db.UHFAddress == uhf["address"] {
-					continue
-				}
+			if check_exist(uhf_in_db, uhf_list) == false {
 				optSvc.UHFSvc.DeleteUHF(context.Background(), strconv.FormatUint(uint64(uhf_in_db.ID), 10))
 			}
-
 		}
 		checkGw_again, _ := optSvc.GatewaySvc.FindGatewayByGatewayID(context.Background(), gwId.String())
 		t := client.Publish(TOPIC_SV_SYNC, 1, false, ServerBootupSystemPayload(gwId.String(), checkGw_again.UHFs))
 		HandleMqttErr(t)
 		return
 	}
+}
+
+func check_exist(uhf_to_check models.UHF, list_to_check []map[string]string) bool {
+	for _, uhf := range list_to_check {
+		if uhf_to_check.UHFAddress == uhf["address"] {
+			return true
+		}
+	}
+	return false
 }
 
 func gwShutDownSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.MessageHandler {
