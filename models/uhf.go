@@ -11,6 +11,8 @@ type UHF struct {
 	GormModel
 	UHFSerialNumber string `gorm:"type:varchar(256);unique;not null" json:"uhf_serial_number"`
 	Description     string `json:"description"`
+	Family          string `json:"family"`
+	Version         string `json:"version"`
 	GatewayID       string `gorm:"type:varchar(256);" json:"gateway_id"`
 	ConnectState    string `json:"connect_state"`
 	AreaId          string `json:"area_id"`

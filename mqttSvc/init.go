@@ -300,22 +300,22 @@ func gwUHFScanSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt
 			"payload": payloadStr,
 		}, "Gateway bootup with ID %s and uhfs %s", gwId.String(), uhfs.String())
 		for _, uhf := range uhf_list {
-			_, err := optSvc.UHFSvc.FindUHFByAddress(context.Background(), uhf["address"], gwId.String())
+			existing_uhf, err := optSvc.UHFSvc.FindUHFByAddress(context.Background(), uhf["address"], gwId.String())
 			if err != nil {
 				newUHF := &models.UHF{}
 				newUHF.GatewayID = gwId.String()
+				newUHF.Family = uhf["family"]
+				newUHF.Version = uhf["version"]
 				newUHF.ConnectState = "connect"
 				newUHF.ActiveState = "inactive"
 				newUHF.UHFAddress = uhf["address"]
 				newUHF.UHFSerialNumber = uuid.New().String()
 				optSvc.UHFSvc.CreateUHF(context.Background(), newUHF)
+			} else {
+				existing_uhf.Family = uhf["family"]
+				existing_uhf.Version = uhf["version"]
+				optSvc.UHFSvc.UpdateUHF(context.Background(), existing_uhf)
 			}
-			//else {
-			//	//existing_uhf.ConnectState = uhf["connect_state"]
-			//	//existing_uhf.ActiveState = uhf["state"]
-			//	existing_uhf.UHFAddress = uhf["uhf_address"]
-			//	optSvc.UHFSvc.UpdateUHF(context.Background(), existing_uhf)
-			//}
 		}
 		checkGw, _ := optSvc.GatewaySvc.FindGatewayByGatewayID(context.Background(), gwId.String())
 		uhf_in_db_list := checkGw.UHFs
@@ -381,6 +381,7 @@ func gwBootupSubscriber(client mqtt.Client, optSvc *models.ServiceOptions) mqtt.
 			return
 		}
 		checkGw.SoftwareVersion = gjson.Get(payloadStr, "message.version").String()
+		checkGw.ConnectState = "connect"
 		optSvc.GatewaySvc.UpdateGateway(context.Background(), checkGw)
 		uhfs := checkGw.UHFs
 		t := client.Publish(TOPIC_SV_SYNC, 1, false, ServerBootupSystemPayload(gwId.String(), uhfs))

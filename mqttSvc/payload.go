@@ -34,6 +34,8 @@ type SchedulerBootUp struct {
 }
 
 type UHFSyncPayload struct {
+	Family       string `json:"family"`
+	Version      string `json:"version"`
 	UHFAddress   string `json:"uhf_address"`
 	ConnectState string `json:"connect_state"`
 	State        string `json:"state"`
@@ -144,6 +146,8 @@ func ServerBootupSystemPayload(gwId string, uhfs []models.UHF) string {
 		new_uhf_important_info.UHFAddress = item.UHFAddress
 		new_uhf_important_info.ConnectState = item.ConnectState
 		new_uhf_important_info.State = item.ActiveState
+		new_uhf_important_info.Family = item.Family
+		new_uhf_important_info.Version = item.Version
 		uhf_important_info = append(uhf_important_info, new_uhf_important_info)
 	}
 	sync_payload := SyncPayload{UHFs: uhf_important_info, State: "active"}
