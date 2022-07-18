@@ -99,6 +99,8 @@ definitions:
         type: string
       description:
         type: string
+      family:
+        type: string
       gateway_id:
         type: string
       id:
@@ -106,6 +108,8 @@ definitions:
       uhf_address:
         type: string
       uhf_serial_number:
+        type: string
+      version:
         type: string
     type: object
   models.UHFStatusLog:

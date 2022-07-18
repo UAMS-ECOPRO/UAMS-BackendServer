@@ -1672,6 +1672,9 @@ var doc = `{
                 "description": {
                     "type": "string"
                 },
+                "family": {
+                    "type": "string"
+                },
                 "gateway_id": {
                     "type": "string"
                 },
@@ -1682,6 +1685,9 @@ var doc = `{
                     "type": "string"
                 },
                 "uhf_serial_number": {
+                    "type": "string"
+                },
+                "version": {
                     "type": "string"
                 }
             }
