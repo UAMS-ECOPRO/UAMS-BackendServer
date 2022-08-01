@@ -65,7 +65,7 @@ func ProvideSvcOptions(db *gorm.DB) *models.ServiceOptions {
 func ProvideMqttClient(config Config, svcOptions *models.ServiceOptions) mqtt.Client {
 	return mqttSvc.MqttClient(
 		config.MqttClient,
-		config.ServerHost,
+		config.MqttHost,
 		config.MqttPort,
 		svcOptions,
 	)

@@ -73,10 +73,12 @@ func MqttClient(
 	opts := mqtt.NewClientOptions()
 	// Setup server LWT message
 	//opts.SetWill(TOPIC_SV_LASTWILL, string(`{"status":"shutdown"}`), 0, false)
-	opts.AddBroker(fmt.Sprintf("ssl://%s:%s", host, port))
+	//opts.AddBroker(fmt.Sprintf("ssl://%s:%s", host, port))
+	opts.AddBroker(fmt.Sprintf("tcp://%s:%s", host, port))
 	opts.SetClientID(clientID) // Need to be unique per client
-	tlsConfig := NewTlsConfig()
-	opts.SetTLSConfig(tlsConfig)
+	//tlsConfig := NewTlsConfig()
+	//opts.SetTLSConfig(tlsConfig)
+
 	// opts.SetUsername("emqx") // Use this when we want to improve security
 	// opts.SetPassword("public") // Use this when we want to improve security
 	opts.SetDefaultPublishHandler(messagePubHandler)
