@@ -38,7 +38,7 @@ func ProvideConfig(envFilePath string) (Config, error) {
 }
 
 func ProvideGormDb(config Config) (*gorm.DB, error) {
-	dsn := fmt.Sprintf("sqlserver://%s:%s@%s:%s?database=%s", config.DbUser, config.DbPass, config.ServerHost, config.DbPort, config.DbName)
+	dsn := fmt.Sprintf("sqlserver://%s:%s@%s:%s?database=%s", config.DbUser, config.DbPass, config.DbHost, config.DbPort, config.DbName)
 	db, err := gorm.Open(sqlserver.Open(dsn), &gorm.Config{})
 	if err != nil {
 		fmt.Println("failed to connect database")
