@@ -114,3 +114,8 @@ func (ls *PackageAccessSvc) FindAllPackageAccessTimeRange(ctx context.Context, f
 	}
 	return package_acesses, nil
 }
+
+func (dlsls *PackageAccessSvc) DeletePackageAccessTimeRange(from string, to string) (bool, error) {
+	result := dlsls.db.Unscoped().Where("time >= ? AND time <= ?", from, to).Delete(&PackageAccess{})
+	return utils.ReturnBoolStateFromResult(result)
+}

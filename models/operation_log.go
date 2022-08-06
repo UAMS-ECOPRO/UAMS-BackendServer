@@ -77,3 +77,8 @@ func (dlsls *OperationLogSvc) CreateOperationLog(ctx context.Context, dlsl *Oper
 	}
 	return dlsl, nil
 }
+
+func (dlsls *OperationLogSvc) DeleteOperationLogInTimeRange(from string, to string) (bool, error) {
+	result := dlsls.db.Unscoped().Where("time >= ? AND time <= ?", from, to).Delete(&OperationLog{})
+	return utils.ReturnBoolStateFromResult(result)
+}

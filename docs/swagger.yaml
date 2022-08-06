@@ -462,6 +462,31 @@ paths:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Find GatewayLog By Gateway ID
   /v1/gateway_logs/period/{from}/{to}:
+    delete:
+      description: delete gateway logs in time range
+      parameters:
+      - description: From Unix time
+        in: path
+        name: from
+        required: true
+        type: string
+      - description: To Unix time
+        in: path
+        name: to
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Delete GatewayLog In Time Range
     get:
       description: find Gateway logs by period of time
       parameters:
@@ -608,6 +633,31 @@ paths:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Find operation logs by period of time
   /v1/operation_logs/period/{from}/{to}:
+    delete:
+      description: delete operation logs in time range
+      parameters:
+      - description: From Unix time
+        in: path
+        name: from
+        required: true
+        type: string
+      - description: To Unix time
+        in: path
+        name: to
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Delete OperationLog In Time Range
     get:
       description: find Operation logs by period of time
       parameters:
@@ -774,6 +824,31 @@ paths:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Find Package Access log by Package ID and TimeRange
   /v1/package_accesses/period/{from}/{to}:
+    delete:
+      description: delete Package Accesses in time range
+      parameters:
+      - description: From Unix time
+        in: path
+        name: from
+        required: true
+        type: string
+      - description: To Unix time
+        in: path
+        name: to
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Delete Package Accesses In Time Range
     get:
       description: find all package access log by TimeRange
       produces:
@@ -943,6 +1018,31 @@ paths:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Find All UHF Status logs by GatewayID, AddressID and TimeRange
   /v1/uhf_logs/period/{from}/{to}:
+    delete:
+      description: delete UHFStatusLogs in time range
+      parameters:
+      - description: From Unix time
+        in: path
+        name: from
+        required: true
+        type: string
+      - description: To Unix time
+        in: path
+        name: to
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Delete UHF Status Log In Time Range
     get:
       description: find all UHF Status logs by Timerange
       produces:
@@ -1038,6 +1138,31 @@ paths:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Find User Access log by Area Id and TimeRange
   /v1/user_accesses/period/{from}/{to}:
+    delete:
+      description: delete User Accessess in time range
+      parameters:
+      - description: From Unix time
+        in: path
+        name: from
+        required: true
+        type: string
+      - description: To Unix time
+        in: path
+        name: to
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Delete User Accesses In Time Range
     get:
       description: find all user access log by TimeRange
       produces:

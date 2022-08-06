@@ -219,3 +219,32 @@ func (h *UserAccessHandler) FindAllUserAccessTimeRange(c *gin.Context) {
 	}
 	utils.ResponseJson(c, http.StatusOK, glList)
 }
+
+// Delete User Accesses in time range
+// @Summary Delete User Accesses In Time Range
+// @Schemes
+// @Description delete User Accessess in time range
+// @Produce json
+// @Param 		 from path  string  true    "From Unix time"
+// @Param 		 to path    string  true    "To Unix time"
+// @Success 200 {boolean} true
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/user_accesses/period/{from}/{to} [delete]
+func (h *UserAccessHandler) DeleteUserAccessTimeRange(c *gin.Context) {
+	from := c.Param("fromTime")
+	to := c.Param("toTime")
+	fromInt, _ := strconv.ParseInt(from, 10, 64)
+	toInt, _ := strconv.ParseInt(to, 10, 64)
+	fromFormatted := time.Unix(fromInt, 0).Format(models.DEFAULT_TIME_FORMAT)
+	toFormatted := time.Unix(toInt, 0).Format(models.DEFAULT_TIME_FORMAT)
+	isSuccess, err := h.deps.SvcOpts.UserAccessSvc.DeleteUserAccessTimeRange(fromFormatted, toFormatted)
+	if err != nil {
+		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Msg:        "Failed to delete user accesses logs",
+			ErrorMsg:   "There is no record in this time range",
+		})
+		return
+	}
+	utils.ResponseJson(c, http.StatusOK, isSuccess)
+}

@@ -42,18 +42,21 @@ func SetupRouter(
 		v1R.GET("/gateway_logs/gateway_id/:id", hOpts.LogHandler.FindGatewayByGatewayID)
 		v1R.GET("/gateway_logs/gateway_id/:id/period/:from/:to", hOpts.LogHandler.FindGatewayLogsByGatewayIDAndTime)
 		v1R.GET("/gateway_logs/period/:from/:to", hOpts.LogHandler.FindGatewayLogByPeriod)
+		v1R.DELETE("/gateway_logs/period/:fromTime/:toTime", hOpts.LogHandler.DeleteGatewayLogInTimeRange)
 
 		v1R.GET("/uhf_logs", hOpts.UHFStatusLogHandler.GetAllUHFStatusLogs)
 		v1R.GET("/uhf_logs/:id", hOpts.UHFStatusLogHandler.GetUHFStatusLogsByID)
 		v1R.GET("/uhf_logs/gateway_id/:gateway_id/uhf_address/:uhf_address", hOpts.UHFStatusLogHandler.GetUHFStatusLogByUHFAddress)
 		v1R.GET("/uhf_logs/gateway_id/:gateway_id/uhf_address/:uhf_address/period/:from/:to", hOpts.UHFStatusLogHandler.GetUHFStatusLogBYGatewayIDAndUHFAddressInTimeRange)
 		v1R.GET("/uhf_logs/period/:from/:to", hOpts.UHFStatusLogHandler.GetUHFStatusLogInTimeRange)
+		v1R.DELETE("/uhf_logs/period/:fromTime/:toTime", hOpts.UHFStatusLogHandler.DeleteUHFLogInTimeRange)
 		// Operation log
 		v1R.GET("/operation_logs", hOpts.OperationLogHandler.FindAllOperationLog)
 		v1R.GET("/operation_logs/:id", hOpts.OperationLogHandler.FindAllOperationLogByID)
 		v1R.GET("/operation_logs/gateway_id/:gateway_id", hOpts.OperationLogHandler.FindOperationLogByGatewayID)
 		v1R.GET("/operation_logs/gateway_id/:gateway_id/period/:from/:to", hOpts.OperationLogHandler.FindOperationLogsByGatewayIDAndTime)
 		v1R.GET("/operation_logs/period/:from/:to", hOpts.OperationLogHandler.FindOperationLogsByTime)
+		v1R.DELETE("/operation_logs/period/:fromTime/:toTime", hOpts.OperationLogHandler.DeleteOperationLogInTimeRange)
 
 		v1R.GET("/user_accesses", hOpts.UserAccessHandler.FindAllAccesses)
 		v1R.GET("/user_accesses/user_id/:id", hOpts.UserAccessHandler.FindUserAccessByUserID)
@@ -63,6 +66,7 @@ func SetupRouter(
 		v1R.GET("/user_accesses/area_id/:area_id", hOpts.UserAccessHandler.FindAllUserAccessByAreaID)
 		v1R.GET("/user_accesses/area_id/:area_id/period/:from/:to", hOpts.UserAccessHandler.FindAllUserAccessByAreaIDAndTimeRange)
 		v1R.GET("/user_accesses/period/:from/:to", hOpts.UserAccessHandler.FindAllUserAccessTimeRange)
+		v1R.DELETE("/user_accesses/period/:fromTime/:toTime", hOpts.UserAccessHandler.DeleteUserAccessTimeRange)
 
 		v1R.GET("/package_accesses", hOpts.PackageAccessHandler.FindAllAccesses)
 		v1R.GET("/package_accesses/package_id/:id", hOpts.PackageAccessHandler.FindPackageAccessByPackageID)
@@ -72,6 +76,7 @@ func SetupRouter(
 		v1R.GET("/package_accesses/area_id/:area_id", hOpts.PackageAccessHandler.FindAllPackageAccessByAreaID)
 		v1R.GET("/package_accesses/area_id/:area_id/period/:from/:to", hOpts.PackageAccessHandler.FindAllPackageAccessByAreaIDAndTimeRange)
 		v1R.GET("/package_accesses/period/:from/:to", hOpts.PackageAccessHandler.FindAllPackageAccessTimeRange)
+		v1R.DELETE("/package_accesses/period/:fromTime/:toTime", hOpts.PackageAccessHandler.DeletePackageAccessTimeRange)
 	}
 	return r
 }
