@@ -510,6 +510,43 @@ var doc = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "delete gateway logs in time range",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete GatewayLog In Time Range",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "From Unix time",
+                        "name": "from",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "To Unix time",
+                        "name": "to",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/v1/gateway_logs/{id}": {
@@ -721,6 +758,43 @@ var doc = `{
                             "items": {
                                 "$ref": "#/definitions/models.OperationLog"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete operation logs in time range",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete OperationLog In Time Range",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "From Unix time",
+                        "name": "from",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "To Unix time",
+                        "name": "to",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
                         }
                     },
                     "400": {
@@ -994,6 +1068,43 @@ var doc = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "delete Package Accesses in time range",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete Package Accesses In Time Range",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "From Unix time",
+                        "name": "from",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "To Unix time",
+                        "name": "to",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/v1/uhf": {
@@ -1226,6 +1337,43 @@ var doc = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "delete UHFStatusLogs in time range",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete UHF Status Log In Time Range",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "From Unix time",
+                        "name": "from",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "To Unix time",
+                        "name": "to",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/v1/uhf_logs/{id}": {
@@ -1391,6 +1539,43 @@ var doc = `{
                                     "$ref": "#/definitions/models.UserAccess"
                                 }
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete User Accessess in time range",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete User Accesses In Time Range",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "From Unix time",
+                        "name": "from",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "To Unix time",
+                        "name": "to",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
                         }
                     },
                     "400": {

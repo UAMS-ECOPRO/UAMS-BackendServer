@@ -30,7 +30,7 @@ func ReturnBoolStateFromResult(result *gorm.DB) (bool, error) {
 	if ra > 0 {
 		return true, nil
 	} else {
-		logger.LogWithoutFields(logger.SQLSERVER, logger.ErrorLevel, "No record affected", err.Error())
+		//logger.LogWithoutFields(logger.SQLSERVER, logger.ErrorLevel, "No record affected", err.Error())
 		return false, fmt.Errorf("no record affected")
 	}
 }

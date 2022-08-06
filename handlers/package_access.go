@@ -218,3 +218,32 @@ func (h *PackageAccessHandler) FindAllPackageAccessTimeRange(c *gin.Context) {
 	}
 	utils.ResponseJson(c, http.StatusOK, glList)
 }
+
+// Delete Package Accesses in time range
+// @Summary Delete Package Accesses In Time Range
+// @Schemes
+// @Description delete Package Accesses in time range
+// @Produce json
+// @Param 		 from path  string  true    "From Unix time"
+// @Param 		 to path    string  true    "To Unix time"
+// @Success 200 {boolean} true
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /v1/package_accesses/period/{from}/{to} [delete]
+func (h *PackageAccessHandler) DeletePackageAccessTimeRange(c *gin.Context) {
+	from := c.Param("fromTime")
+	to := c.Param("toTime")
+	fromInt, _ := strconv.ParseInt(from, 10, 64)
+	toInt, _ := strconv.ParseInt(to, 10, 64)
+	fromFormatted := time.Unix(fromInt, 0).Format(models.DEFAULT_TIME_FORMAT)
+	toFormatted := time.Unix(toInt, 0).Format(models.DEFAULT_TIME_FORMAT)
+	isSuccess, err := h.deps.SvcOpts.PackageAccessSvc.DeletePackageAccessTimeRange(fromFormatted, toFormatted)
+	if err != nil {
+		utils.ResponseJson(c, http.StatusBadRequest, &utils.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Msg:        "Failed to delete package accesses logs",
+			ErrorMsg:   "There is no record in this time range",
+		})
+		return
+	}
+	utils.ResponseJson(c, http.StatusOK, isSuccess)
+}

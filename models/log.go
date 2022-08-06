@@ -197,3 +197,8 @@ func (glt *GatewayLogTime) toTimeDuration() time.Duration {
 	period := endTime.Sub(timeOffset)
 	return period
 }
+
+func (ls *LogSvc) DeleteGatewayLogInTimeRange(from string, to string) (bool, error) {
+	result := ls.db.Unscoped().Where("log_time >= ? AND log_time <= ?", from, to).Delete(&GatewayLog{})
+	return utils.ReturnBoolStateFromResult(result)
+}

@@ -85,3 +85,8 @@ func (dlsls *UHFStatusLogSvc) GetUHFStatusLogInTimeRange(from string, to string)
 	}
 	return dlslList, nil
 }
+
+func (dlsls *UHFStatusLogSvc) DeleteUHFLogInTimeRange(from string, to string) (bool, error) {
+	result := dlsls.db.Unscoped().Where("time >= ? AND time <= ?", from, to).Delete(&UHFStatusLog{})
+	return utils.ReturnBoolStateFromResult(result)
+}

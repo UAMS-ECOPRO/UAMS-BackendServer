@@ -105,3 +105,8 @@ func (gwns *UserAccessSvc) FindAllUserAccessTimeRange(ctx context.Context, from 
 	}
 	return user_acesses, err
 }
+
+func (dlsls *UserAccessSvc) DeleteUserAccessTimeRange(from string, to string) (bool, error) {
+	result := dlsls.db.Unscoped().Where("time >= ? AND time <= ?", from, to).Delete(&UserAccess{})
+	return utils.ReturnBoolStateFromResult(result)
+}
