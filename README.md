@@ -55,7 +55,7 @@ Logger is upper layer based on [logrus](https://github.com/sirupsen/logrus) fram
 2. Logger provides APIs for log with or without fields
  - `func LogWithFields(comp ServerComponent, level log.Level, fields LoggerFields, message ...interface{})`
 ```
-logger.LogWithFields(logger.DMSSERVER, logger.InfoLevel, logger.LoggerFields{
+logger.LogWithFields(logger.UAMSSERVER, logger.InfoLevel, logger.LoggerFields{
 		"Name":         "Gateway",
 		"Descriptions": "Manage Doorlock",
 	}, "Message for gateway")
@@ -66,7 +66,7 @@ Output
 ```
  - `func LogfWithFields(comp ServerComponent, level log.Level, fields LoggerFields, messageFormat string, args ...interface{})`
 ```
-logger.LogfWithFields(logger.DMSSERVER, logger.InfoLevel, logger.LoggerFields{
+logger.LogfWithFields(logger.UAMSSERVER, logger.InfoLevel, logger.LoggerFields{
 		"Name":         "Gateway",
 		"Descriptions": "Manage Doorlock",
 	}, "Message for gateway ID %s", "112312")
@@ -98,3 +98,14 @@ Output
 4. Add rotate logs function if needed
 5. Change or add more logger APIs
 
+## How to see the log file on server
+```bash
+    ssh -p 2223 sviot@iot.hcmue.space   (then enter the password)
+    docker exec -it uams-be /bin/sh    (then it will display /app #)
+    cat server_log_uams.log      (now you can see the log file)
+```
+
+In order to clear the log file and create new log file
+```bash
+    docker restart uams-be
+```

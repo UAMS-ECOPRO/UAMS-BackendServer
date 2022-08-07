@@ -24,10 +24,10 @@ const (
 	DebugLevel = log.DebugLevel
 
 	// DMS Server components
-	MQTT      ServerComponent = "MQTT"
-	SQLSERVER ServerComponent = "SQLSERVER"
-	DMSSERVER ServerComponent = "DMS_SERVER"
-	GINROUTER ServerComponent = "GIN_ROUTER"
+	MQTT       ServerComponent = "MQTT"
+	SQLSERVER  ServerComponent = "SQLSERVER"
+	UAMSSERVER ServerComponent = "UAMS_SERVER"
+	GINROUTER  ServerComponent = "GIN_ROUTER"
 )
 
 var logger = log.New()
