@@ -2,7 +2,7 @@ package models
 
 import (
 	"context"
-	"fmt"
+	// "fmt"
 	"time"
 
 	"github.com/ecoprohcm/DMS_BackendServer/utils"
@@ -11,7 +11,7 @@ import (
 
 const (
 	DEFAULT_TIME_FORMAT       string        = "2006-01-02 15:04:05.999999999 -07:00" // Sync with SQL format
-	DEFAULT_CLEAN_LOGS_PERIOD time.Duration = time.Hour * 24 * 7                     // 1 week
+	// DEFAULT_CLEAN_LOGS_PERIOD time.Duration = time.Hour * 24 * 7                     // 1 week
 )
 
 type GatewayLogTime struct {
@@ -45,9 +45,9 @@ type LogSvc struct {
 func NewLogSvc(db *gorm.DB) *LogSvc {
 	logSvc := &LogSvc{
 		db:          db,
-		cleanTicker: newCleanTicker(DEFAULT_CLEAN_LOGS_PERIOD, db),
+		// cleanTicker: newCleanTicker(DEFAULT_CLEAN_LOGS_PERIOD, db),
 	}
-	logSvc.cleanTicker.start()
+	// logSvc.cleanTicker.start()
 	return logSvc
 }
 
@@ -104,89 +104,89 @@ func (ls *LogSvc) FindGatewayLogsByTime(from string, to string) (glList *[]Gatew
 	return glList, nil
 }
 
-func newCleanTicker(period time.Duration, db *gorm.DB) *logsCleanTicker {
-	return &logsCleanTicker{
-		db:                db,
-		period:            period,
-		isScheduleRunning: false,
-	}
-}
+// func newCleanTicker(period time.Duration, db *gorm.DB) *logsCleanTicker {
+// 	return &logsCleanTicker{
+// 		db:                db,
+// 		period:            period,
+// 		isScheduleRunning: false,
+// 	}
+// }
 
-func (lc *logsCleanTicker) runBackground() {
-	for {
-		select {
-		case <-lc.done:
-			return
-		case tick := <-lc.ticker.C:
-			fmt.Printf("At %s Gateway logs cleaner start...\n", tick)
-			currentTime := time.Now()
-			beginOfDay := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(),
-				4, 59, 59, 0, currentTime.Location())
-			endOfDay := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(),
-				23, 59, 59, 0, currentTime.Location())
-			if currentTime.Before(beginOfDay) {
-				lc.cleanGatewayLogs(&currentTime)
-			} else {
-				waitTime := endOfDay.Sub(currentTime)
-				fmt.Println("Wait", waitTime, "(s)", "to clean up gateway logs")
-				lc.setSchedule(waitTime, &currentTime).stop()
-			}
-		}
-	}
-}
+// func (lc *logsCleanTicker) runBackground() {
+// 	for {
+// 		select {
+// 		case <-lc.done:
+// 			return
+// 		case tick := <-lc.ticker.C:
+// 			fmt.Printf("At %s Gateway logs cleaner start...\n", tick)
+// 			currentTime := time.Now()
+// 			beginOfDay := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(),
+// 				4, 59, 59, 0, currentTime.Location())
+// 			endOfDay := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(),
+// 				23, 59, 59, 0, currentTime.Location())
+// 			if currentTime.Before(beginOfDay) {
+// 				lc.cleanGatewayLogs(&currentTime)
+// 			} else {
+// 				waitTime := endOfDay.Sub(currentTime)
+// 				fmt.Println("Wait", waitTime, "(s)", "to clean up gateway logs")
+// 				lc.setSchedule(waitTime, &currentTime).stop()
+// 			}
+// 		}
+// 	}
+// }
 
-func (lc *logsCleanTicker) start() {
-	lc.ticker = time.NewTicker(lc.period)
-	lc.done = make(chan bool)
-	go lc.runBackground()
-}
+// func (lc *logsCleanTicker) start() {
+// 	lc.ticker = time.NewTicker(lc.period)
+// 	lc.done = make(chan bool)
+// 	go lc.runBackground()
+// }
 
-func (lc *logsCleanTicker) stop() {
-	lc.ticker.Stop()
-	lc.done <- true
-	close(lc.done)
-	fmt.Println("Gateway Logs clean Ticker Stopped!")
-}
+// func (lc *logsCleanTicker) stop() {
+// 	lc.ticker.Stop()
+// 	lc.done <- true
+// 	close(lc.done)
+// 	fmt.Println("Gateway Logs clean Ticker Stopped!")
+// }
 
-func (lc *logsCleanTicker) cleanGatewayLogs(current *time.Time) {
-	timeOffset := current.Add(time.Duration(-lc.period))
-	formatedTime := timeOffset.Format(DEFAULT_TIME_FORMAT)
-	fmt.Printf("Remove Gateway Logs before %s\n", formatedTime)
-	result := lc.db.Where("log_time <= ?", formatedTime).Delete(&GatewayLog{})
-	if err := result.Error; err != nil {
-		fmt.Println("Gateway Logs clean up failed")
-	}
-}
+// func (lc *logsCleanTicker) cleanGatewayLogs(current *time.Time) {
+// 	timeOffset := current.Add(time.Duration(-lc.period))
+// 	formatedTime := timeOffset.Format(DEFAULT_TIME_FORMAT)
+// 	fmt.Printf("Remove Gateway Logs before %s\n", formatedTime)
+// 	result := lc.db.Where("log_time <= ?", formatedTime).Delete(&GatewayLog{})
+// 	if err := result.Error; err != nil {
+// 		fmt.Println("Gateway Logs clean up failed")
+// 	}
+// }
 
-func (lc *logsCleanTicker) setPeriod(period time.Duration) *logsCleanTicker {
-	lc.period = period
-	return lc
-}
+// func (lc *logsCleanTicker) setPeriod(period time.Duration) *logsCleanTicker {
+// 	lc.period = period
+// 	return lc
+// }
 
-func (lc *logsCleanTicker) restart() {
-	if lc.isScheduleRunning {
-		return
-	}
-	lc.stop()
-	lc.start()
-}
+// func (lc *logsCleanTicker) restart() {
+// 	if lc.isScheduleRunning {
+// 		return
+// 	}
+// 	lc.stop()
+// 	lc.start()
+// }
 
-func (lc *logsCleanTicker) setSchedule(scheduleTime time.Duration, currentTime *time.Time) *logsCleanTicker {
-	lc.newTimer(scheduleTime)
-	go func() {
-		<-lc.scheduleTimer.C
-		lc.cleanGatewayLogs(currentTime)
-		lc.setPeriod(lc.period).start()
-		lc.isScheduleRunning = false
-	}()
-	return lc
-}
+// func (lc *logsCleanTicker) setSchedule(scheduleTime time.Duration, currentTime *time.Time) *logsCleanTicker {
+// 	lc.newTimer(scheduleTime)
+// 	go func() {
+// 		<-lc.scheduleTimer.C
+// 		lc.cleanGatewayLogs(currentTime)
+// 		lc.setPeriod(lc.period).start()
+// 		lc.isScheduleRunning = false
+// 	}()
+// 	return lc
+// }
 
-func (lc *logsCleanTicker) newTimer(scheduleTime time.Duration) *logsCleanTicker {
-	lc.scheduleTimer = time.NewTimer(scheduleTime)
-	lc.isScheduleRunning = true
-	return lc
-}
+// func (lc *logsCleanTicker) newTimer(scheduleTime time.Duration) *logsCleanTicker {
+// 	lc.scheduleTimer = time.NewTimer(scheduleTime)
+// 	lc.isScheduleRunning = true
+// 	return lc
+// }
 
 func (glt *GatewayLogTime) toTimeDuration() time.Duration {
 	timeOffset := time.Now()
